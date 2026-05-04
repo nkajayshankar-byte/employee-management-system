@@ -46,6 +46,7 @@ export class ShiftAssignmentComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInitialData();
+    console.log("Edited");
   }
 
   loadInitialData(): void {
