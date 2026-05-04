@@ -1,0 +1,72 @@
+<div class="container shift-container">
+  <div class="header-section">
+    <h1>Shift Management</h1>
+    <p>Create and manage employee working shifts</p>
+  </div>
+
+  <div class="card-grid">
+    <!-- Shift Creation Form -->
+    <div class="card form-card">
+      <h2>{{ isEditing ? 'Edit Shift' : 'Create New Shift' }}</h2>
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Shift Name</label>
+          <input type="text" [(ngModel)]="newShift.shiftName" name="shiftName" class="mac-input" placeholder="e.g. Morning Shift" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Time</label>
+            <input type="time" [(ngModel)]="newShift.startTime" name="startTime" class="mac-input" required>
+          </div>
+          <div class="form-group">
+            <label>End Time</label>
+            <input type="time" [(ngModel)]="newShift.endTime" name="endTime" class="mac-input" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="newShift.description" name="description" class="mac-input" placeholder="Shift details..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-mac">{{ isEditing ? 'Update Shift' : 'Create Shift' }}</button>
+          <button type="button" *ngIf="isEditing" (click)="resetForm()" class="btn-mac-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Shifts List -->
+    <div class="card list-card">
+      <h2>Existing Shifts</h2>
+      <div class="table-container">
+        <table class="mac-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Time Range</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let shift of shifts">
+              <td><strong>{{ shift.shiftName }}</strong></td>
+              <td>{{ shift.startTime }} - {{ shift.endTime }}</td>
+              <td>{{ shift.description }}</td>
+              <td class="actions">
+                <button (click)="editShift(shift)" class="btn-icon edit" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button (click)="deleteShift(shift.id!)" class="btn-icon delete" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="shifts.length === 0">
+              <td colspan="4" class="empty-state">No shifts defined yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+<div class="company-container">
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <h1 class="company-name">{{ companyDetails.name }}</h1>
+      <p class="hero-subtitle">Innovating the future, since {{ companyDetails.founded }}</p>
+    </div>
+  </header>
+
+  <div class="content-wrapper">
+    <!-- Mission & Vision -->
+    <section class="info-grid">
+      <div class="info-card glass-card">
+        <h3><i class="fa-solid fa-rocket"></i> Our Mission</h3>
+        <p>{{ companyDetails.mission }}</p>
+      </div>
+      <div class="info-card glass-card">
+        <h3><i class="fa-solid fa-eye"></i> Our Vision</h3>
+        <p>{{ companyDetails.vision }}</p>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-banner glass-card">
+      <div class="stat-item">
+        <span class="stat-value">{{ companyDetails.employees }}</span>
+        <span class="stat-label">Employees</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ companyDetails.locations.length }}</span>
+        <span class="stat-label">Global Offices</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">50+</span>
+        <span class="stat-label">Projects</span>
+      </div>
+    </section>
+
+    <!-- Perks Section -->
+    <section class="section perks-section">
+      <h2 class="section-title">Benefits & Perks</h2>
+      <div class="perks-grid">
+        <div *ngFor="let perk of companyDetails.perks" class="perk-card">
+          <div class="perk-icon">
+            <i class="fa-solid" [ngClass]="perk.icon"></i>
+          </div>
+          <h4>{{ perk.title }}</h4>
+          <p>{{ perk.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Testimonials -->
+    <section class="section testimonials-section">
+      <h2 class="section-title">Voices from the Team</h2>
+
+      <!-- Employee Testimonial Submission Form -->
+      <div class="employee-testimonial-form glass-card" *ngIf="isEmployee">
+        <h4><i class="fa-solid fa-comment-dots"></i> Share your experience!</h4>
+        <p>Your voice matters. Let others know what it's like to work with us.</p>
+        <div class="testimonial-input-wrapper">
+          <textarea [(ngModel)]="newTestimonial" placeholder="Write your testimonial here..." class="mac-input" rows="3"></textarea>
+          <div class="form-actions">
+            <button class="btn-mac" (click)="submitTestimonial()" [disabled]="!newTestimonial.trim()">Share Testimonial</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials-grid">
+        <div *ngFor="let t of companyDetails.testimonials" class="testimonial-card">
+          <p class="quote">"{{ t.quote }}"</p>
+          <div class="user-info">
+            <img [src]="t.imageUrl ? 'http://localhost:8080' + t.imageUrl : 'assets/default-avatar.png'" 
+                 onerror="this.src='assets/default-avatar.png'"
+                 [alt]="t.name">
+            <div>
+              <strong>{{ t.name }}</strong>
+              <span>{{ t.role }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Culture Highlights -->
+    <section class="section culture-section" *ngIf="companyDetails.cultureHighlights && companyDetails.cultureHighlights.length > 0">
+      <h2 class="section-title">Life at {{ companyDetails.name }}</h2>
+      <div class="culture-grid">
+        <div *ngFor="let ch of companyDetails.cultureHighlights" class="culture-card">
+          <div class="culture-image" 
+               [style.background-image]="ch.imageUrl ? 'url(http://localhost:8080' + ch.imageUrl + ')' : 'url(assets/default-culture.png)'">
+          </div>
+          <div class="culture-content">
+            <h4>{{ ch.title }}</h4>
+            <p>{{ ch.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section class="section blog-section" *ngIf="blogPosts.length > 0">
+      <h2 class="section-title">Latest Updates</h2>
+      <div class="blog-grid">
+        <div *ngFor="let post of blogPosts" class="blog-card">
+          <div class="blog-image" [style.background-image]="'url(' + post.imageUrl + ')'"></div>
+          <div class="blog-content">
+            <span class="category">{{ post.category }}</span>
+            <h4>{{ post.title }}</h4>
+            <p>{{ post.content | slice:0:100 }}...</p>
+            <a href="#" class="read-more">Read More <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section faq-section">
+      <h2 class="section-title">Candidate FAQ</h2>
+      <div class="faq-list">
+        <details *ngFor="let faq of companyDetails.faqs" class="faq-item">
+          <summary>{{ faq.question }}</summary>
+          <p>{{ faq.answer }}</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact & Social -->
+    <footer class="contact-footer glass-card">
+      <div class="contact-info">
+        <h3>Get in Touch</h3>
+        <p><i class="fa-solid fa-envelope"></i> {{ companyDetails.contactInfo.email }}</p>
+        <p><i class="fa-solid fa-phone"></i> {{ companyDetails.contactInfo.phone }}</p>
+      </div>
+      <div class="social-links">
+        <ng-container *ngIf="companyDetails.contactInfo.linkedin || companyDetails.contactInfo.twitter || companyDetails.contactInfo.instagram; else noSocialLinks">
+          <a *ngIf="companyDetails.contactInfo.linkedin" [href]="companyDetails.contactInfo.linkedin" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+          <a *ngIf="companyDetails.contactInfo.twitter" [href]="companyDetails.contactInfo.twitter" target="_blank" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          <a *ngIf="companyDetails.contactInfo.instagram" [href]="companyDetails.contactInfo.instagram" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        </ng-container>
+        <ng-template #noSocialLinks>
+          <span style="color: var(--text-secondary); font-size: 14px; font-style: italic;">Not Found</span>
+        </ng-template>
+      </div>
+    </footer>
+  </div>
+</div>

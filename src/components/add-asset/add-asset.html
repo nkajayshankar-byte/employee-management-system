@@ -1,0 +1,126 @@
+<div class="details-container">
+  <div class="details-header">
+    <button class="btn-mac-secondary sm" (click)="onCancel()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Inventory
+    </button>
+  </div>
+
+  <div class="details-content">
+    <div class="profile-card">
+      <div class="profile-sidebar">
+        <div class="profile-image-container">
+          <div class="asset-placeholder">
+            <i class="fa-solid fa-box-archive"></i>
+          </div>
+        </div>
+        
+        <div class="sidebar-info">
+          <h3>Asset Registration</h3>
+          <p class="upload-hint">Hardware & Equipment</p>
+          <span class="role-pill">New Entry</span>
+        </div>
+      </div>
+
+      <div class="profile-main">
+        <div class="main-header">
+          <h1>Register New Asset</h1>
+          <p class="subtitle">Complete the organizational equipment profile details</p>
+        </div>
+
+        <form [formGroup]="assetForm" (ngSubmit)="onSubmit()" class="mac-form">
+          <div class="details-section">
+            <h3 class="section-title">Assignment & Identity</h3>
+            
+            <div class="form-group required">
+              <label>Employee Assignment</label>
+              <div class="input-wrapper search-dropdown">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <input type="text" 
+                       class="mac-input" 
+                       placeholder="Search employee by name..."
+                       [(ngModel)]="employeeSearchTerm" 
+                       [ngModelOptions]="{standalone: true}"
+                       (input)="searchEmployees()" 
+                       (focus)="showEmployeeDropdown = filteredEmployees.length > 0"
+                       (blur)="hideDropdown()" 
+                       autocomplete="off">
+                
+                <div class="dropdown-panel" *ngIf="showEmployeeDropdown && filteredEmployees.length > 0">
+                  <div *ngFor="let emp of filteredEmployees" class="dropdown-item" (click)="selectEmployee(emp)" (mousedown)="$event.preventDefault()">
+                    <span class="emp-id">#{{ emp.id | slice:0:6 }}</span>
+                    <span class="emp-name">{{ emp.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Asset Name</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-laptop input-icon"></i>
+                  <input type="text" class="mac-input" formControlName="assetName" placeholder="e.g. MacBook Pro M3">
+                </div>
+              </div>
+              <div class="form-group required">
+                <label>Serial Number</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-barcode input-icon"></i>
+                  <input type="text" class="mac-input highlighted" formControlName="serialNumber" placeholder="S/N: 123456789">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <h3 class="section-title">Category & Lifecycle</h3>
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Asset Category</label>
+                <select class="mac-input" formControlName="assetType">
+                  <option value="">Select Category</option>
+                  <option *ngFor="let type of assetTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="form-group required">
+                <label>Usage Status</label>
+                <select class="mac-input" formControlName="status">
+                  <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Condition</label>
+                <select class="mac-input" formControlName="conditions">
+                  <option *ngFor="let cond of conditions" [value]="cond">{{ cond }}</option>
+                </select>
+              </div>
+              <div class="form-group required">
+                <label>Allocation Date</label>
+                <input type="date" class="mac-input" formControlName="assignedDate">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Equipment Description / Notes</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-building textarea-icon"></i>
+              <textarea class="mac-input" formControlName="description" rows="3" placeholder="Configuration details, peripherals, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-mac-secondary" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn-mac" [disabled]="loading">
+              <i class="fa-solid fa-save" *ngIf="!loading"></i>
+              {{ loading ? 'Registering...' : 'Register Asset' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

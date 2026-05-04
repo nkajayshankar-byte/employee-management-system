@@ -1,0 +1,237 @@
+<div class="leave-management">
+  <div class="leave-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">Leave Management</h1>
+        <p class="page-subtitle" *ngIf="isAdmin">Organization attendance & time-off</p>
+        <p class="page-subtitle" *ngIf="isEmployee">Personal time-off dashboard</p>
+      </div>
+      <div class="header-right">
+        <button class="btn-mac" (click)="openApplyForm()" *ngIf="isEmployee">
+          <i class="fa-solid fa-plus"></i> Request Time Off
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics (Admin Only) -->
+    <div class="stats-container" *ngIf="isAdmin">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper info"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="stat-info">
+          <h3>{{ statistics?.totalLeaves || 0 }}</h3>
+          <p>Total Requests</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper warning"><i class="fa-solid fa-hourglass-half"></i></div>
+        <div class="stat-info">
+          <h3>{{ statistics?.pendingLeaves || 0 }}</h3>
+          <p>Awaiting Review</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper success"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-info">
+          <h3>{{ statistics?.approvedLeaves || 0 }}</h3>
+          <p>Approved</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper danger"><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="stat-info">
+          <h3>{{ statistics?.rejectedLeaves || 0 }}</h3>
+          <p>Rejected</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters (Admin Only) -->
+    <div class="filters-section" *ngIf="isAdmin">
+      <div class="segmented-control">
+        <button [class.active]="filterStatus === 'ALL'" (click)="filterByStatus('ALL')">All</button>
+        <button [class.active]="filterStatus === 'PENDING'" (click)="filterByStatus('PENDING')">Pending</button>
+        <button [class.active]="filterStatus === 'APPROVED'" (click)="filterByStatus('APPROVED')">Approved</button>
+        <button [class.active]="filterStatus === 'REJECTED'" (click)="filterByStatus('REJECTED')">Rejected</button>
+      </div>
+    </div>
+
+    <!-- Leaves Table -->
+    <div class="table-wrapper">
+      <div *ngIf="loading" class="loading-state">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <p>Updating records...</p>
+      </div>
+
+      <div *ngIf="!loading && filteredLeaves.length === 0" class="empty-state">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <p *ngIf="isAdmin">No leave requests found</p>
+        <p *ngIf="isEmployee">No time-off requests yet</p>
+      </div>
+
+      <table class="mac-table" *ngIf="!loading && filteredLeaves.length > 0">
+        <thead>
+          <tr>
+            <th *ngIf="isAdmin">Employee</th>
+            <th>Type</th>
+            <th>Duration</th>
+            <th>Total Days</th>
+            <th>Status</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let leave of filteredLeaves" class="leave-row">
+            <td *ngIf="isAdmin" class="emp-name-cell">
+              <span class="emp-name">{{ leave?.employeeName }}</span>
+            </td>
+            <td>
+              <span class="leave-type-badge">{{ leave?.leaveType }}</span>
+            </td>
+            <td>
+              <div class="date-range">
+                <span>{{ leave?.startDate }}</span>
+                <i class="fa-solid fa-arrow-right-long"></i>
+                <span>{{ leave?.endDate }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="days-count">{{ leave?.numberOfDays }} days</span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="leave?.status?.toLowerCase()">
+                {{ leave?.status }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button class="btn-icon" (click)="viewLeave(leave)" title="View Details">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn-icon delete" (click)="cancelLeave(leave?.id)" *ngIf="isEmployee && leave?.status === 'PENDING'" title="Cancel Request">
+                <i class="fa-solid fa-ban"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="mac-modal-backdrop" *ngIf="selectedLeave" (click)="closeLeaveDetail()"></div>
+  <div class="mac-modal" *ngIf="selectedLeave">
+    <div class="modal-header">
+      <h3>{{ showApprovalForm ? 'Review Request' : 'Leave Details' }}</h3>
+      <button class="close-btn" (click)="closeLeaveDetail()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detail-grid" *ngIf="!showApprovalForm">
+        <div class="detail-item">
+          <label>Employee</label>
+          <p>{{ selectedLeave?.employeeName }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Status</label>
+          <p><span class="status-pill" [ngClass]="selectedLeave?.status?.toLowerCase()">{{ selectedLeave?.status }}</span></p>
+        </div>
+        <div class="detail-item">
+          <label>Leave Type</label>
+          <p>{{ selectedLeave?.leaveType }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Total Days</label>
+          <p>{{ selectedLeave?.numberOfDays }} days</p>
+        </div>
+        <div class="detail-item full">
+          <label>Date Range</label>
+          <p>{{ selectedLeave?.startDate }} — {{ selectedLeave?.endDate }}</p>
+        </div>
+        <div class="detail-item full">
+          <label>Reason</label>
+          <p class="reason-text">{{ selectedLeave?.reason }}</p>
+        </div>
+        <div class="detail-item full" *ngIf="selectedLeave?.approverComments">
+          <label>Approver Comments</label>
+          <p class="comments-text">{{ selectedLeave?.approverComments }}</p>
+        </div>
+      </div>
+
+      <!-- Approval Form -->
+      <form [formGroup]="approvalForm" class="approval-form" *ngIf="showApprovalForm && isAdmin">
+        <div class="form-group required">
+          <label>Approver Name</label>
+          <input type="text" class="mac-input" formControlName="approverName" placeholder="Confirm your name">
+        </div>
+        <div class="form-group">
+          <label>Review Comments</label>
+          <textarea class="mac-input" formControlName="comments" rows="4" placeholder="Optional notes..."></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-mac-secondary" (click)="closeLeaveDetail()">Close</button>
+      
+      <ng-container *ngIf="isAdmin && selectedLeave?.status === 'PENDING'">
+        <button class="btn-mac" (click)="openApprovalForm()" *ngIf="!showApprovalForm">
+          Review Request
+        </button>
+        <ng-container *ngIf="showApprovalForm">
+          <button class="btn-mac-danger" (click)="rejectLeave()">Reject</button>
+          <button class="btn-mac-success" (click)="approveLeave()">Approve</button>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Apply Modal -->
+  <div class="mac-modal-backdrop" *ngIf="showApplyForm" (click)="closeApplyForm()"></div>
+  <div class="mac-modal" *ngIf="showApplyForm">
+    <div class="modal-header">
+      <h3>Request Time Off</h3>
+      <button class="close-btn" (click)="closeApplyForm()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="leaveForm" class="apply-form">
+        <div class="form-row">
+          <div class="form-group required">
+            <label>Leave Type</label>
+            <select class="mac-input" formControlName="leaveType">
+              <option value="">Select Type</option>
+              <option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group required">
+            <label>Start Date</label>
+            <input type="date" class="mac-input" formControlName="startDate">
+          </div>
+          <div class="form-group required">
+            <label>End Date</label>
+            <input type="date" class="mac-input" formControlName="endDate">
+          </div>
+        </div>
+        <div class="form-row" *ngIf="totalWorkingDays > 0">
+          <div class="form-group">
+            <p class="days-preview-text">
+              <i class="fa-solid fa-calendar-day"></i> Total Working Days: <strong>{{ totalWorkingDays }}</strong>
+              <span class="weekend-note">(Excluding Weekends)</span>
+            </p>
+          </div>
+        </div>
+        <div class="form-group required">
+          <label>Reason</label>
+          <textarea class="mac-input" formControlName="reason" rows="4" placeholder="Brief explanation for your request..."></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-mac-secondary" (click)="closeApplyForm()">Cancel</button>
+      <button class="btn-mac" (click)="applyLeave()">Submit Request</button>
+    </div>
+  </div>
+</div>

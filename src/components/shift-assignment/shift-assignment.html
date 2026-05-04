@@ -1,0 +1,120 @@
+<div class="container assignment-container">
+  <div class="header-section">
+    <h1>Shift Assignment</h1>
+    <p>Bulk assign shifts to employees and manage schedules</p>
+  </div>
+
+  <div class="card-grid">
+    <!-- Assignment Form -->
+    <div class="card form-card">
+      <h2>New Assignment</h2>
+      <form (ngSubmit)="onAssign()">
+        <div class="form-group">
+          <label>Select Employees</label>
+          <div class="employee-multi-select-header">
+            <div class="search-box-sm">
+              <i class="fas fa-search"></i>
+              <input type="text" [(ngModel)]="empSearchTerm" name="empSearch" placeholder="Search employees..." class="mac-input xs">
+            </div>
+            <label>
+              <input type="checkbox" (change)="toggleSelectAllEmployees($event)"> Select All
+            </label>
+          </div>
+          <div class="employee-multi-select mac-input">
+            <div *ngFor="let emp of filteredEmployees" class="employee-option">
+              <label>
+                <input type="checkbox" [checked]="selectedEmployeeIds.includes(emp.id!)" (change)="toggleEmployee(emp.id!)">
+                {{ emp.name }}
+              </label>
+            </div>
+            <div *ngIf="filteredEmployees.length === 0" class="text-muted">No matches found</div>
+          </div>
+          <small class="text-secondary">{{ selectedEmployeeIds.length }} employees selected</small>
+        </div>
+
+        <div class="form-group">
+          <label>Shift</label>
+          <select [(ngModel)]="newAssignment.shiftId" name="shiftId" class="mac-input" required>
+            <option value="" disabled selected>Select Shift</option>
+            <option *ngFor="let shift of shifts" [value]="shift.id">{{ shift.shiftName }} ({{ shift.startTime }} - {{ shift.endTime }})</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" [(ngModel)]="newAssignment.startDate" name="startDate" class="mac-input" required>
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" [(ngModel)]="newAssignment.endDate" name="endDate" class="mac-input" required>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-mac">Assign to Selected</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Daily Assignments List -->
+    <div class="card list-card">
+      <div class="list-header">
+        <div class="header-left">
+          <h2>{{ viewMode === 'all' ? 'All Assignments' : 'Schedule for ' + viewDate }}</h2>
+          <div class="view-toggle">
+            <button (click)="viewMode = 'all'; loadAssignments()" [class.active]="viewMode === 'all'">All</button>
+            <button (click)="viewMode = 'daily'; loadAssignments()" [class.active]="viewMode === 'daily'">Daily</button>
+          </div>
+          <div class="search-box-sm assignment-search">
+            <i class="fas fa-search"></i>
+            <input type="text" [(ngModel)]="assignmentSearchTerm" name="assignmentSearch" placeholder="Filter assignments..." class="mac-input sm">
+          </div>
+        </div>
+        <div class="header-right" *ngIf="viewMode === 'daily'">
+          <input type="date" [(ngModel)]="viewDate" (change)="loadAssignments()" class="mac-input sm">
+        </div>
+        <div class="header-right" *ngIf="selectedAssignmentIds.length > 0">
+          <button (click)="bulkDelete()" class="btn-mac-danger sm">
+            <i class="fas fa-trash-alt"></i> Unassign Selected ({{ selectedAssignmentIds.length }})
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table class="mac-table">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" (change)="toggleSelectAllAssignments($event)">
+              </th>
+              <th>Employee</th>
+              <th>Shift & Timings</th>
+              <th>Date Period</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let assignment of filteredAssignments">
+              <td>
+                <input type="checkbox" [checked]="selectedAssignmentIds.includes(assignment.id!)" (change)="toggleAssignmentSelection(assignment.id!)">
+              </td>
+              <td><strong>{{ assignment.employeeName }}</strong></td>
+              <td>
+                <span class="badge shift-badge">{{ assignment.shiftName }}</span>
+                <div class="text-muted sm">{{ assignment.shiftTimings }}</div>
+              </td>
+              <td>{{ assignment.startDate }} - {{ assignment.endDate }}</td>
+              <td class="actions">
+                <button (click)="deleteAssignment(assignment.id!)" class="btn-icon btn-unassign" title="Unassign">
+                  <i class="fas fa-times-circle"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredAssignments.length === 0">
+              <td colspan="5" class="empty-state">No assignments found matching your filter.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

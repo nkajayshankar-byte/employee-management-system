@@ -1,0 +1,86 @@
+<div class="container dashboard-container">
+
+
+  <!-- Employee Controls -->
+  <div class="card action-card" *ngIf="!isAdmin">
+    <div class="shift-info" *ngIf="todayShift">
+      <div class="info-label">Assigned Shift</div>
+      <div class="info-value highlight">{{ todayShift.shiftName }}</div>
+      <div class="info-time">{{ todayShift.startTime }} - {{ todayShift.endTime }}</div>
+    </div>
+    <div class="shift-info" *ngIf="!todayShift">
+      <div class="info-label">Assigned Shift</div>
+      <div class="info-value text-muted">None</div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-mac btn-checkin" (click)="checkIn()" [disabled]="loading">
+        <i class="fas fa-sign-in-alt"></i> Check In
+      </button>
+      <button class="btn-mac-secondary btn-checkout" (click)="checkOut()" [disabled]="loading">
+        <i class="fas fa-sign-out-alt"></i> Check Out
+      </button>
+    </div>
+    
+    <div class="today-status" *ngIf="todayAttendance">
+      <span class="badge" [ngClass]="getStatusClass(todayAttendance.status)">{{ todayAttendance.status }}</span>
+      <span class="working-hours" *ngIf="todayAttendance.workingHours">Working Hours: {{ todayAttendance.workingHours | number:'1.2-2' }}h</span>
+    </div>
+  </div>
+
+  <!-- Admin Controls -->
+  <div class="admin-controls" *ngIf="isAdmin">
+    <div class="filter-bar card">
+      <div class="filter-info">
+        <h2 class="filter-title">Attendance Tracker</h2>
+        <p class="filter-subtitle">Monitor employee attendance and export reports</p>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-mac-success" (click)="exportToExcel()">
+          <i class="fas fa-file-excel"></i> Export to Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance List -->
+  <div class="card table-card">
+    <div class="table-header">
+      <h2>{{ isAdmin ? 'Attendance Records' : 'My Attendance History' }}</h2>
+      <div class="filter-group" *ngIf="isAdmin">
+        <label>Filter by Date</label>
+        <input type="date" [(ngModel)]="filterDate" (change)="loadAllAttendance()" class="mac-input">
+      </div>
+    </div>
+    <div class="table-container">
+      <table class="mac-table">
+        <thead>
+          <tr>
+            <th *ngIf="isAdmin">Employee</th>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Status</th>
+            <th>Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of attendanceRecords">
+            <td *ngIf="isAdmin">
+              <div class="emp-name">{{ record.employeeName }}</div>
+              <div class="emp-id">{{ record.employeeId }}</div>
+            </td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.checkInTime || '--:--' }}</td>
+            <td>{{ record.checkOutTime || '--:--' }}</td>
+            <td><span class="badge" [ngClass]="getStatusClass(record.status)">{{ record.status }}</span></td>
+            <td>{{ record.workingHours ? (record.workingHours | number:'1.2-2') + 'h' : '--' }}</td>
+          </tr>
+          <tr *ngIf="attendanceRecords.length === 0">
+            <td [attr.colspan]="isAdmin ? 6 : 5" class="empty-state">No attendance records found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

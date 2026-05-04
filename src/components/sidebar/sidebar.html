@@ -1,0 +1,91 @@
+<aside class="sidebar" *ngIf="isLoggedIn">
+  <div class="sidebar-header">
+    <i class="fa-solid fa-fire-alt brand-icon"></i>
+  </div>
+
+  <div class="sidebar-scroll">
+    <nav class="sidebar-nav">
+      <!-- Admin Links -->
+      <ng-container *ngIf="isAdmin">
+        <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-house"></i></div>
+          <span class="nav-label">Home</span>
+        </a>
+        <a routerLink="/admin/attendance" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+          <span class="nav-label">Attendance</span>
+        </a>
+        <a routerLink="/admin/leaves" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-umbrella-beach"></i></div>
+          <span class="nav-label">Leave</span>
+        </a>
+        <a routerLink="/admin/shifts" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+          <span class="nav-label">Shifts</span>
+        </a>
+        <a routerLink="/admin/shift-assignment" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-user-clock"></i></div>
+          <span class="nav-label">Assignment</span>
+        </a>
+        <a routerLink="/admin/employees" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-user-group"></i></div>
+          <span class="nav-label">Employees</span>
+        </a>
+        <a routerLink="/admin/assets" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-laptop"></i></div>
+          <span class="nav-label">Assets</span>
+        </a>
+        <a routerLink="/admin/company" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-building"></i></div>
+          <span class="nav-label">Company</span>
+        </a>
+      </ng-container>
+
+      <!-- Employee & User Shared Links -->
+      <ng-container *ngIf="isEmployee || isUser">
+        <div class="user-greeting" *ngIf="currentUser">
+          <span class="greeting-text">Hi,</span>
+          <span class="user-name">{{ currentUser.name }}</span>
+        </div>
+        <a routerLink="/employee/portfolio" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+          <span class="nav-label">Portfolio</span>
+        </a>
+
+        <!-- Employee-Only Extensions -->
+        <ng-container *ngIf="isEmployee">
+          <a routerLink="/employee/attendance" routerLinkActive="active" class="nav-item">
+            <div class="icon-box"><i class="fa-solid fa-calendar-days"></i></div>
+            <span class="nav-label">Attendance</span>
+          </a>
+          <a routerLink="/employee/leaves" routerLinkActive="active" class="nav-item">
+            <div class="icon-box"><i class="fa-solid fa-umbrella-beach"></i></div>
+            <span class="nav-label">My Leaves</span>
+          </a>
+          <a routerLink="/employee/assets" routerLinkActive="active" class="nav-item">
+            <div class="icon-box"><i class="fa-solid fa-laptop"></i></div>
+            <span class="nav-label">My Assets</span>
+          </a>
+        </ng-container>
+
+        <!-- Company Link for User/Employee -->
+        <a routerLink="/company-info" routerLinkActive="active" class="nav-item">
+          <div class="icon-box"><i class="fa-solid fa-building"></i></div>
+          <span class="nav-label">Company</span>
+        </a>
+      </ng-container>
+
+      <!-- Global Link -->
+      <a routerLink="/careers" routerLinkActive="active" class="nav-item">
+        <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
+        <span class="nav-label">Careers</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sidebar-footer">
+    <button (click)="logout()" class="btn-logout" title="Sign Out">
+      <i class="fa-solid fa-power-off"></i>
+    </button>
+  </div>
+</aside>
