@@ -1,0 +1,17 @@
+# Backend (Spring Boot)
+target/
+*.log
+
+# Frontend (Angular)
+node_modules/
+dist/
+
+# Environment files
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
