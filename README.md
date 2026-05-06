@@ -3,7 +3,7 @@
 ## Tech Stack
 - Spring Boot
 - Angular
-- MongoDB
+- MySQL
 
 ## Run Locally
 Backend:
