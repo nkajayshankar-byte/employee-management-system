@@ -23,7 +23,6 @@ import com.EmployeeManagement.service.FileStorageService;
 
 @RestController
 @RequestMapping("/api/company")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CompanyController {
 
     @Autowired private CompanyService service;

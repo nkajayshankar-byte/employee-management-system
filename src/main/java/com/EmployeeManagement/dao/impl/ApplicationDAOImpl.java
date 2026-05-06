@@ -95,4 +95,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String sql = "DELETE FROM job_applications WHERE jobId = ?";
         jdbcTemplate.update(sql, jobId);
     }
+
+    @Override
+    public void deleteByEmployeeId(String employeeId) {
+        String sql = "DELETE FROM job_applications WHERE employeeId = ?";
+        jdbcTemplate.update(sql, employeeId);
+    }
 }

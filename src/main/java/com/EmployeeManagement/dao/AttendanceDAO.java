@@ -13,4 +13,5 @@ public interface AttendanceDAO {
     Optional<Attendance> findByEmployeeIdAndDate(String employeeId, LocalDate date);
     List<Attendance> findByDate(LocalDate date);
     void deleteById(String id);
+    void deleteByEmployeeId(String employeeId);
 }

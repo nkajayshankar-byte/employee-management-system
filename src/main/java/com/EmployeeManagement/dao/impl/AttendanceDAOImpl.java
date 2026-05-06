@@ -92,4 +92,10 @@ public class AttendanceDAOImpl implements AttendanceDAO {
         String sql = "DELETE FROM attendance WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public void deleteByEmployeeId(String employeeId) {
+        String sql = "DELETE FROM attendance WHERE employeeId = ?";
+        jdbcTemplate.update(sql, employeeId);
+    }
 }

@@ -2,6 +2,7 @@ package com.EmployeeManagement.dao.impl;
 
 import com.EmployeeManagement.dao.EmployeeShiftDAO;
 import com.EmployeeManagement.entity.EmployeeShift;
+import com.EmployeeManagement.entity.Shift;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -72,8 +73,25 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
     }
 
     @Override
+    public Optional<Shift> findShiftByEmployeeIdAndDate(String employeeId, LocalDate date) {
+        String sql = "SELECT s.* FROM shifts s JOIN employee_shifts es ON s.id = es.shiftId WHERE es.employeeId = ? AND es.startDate <= ? AND es.endDate >= ?";
+        try {
+            Shift shift = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Shift.class), employeeId, date, date);
+            return Optional.ofNullable(shift);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public void deleteById(String id) {
         String sql = "DELETE FROM employee_shifts WHERE id = ?";
         jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public void deleteByEmployeeId(String employeeId) {
+        String sql = "DELETE FROM employee_shifts WHERE employeeId = ?";
+        jdbcTemplate.update(sql, employeeId);
     }
 }

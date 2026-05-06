@@ -9,4 +9,5 @@ public interface JobDAO {
     Optional<Job> findById(String id);
     List<Job> findAll();
     void deleteById(String id);
+    String findHiredJobTitleByEmployeeId(String employeeId);
 }

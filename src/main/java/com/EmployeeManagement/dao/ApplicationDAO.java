@@ -13,4 +13,5 @@ public interface ApplicationDAO {
     boolean existsByJobIdAndEmployeeId(String jobId, String employeeId);
     void deleteById(String id);
     void deleteByJobId(String jobId);
+    void deleteByEmployeeId(String employeeId);
 }

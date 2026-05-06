@@ -1,12 +1,9 @@
 package com.EmployeeManagement.service;
 
 import com.EmployeeManagement.dto.EmployeeDTO;
-import com.EmployeeManagement.entity.Job;
-import com.EmployeeManagement.entity.JobApplication;
 import com.EmployeeManagement.entity.Role;
 import com.EmployeeManagement.entity.User;
 import com.EmployeeManagement.mapper.EmployeeMapper;
-import com.EmployeeManagement.dao.ApplicationDAO;
 import com.EmployeeManagement.dao.JobDAO;
 import com.EmployeeManagement.dao.UserDAO;
 
@@ -30,10 +27,22 @@ public class EmployeeService {
     private EmployeeMapper employeeMapper;
 
     @Autowired
-    private ApplicationDAO applicationDAO;
+    private JobDAO jobDAO;
 
     @Autowired
-    private JobDAO jobDAO;
+    private com.EmployeeManagement.dao.AttendanceDAO attendanceDAO;
+
+    @Autowired
+    private com.EmployeeManagement.dao.LeaveDAO leaveDAO;
+
+    @Autowired
+    private com.EmployeeManagement.dao.AssetDAO assetDAO;
+
+    @Autowired
+    private com.EmployeeManagement.dao.EmployeeShiftDAO employeeShiftDAO;
+
+    @Autowired
+    private com.EmployeeManagement.dao.ApplicationDAO applicationDAO;
 
     public EmployeeDTO addEmployee(EmployeeDTO dto) {
 
@@ -75,21 +84,13 @@ public class EmployeeService {
         for (User user : users) {
             EmployeeDTO edto = employeeMapper.toDTO(user);
             
-            // If jobRole is missing, try to resolve it from applications
+            // If jobRole is missing, try to resolve it from applications using a JOIN
             if ((user.getJobRole() == null || user.getJobRole().isEmpty()) && user.getRole() == Role.EMPLOYEE) {
-                List<JobApplication> apps = applicationDAO.findByEmployeeId(user.getId());
-                for (JobApplication app : apps) {
-                    if ("HIRED".equals(app.getStatus())) {
-                        Optional<Job> jobOpt = jobDAO.findById(app.getJobId());
-                        if (jobOpt.isPresent()) {
-                            String title = jobOpt.get().getTitle();
-                            edto.setJobRole(title);
-                            // Save it back to the user entity for future
-                            user.setJobRole(title);
-                            userDAO.save(user);
-                            break;
-                        }
-                    }
+                String title = jobDAO.findHiredJobTitleByEmployeeId(user.getId());
+                if (title != null) {
+                    edto.setJobRole(title);
+                    user.setJobRole(title);
+                    userDAO.save(user);
                 }
             }
             dtoList.add(edto);
@@ -139,13 +140,21 @@ public class EmployeeService {
 
     public boolean deleteEmployee(String id) {
         if (userDAO.findById(id).isEmpty()) return false;
+        
+        // Cascading Deletes
+        attendanceDAO.deleteByEmployeeId(id);
+        leaveDAO.deleteByEmployeeId(id);
+        assetDAO.deleteByEmployeeId(id);
+        employeeShiftDAO.deleteByEmployeeId(id);
+        applicationDAO.deleteByEmployeeId(id);
+        
         userDAO.deleteById(id);
         return true;
     }
 
     public void bulkDeleteEmployees(List<String> ids) {
         for (String id : ids) {
-            userDAO.deleteById(id);
+            deleteEmployee(id);
         }
     }
 
@@ -164,20 +173,13 @@ public class EmployeeService {
 
             if (match) {
                 EmployeeDTO edto = employeeMapper.toDTO(emp);
-                // Dynamic resolution
+                // Dynamic resolution using JOIN
                 if ((emp.getJobRole() == null || emp.getJobRole().isEmpty())) {
-                    List<JobApplication> apps = applicationDAO.findByEmployeeId(emp.getId());
-                    for (JobApplication app : apps) {
-                        if ("HIRED".equals(app.getStatus())) {
-                            Optional<Job> jobOpt = jobDAO.findById(app.getJobId());
-                            if (jobOpt.isPresent()) {
-                                String title = jobOpt.get().getTitle();
-                                edto.setJobRole(title);
-                                emp.setJobRole(title);
-                                userDAO.save(emp);
-                                break;
-                            }
-                        }
+                    String title = jobDAO.findHiredJobTitleByEmployeeId(emp.getId());
+                    if (title != null) {
+                        edto.setJobRole(title);
+                        emp.setJobRole(title);
+                        userDAO.save(emp);
                     }
                 }
                 result.add(edto);

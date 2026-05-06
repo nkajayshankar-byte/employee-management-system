@@ -121,4 +121,14 @@ public class JobDAOImpl implements JobDAO {
         String sql = "DELETE FROM jobs WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public String findHiredJobTitleByEmployeeId(String employeeId) {
+        String sql = "SELECT j.title FROM jobs j JOIN job_applications ja ON j.id = ja.jobId WHERE ja.employeeId = ? AND ja.status = 'HIRED' LIMIT 1";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, employeeId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

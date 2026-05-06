@@ -16,4 +16,5 @@ public interface LeaveDAO {
     List<Leave> findPendingLeaves();
     List<Leave> findApprovedLeavesByTypeAndDate(String leaveType, String employeeId, LocalDate date);
     void deleteById(String id);
+    void deleteByEmployeeId(String employeeId);
 }

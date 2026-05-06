@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/assets")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AssetController {
 
     @Autowired

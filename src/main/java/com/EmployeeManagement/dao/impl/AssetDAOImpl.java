@@ -93,4 +93,10 @@ public class AssetDAOImpl implements AssetDAO {
         String sql = "DELETE FROM assets WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public void deleteByEmployeeId(String employeeId) {
+        String sql = "DELETE FROM assets WHERE employeeId = ?";
+        jdbcTemplate.update(sql, employeeId);
+    }
 }

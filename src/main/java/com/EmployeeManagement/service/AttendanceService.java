@@ -1,10 +1,9 @@
 package com.EmployeeManagement.service;
 
 import com.EmployeeManagement.entity.Attendance;
-import com.EmployeeManagement.entity.EmployeeShift;
 import com.EmployeeManagement.entity.Shift;
 import com.EmployeeManagement.dao.AttendanceDAO;
-import com.EmployeeManagement.dao.ShiftDAO;
+import com.EmployeeManagement.dao.EmployeeShiftDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +22,7 @@ public class AttendanceService {
     private AttendanceDAO attendanceDAO;
 
     @Autowired
-    private EmployeeShiftService employeeShiftService;
-
-    @Autowired
-    private ShiftDAO shiftDAO;
+    private EmployeeShiftDAO employeeShiftDAO;
 
     public Attendance checkIn(String employeeId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
@@ -44,18 +40,14 @@ public class AttendanceService {
         attendance.setCheckInTime(now);
 
         // Logic to mark "Late": Status is Present for up to 1 hour after shift start
-        EmployeeShift assignment = employeeShiftService.getShiftForEmployeeOnDate(employeeId, today);
-        if (assignment != null) {
-            Shift shift = shiftDAO.findById(assignment.getShiftId()).orElse(null);
-            if (shift != null) {
-                LocalTime shiftStartTime = shift.getStartTime();
-                LocalTime lateThreshold = shiftStartTime.plusHours(1);
-                
-                if (now.toLocalTime().isAfter(lateThreshold)) {
-                    attendance.setStatus("Late");
-                } else {
-                    attendance.setStatus("Present");
-                }
+        // Use a JOIN to get shift details directly
+        Shift shift = employeeShiftDAO.findShiftByEmployeeIdAndDate(employeeId, today).orElse(null);
+        if (shift != null) {
+            LocalTime shiftStartTime = shift.getStartTime();
+            LocalTime lateThreshold = shiftStartTime.plusHours(1);
+            
+            if (now.toLocalTime().isAfter(lateThreshold)) {
+                attendance.setStatus("Late");
             } else {
                 attendance.setStatus("Present");
             }
