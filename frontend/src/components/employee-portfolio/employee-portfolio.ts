@@ -19,6 +19,7 @@ export class EmployeePortfolioComponent implements OnInit, HasUnsavedChanges {
   pristineEmployee: string = '';
   loading = false;
   editMode = false;
+  apiUrl = environment.apiUrl;
   selectedFile: File | null = null;
 
   constructor(
