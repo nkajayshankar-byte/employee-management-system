@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
  export interface Job {
     id?: string;
@@ -24,7 +25,7 @@ import { Observable } from 'rxjs';
 })
  export class CareerService {
     // Replace with your actual backend API URL
-    private apiUrl = 'http://localhost:8080/api/careers';
+    private apiUrl = `${environment.apiUrl}/api/careers`;
 
     constructor(private http: HttpClient) {}
 

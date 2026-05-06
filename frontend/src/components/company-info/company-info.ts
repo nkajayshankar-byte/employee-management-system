@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../services/employee';
 import { AuthService } from '../../services/auth';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-company-info',
@@ -32,6 +33,7 @@ export class CompanyInfoComponent implements OnInit {
   
   isEmployee: boolean = false;
   newTestimonial: string = '';
+  apiUrl = environment.apiUrl;
   originalCompany: any = null;
 
   constructor(

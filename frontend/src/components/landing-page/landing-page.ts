@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
 import { CareerService } from '../../services/carrerservice';
 import { AuthService } from '../../services/auth';
+import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -23,6 +24,7 @@ export class LandingPageComponent implements OnInit {
   openFaqIndex: number | null = null;
   testimonialIndex = 0;
   cultureIndex = 0;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private employeeService: EmployeeService,

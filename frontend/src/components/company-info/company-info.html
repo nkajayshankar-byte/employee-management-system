@@ -70,7 +70,7 @@
         <div *ngFor="let t of companyDetails.testimonials" class="testimonial-card">
           <p class="quote">"{{ t.quote }}"</p>
           <div class="user-info">
-            <img [src]="t.imageUrl ? 'http://localhost:8080' + t.imageUrl : 'assets/default-avatar.png'" 
+            <img [src]="t.imageUrl ? apiUrl + t.imageUrl : 'assets/default-avatar.png'" 
                  onerror="this.src='assets/default-avatar.png'"
                  [alt]="t.name">
             <div>
@@ -88,7 +88,7 @@
       <div class="culture-grid">
         <div *ngFor="let ch of companyDetails.cultureHighlights" class="culture-card">
           <div class="culture-image" 
-               [style.background-image]="ch.imageUrl ? 'url(http://localhost:8080' + ch.imageUrl + ')' : 'url(assets/default-culture.png)'">
+               [style.background-image]="ch.imageUrl ? 'url(' + apiUrl + ch.imageUrl + ')' : 'url(assets/default-culture.png)'">
           </div>
           <div class="culture-content">
             <h4>{{ ch.title }}</h4>

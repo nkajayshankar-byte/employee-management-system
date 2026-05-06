@@ -6,6 +6,7 @@
   import { AssetService } from '../../services/asset';
 import { LeaveService } from '../../services/leave-service';
 import { CareerService } from '../../services/carrerservice';
+import { environment } from '../../environments/environment';
 
   @Component({
     selector: 'app-admin-dashboard',
@@ -20,6 +21,7 @@ import { CareerService } from '../../services/carrerservice';
     recentEmployees: Employee[] = [];
     pendingLeaves: any[] = [];
     pendingApplicants: any[] = [];
+  apiUrl = environment.apiUrl;
     loading: boolean = true;
     today: Date = new Date();
 

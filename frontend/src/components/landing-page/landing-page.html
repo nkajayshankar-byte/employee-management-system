@@ -152,7 +152,7 @@
           <p class="testimonial-text">{{ company.testimonials[testimonialIndex].quote }}</p>
           <div class="testimonial-author">
             <div class="author-avatar">
-              <img *ngIf="company.testimonials[testimonialIndex].imageUrl" [src]="'http://localhost:8080' + company.testimonials[testimonialIndex].imageUrl" alt="">
+              <img *ngIf="company.testimonials[testimonialIndex].imageUrl" [src]="apiUrl + company.testimonials[testimonialIndex].imageUrl" alt="">
               <i *ngIf="!company.testimonials[testimonialIndex].imageUrl" class="fa-solid fa-circle-user"></i>
             </div>
             <div class="author-info">
@@ -186,7 +186,7 @@
         </button>
         <div class="culture-card carousel-card">
           <div class="culture-image" *ngIf="company.cultureHighlights[cultureIndex].imageUrl">
-            <img [src]="'http://localhost:8080' + company.cultureHighlights[cultureIndex].imageUrl" alt="">
+            <img [src]="apiUrl + company.cultureHighlights[cultureIndex].imageUrl" alt="">
           </div>
           <div class="culture-icon" *ngIf="!company.cultureHighlights[cultureIndex].imageUrl">
             <i class="fa-solid" [ngClass]="company.cultureHighlights[cultureIndex].icon || 'fa-heart'"></i>

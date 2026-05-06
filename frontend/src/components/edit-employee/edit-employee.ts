@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Employee, EmployeeService } from '../../services/employee';
+import { environment } from '../../environments/environment';
 import { CareerService, Job } from '../../services/carrerservice';
 import { HasUnsavedChanges } from '../../services/unsaved-changes.guard';
 
@@ -18,6 +19,7 @@ export class EditEmployeeComponent implements OnInit, HasUnsavedChanges {
   form: FormGroup;
   loading = false;
   submitting = false;
+  apiUrl = environment.apiUrl;
   employeeId: string | null = null;
   selectedFile: File | null = null;
   imagePreview: string | null = null;

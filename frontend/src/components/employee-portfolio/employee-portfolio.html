@@ -25,7 +25,7 @@
       <div class="profile-sidebar">
         <div class="profile-image-container">
           <img 
-            [src]="employee.imageUrl ? 'http://localhost:8080' + employee.imageUrl : 'assets/default-avatar.png'" 
+            [src]="employee.imageUrl ? apiUrl + employee.imageUrl : 'assets/default-avatar.png'" 
             alt="Profile"
             class="profile-image">
         </div>

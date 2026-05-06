@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Employee, EmployeeService } from '../../services/employee';
+import { environment } from '../../environments/environment';
 import { ChangeDetectorRef } from '@angular/core';
  import * as XLSX from 'xlsx'; // Import xlsx
 @Component({
@@ -21,6 +22,7 @@ export class EmployeeListComponent implements OnInit {
   sortBy: 'name' | 'email' = 'name';
   selectedEmployeeIds: string[] = [];
   isAllSelected = false;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private employeeService: EmployeeService,

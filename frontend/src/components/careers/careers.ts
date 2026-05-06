@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
 import { CareerService } from '../../services/carrerservice';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JobApplicationFormComponent } from '../job-application-form/job-application-form';
@@ -27,6 +28,7 @@ export class CareersComponent implements OnInit {
   selectedJobForDetails: any = null; // Amazon-style detail view
   userId: string = '';
   showMyApplications = false;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private careerService: CareerService,

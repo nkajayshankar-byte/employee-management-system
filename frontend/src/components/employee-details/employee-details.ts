@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Employee, EmployeeService } from '../../services/employee';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-employee-details',
@@ -14,6 +15,7 @@ import { Employee, EmployeeService } from '../../services/employee';
 export class EmployeeDetailsComponent implements OnInit {
   employee: Employee | null = null;
   loading = false;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,

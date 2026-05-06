@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 interface AssetDTO {
   id?: string;
@@ -21,7 +22,7 @@ interface AssetDTO {
   providedIn: 'root'
 })
 export class AssetService {
-  private apiUrl = `http://localhost:8080/api/admin/assets`;
+  private apiUrl = `${environment.apiUrl}/api/admin/assets`;
 
   constructor(private http: HttpClient) {}
 
