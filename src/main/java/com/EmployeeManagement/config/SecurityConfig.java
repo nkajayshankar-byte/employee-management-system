@@ -35,7 +35,7 @@ public class SecurityConfig {
 	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-	            .requestMatchers("/api/auth/**").permitAll()
+	            .requestMatchers("/", "/api/auth/**").permitAll()
 	            .requestMatchers(HttpMethod.GET, "/api/employees/**").permitAll()
 	            .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
 	            .requestMatchers(HttpMethod.POST, "/api/employees/*/upload-image").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
