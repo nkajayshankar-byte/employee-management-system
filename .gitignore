@@ -45,6 +45,3 @@ dist/
 # OS files
 .DS_Store
 
-# Uploads
-backend/uploads/
-**/uploads/
