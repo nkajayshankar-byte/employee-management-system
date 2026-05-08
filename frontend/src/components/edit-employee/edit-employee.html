@@ -15,7 +15,7 @@
       <div class="profile-sidebar">
         <div class="profile-image-container">
           <img 
-            [src]="imagePreview || (form.get('imageUrl')?.value ? apiUrl + form.get('imageUrl')?.value : 'assets/default-avatar.png')" 
+            [src]="imagePreview || (form.get('imageUrl')?.value ? (form.get('imageUrl')?.value.startsWith('http') ? form.get('imageUrl')?.value : apiUrl + form.get('imageUrl')?.value) : 'assets/default-avatar.png')" 
             alt="Employee"
             class="profile-image">
         </div>

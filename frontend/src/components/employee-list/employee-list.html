@@ -60,7 +60,7 @@
           </td>
           <td class="user-cell">
             <div class="avatar-wrapper">
-              <img [src]="emp.imageUrl ? apiUrl + emp.imageUrl : 'assets/default-avatar.png'"
+              <img [src]="emp.imageUrl ? (emp.imageUrl.startsWith('http') ? emp.imageUrl : apiUrl + emp.imageUrl) : 'assets/default-avatar.png'"
                    alt="Employee" class="employee-image">
             </div>
             <div class="user-info">

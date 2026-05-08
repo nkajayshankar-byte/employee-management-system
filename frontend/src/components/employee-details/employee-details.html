@@ -20,7 +20,7 @@
       <div class="profile-sidebar">
         <div class="profile-image-container">
           <img 
-            [src]="employee.imageUrl ? apiUrl + employee.imageUrl : 'assets/default-avatar.png'" 
+            [src]="employee.imageUrl ? (employee.imageUrl.startsWith('http') ? employee.imageUrl : apiUrl + employee.imageUrl) : 'assets/default-avatar.png'" 
             alt="Employee"
             class="profile-image">
         </div>

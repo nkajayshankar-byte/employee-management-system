@@ -262,7 +262,7 @@
               <span class="a-email">{{ app.employeeEmail }}</span>
             </div>
             <div class="a-resume">
-              <a *ngIf="app.resumeUrl" [href]="apiUrl + app.resumeUrl" target="_blank" class="amazon-link">
+              <a *ngIf="app.resumeUrl" [href]="app.resumeUrl.startsWith('http') ? app.resumeUrl : apiUrl + app.resumeUrl" target="_blank" class="amazon-link">
                 <i class="fa-solid fa-file-lines"></i> View Resume
               </a>
               <span *ngIf="!app.resumeUrl" class="na-text">N/A</span>
