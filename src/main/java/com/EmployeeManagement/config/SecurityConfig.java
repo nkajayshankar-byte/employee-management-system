@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/uploads/**", "/assets/**", "/static/**");
+        return (web) -> web.ignoring().requestMatchers("/assets/**", "/static/**");
     }
 
 	@Bean
@@ -42,12 +42,12 @@ public class SecurityConfig {
 	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+	            .requestMatchers("/uploads/**").permitAll()
 	            .requestMatchers("/", "/api/auth/**").permitAll()
 	            .requestMatchers(HttpMethod.GET, "/api/employees/**").permitAll()
 	            .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
 	            .requestMatchers(HttpMethod.POST, "/api/employees/*/upload-image").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
 	            .requestMatchers("/api/employees/**").hasRole("ADMIN")
-	            .requestMatchers("/uploads/**").permitAll()
 	            .requestMatchers(HttpMethod.GET, "/api/company", "/api/company/**").permitAll()
 	            .requestMatchers(HttpMethod.POST, "/api/company", "/api/company/**").hasAnyRole("EMPLOYEE", "ADMIN")
 	            .requestMatchers("/api/company/**").hasRole("ADMIN")
