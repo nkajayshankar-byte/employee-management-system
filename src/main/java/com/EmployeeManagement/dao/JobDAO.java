@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface JobDAO {
     Job save(Job job);
-    Optional<Job> findById(String id);
+    Optional<Job> findById(Long id);
     List<Job> findAll();
-    void deleteById(String id);
-    String findHiredJobTitleByEmployeeId(String employeeId);
+    void deleteById(Long id);
+    String findHiredJobTitleByEmployeeId(Long employeeId);
 }

@@ -19,10 +19,8 @@ public class AttendanceController {
     @Autowired
     private AttendanceService attendanceService;
 
-
-
     @PostMapping("/check-in")
-    public ResponseEntity<?> checkIn(@RequestParam String employeeId) {
+    public ResponseEntity<?> checkIn(@RequestParam Long employeeId) {
         try {
             return ResponseEntity.ok(attendanceService.checkIn(employeeId));
         } catch (RuntimeException e) {
@@ -34,7 +32,7 @@ public class AttendanceController {
     }
 
     @PostMapping("/check-out")
-    public ResponseEntity<?> checkOut(@RequestParam String employeeId) {
+    public ResponseEntity<?> checkOut(@RequestParam Long employeeId) {
         try {
             return ResponseEntity.ok(attendanceService.checkOut(employeeId));
         } catch (RuntimeException e) {
@@ -46,7 +44,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/employee/{id}")
-    public ResponseEntity<List<Attendance>> getEmployeeAttendance(@PathVariable String id) {
+    public ResponseEntity<List<Attendance>> getEmployeeAttendance(@PathVariable Long id) {
         return ResponseEntity.ok(attendanceService.getEmployeeAttendance(id));
     }
 
@@ -55,6 +53,4 @@ public class AttendanceController {
             @PathVariable @DateTimeFormat(pattern = "dd-MM-yy") LocalDate date) {
         return ResponseEntity.ok(attendanceService.getAttendanceByDate(date));
     }
-
-
 }

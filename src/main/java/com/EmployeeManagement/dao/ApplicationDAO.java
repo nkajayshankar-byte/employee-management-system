@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public interface ApplicationDAO {
     JobApplication save(JobApplication application);
-    Optional<JobApplication> findById(String id);
+    Optional<JobApplication> findById(Long id);
     List<JobApplication> findAll();
-    List<JobApplication> findByJobId(String jobId);
-    List<JobApplication> findByEmployeeId(String employeeId);
-    boolean existsByJobIdAndEmployeeId(String jobId, String employeeId);
-    void deleteById(String id);
-    void deleteByJobId(String jobId);
-    void deleteByEmployeeId(String employeeId);
+    List<JobApplication> findByJobId(Long jobId);
+    List<JobApplication> findByEmployeeId(Long employeeId);
+    boolean existsByJobIdAndEmployeeId(Long jobId, Long employeeId);
+    void deleteById(Long id);
+    void deleteByJobId(Long jobId);
+    void deleteByEmployeeId(Long employeeId);
 }

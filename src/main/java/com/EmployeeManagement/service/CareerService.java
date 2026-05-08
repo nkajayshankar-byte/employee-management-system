@@ -44,16 +44,11 @@ public class CareerService {
 
     public List<JobDTO> getAllJobs() { 
         List<Job> jobs = jobDAO.findAll();
-        if (jobs.isEmpty()) {
-            Job j1 = new Job(null, "Senior Java Developer", "Engineering", "Bangalore", "Full-time", "Work on high-scale systems.", 1200000, 2500000, Arrays.asList("Java", "Spring Boot", "MySQL"),LocalDateTime.now(ZoneId.of("Asia/Kolkata")), "NA");
-            Job j2 = new Job(null, "Product Designer", "Design", "Remote", "Full-time", "Create beautiful user experiences.", 800000, 1800000,Arrays.asList("Figma", "UI/UX", "Adobe Suite"),LocalDateTime.now(ZoneId.of("Asia/Kolkata")),"NA");
-            Job j3 = new Job(null, "QA Engineer", "Engineering", "Mumbai", "Contract", "Ensure top-notch quality.", 600000, 1200000, Arrays.asList("Selenium", "JUnit", "Testing"), LocalDateTime.now(ZoneId.of("Asia/Kolkata")),"NA");
-            jobDAO.save(j1);
-            jobDAO.save(j2);
-            jobDAO.save(j3);
-            jobs = jobDAO.findAll();
-        }
-        return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList()); 
+        // Return only active jobs
+        return jobs.stream()
+            .filter(Job::getIsActive)
+            .map(jobMapper::toDTO)
+            .collect(Collectors.toList()); 
     }
 
     public void addJob(JobDTO jobDto) { 
@@ -64,7 +59,7 @@ public class CareerService {
         jobDAO.save(jobMapper.toEntity(jobDto)); 
     }
     
-    public void deleteJob(String id) { 
+    public void deleteJob(Long id) { 
         Optional<Job> jobOpt = jobDAO.findById(id);
         if (jobOpt.isPresent()) {
             Job job = jobOpt.get();
@@ -78,7 +73,7 @@ public class CareerService {
             throw new RuntimeException("Application data is missing (null body).");
         }
         
-        if (dto.getJobId() == null || dto.getJobId().isEmpty()) {
+        if (dto.getJobId() == null) {
             throw new RuntimeException("Job ID is missing in the application.");
         }
         
@@ -87,67 +82,56 @@ public class CareerService {
             throw new RuntimeException("This position is no longer accepting applications.");
         }
         
-        if (dto.getEmployeeId() == null || dto.getEmployeeId().isEmpty()) {
-            throw new RuntimeException("Employee ID (User ID) is missing in the application. Please re-login.");
+        if (dto.getEmployeeId() == null) {
+            throw new RuntimeException("Employee ID is missing in the application.");
         }
 
         boolean alreadyApplied = appDAO.existsByJobIdAndEmployeeId(dto.getJobId(), dto.getEmployeeId());
-
         if (alreadyApplied) {
             throw new RuntimeException("You have already applied for this position.");
         }
 
-        Optional<User> userOpt = userDAO.findById(dto.getEmployeeId());
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (dto.getEmployeeName() == null || dto.getEmployeeName().isEmpty()) {
-                dto.setEmployeeName(user.getName());
-            }
-            if (dto.getEmployeeEmail() == null || dto.getEmployeeEmail().isEmpty()) {
-                dto.setEmployeeEmail(user.getEmail());
-            }
-        }
-
-        if (dto.getStatus() == null) {
-            dto.setStatus("PENDING");
-        }
-        
+        dto.setStatus("PENDING");
         dto.setAppliedDate(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
+        
         JobApplication application = applicationMapper.toEntity(dto);
         JobApplication savedApp = appDAO.save(application);
 
+        // Fetch again to get joined fields for email
+        JobApplication fullApp = appDAO.findById(savedApp.getId()).orElse(savedApp);
+
         try {
             String jobTitle = jobCheck.get().getTitle();
-            if (dto.getEmployeeEmail() != null && !dto.getEmployeeEmail().isEmpty()) {
-                emailService.sendApplicationReceivedEmail(dto.getEmployeeEmail(), 
-                    dto.getEmployeeName() != null ? dto.getEmployeeName() : "Applicant", 
+            if (fullApp.getEmployeeEmail() != null) {
+                emailService.sendApplicationReceivedEmail(fullApp.getEmployeeEmail(), 
+                    fullApp.getEmployeeName() != null ? fullApp.getEmployeeName() : "Applicant", 
                     jobTitle);
             }
         } catch (Exception e) {
             System.err.println("Failed to send application confirmation email: " + e.getMessage());
         }
         
-        return applicationMapper.toDTO(savedApp);
+        return applicationMapper.toDTO(fullApp);
     }
 
-    public boolean hasApplied(String jobId, String employeeId) {
+    public boolean hasApplied(Long jobId, Long employeeId) {
         if (jobId == null || employeeId == null) return false;
         return appDAO.existsByJobIdAndEmployeeId(jobId, employeeId);
     }
 
-    public List<JobApplicationDTO> getApplicationsByJob(String jobId) {
+    public List<JobApplicationDTO> getApplicationsByJob(Long jobId) {
         return appDAO.findByJobId(jobId).stream()
             .map(applicationMapper::toDTO)
             .collect(Collectors.toList());
     }
     
-    public List<JobApplicationDTO> getApplicationsByEmployee(String empId) {
+    public List<JobApplicationDTO> getApplicationsByEmployee(Long empId) {
         return appDAO.findByEmployeeId(empId).stream()
             .map(applicationMapper::toDTO)
             .collect(Collectors.toList());
     }
     
-    public void updateApplicationStatus(String applicationId, String newStatus) {
+    public void updateApplicationStatus(Long applicationId, String newStatus) {
         Optional<JobApplication> appOpt = appDAO.findById(applicationId);
         if (appOpt.isPresent()) {
             JobApplication app = appOpt.get();
@@ -158,11 +142,10 @@ public class CareerService {
             }
 
             app.setStatus(newStatus);
-            app.setAppliedDate(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
             appDAO.save(app);
 
             Optional<Job> jobOpt = jobDAO.findById(app.getJobId());
-            String jobTitle = jobOpt.isPresent() ? jobOpt.get().getTitle() : "Unknown Position";
+            String jobTitle = jobOpt.map(Job::getTitle).orElse("Unknown Position");
 
             if ("HIRED".equals(newStatus)) {
                 Optional<User> userOpt = userDAO.findById(app.getEmployeeId());
@@ -170,19 +153,23 @@ public class CareerService {
                     User user = userOpt.get();
                     if (user.getRole() == Role.USER) {
                         user.setRole(Role.EMPLOYEE);
-                        user.setJobRole(jobTitle); // Set the hired job title
+                        user.setJobRole(jobTitle); 
                         userDAO.save(user);
                     }
                 }
             }
             
-            if (app.getEmployeeEmail() != null && !"Unknown".equals(app.getEmployeeEmail())) {
-                emailService.sendStatusUpdateEmail(app.getEmployeeEmail(), app.getEmployeeName(), jobTitle, newStatus);
+            // Re-fetch to ensure we have name and email for the email notification
+            JobApplication fullApp = appDAO.findById(applicationId).get();
+            if (fullApp.getEmployeeEmail() != null) {
+                emailService.sendStatusUpdateEmail(fullApp.getEmployeeEmail(), fullApp.getEmployeeName(), jobTitle, newStatus);
             }
         }
     }
 
     public List<JobDTO> searchJobs(String query, Integer minSalary, String location) {
+        // Optimization: In a real app, this would be a DAO method with SQL WHERE clauses.
+        // For now, we filter in memory to keep the DAO simple.
         return jobDAO.findAll().stream()
             .filter(Job::getIsActive)
             .filter(job -> {
@@ -190,8 +177,8 @@ public class CareerService {
                 String lowerQuery = query.toLowerCase();
                 return job.getTitle().toLowerCase().contains(lowerQuery) || 
                        job.getDescription().toLowerCase().contains(lowerQuery) ||
-                       job.getLocation().toLowerCase().contains(lowerQuery) ||
-                       job.getDepartment().toLowerCase().contains(lowerQuery);
+                       (job.getLocation() != null && job.getLocation().toLowerCase().contains(lowerQuery)) ||
+                       (job.getDepartment() != null && job.getDepartment().toLowerCase().contains(lowerQuery));
             })
             .filter(job -> (minSalary == null || job.getMaxSalary() >= minSalary))
             .map(jobMapper::toDTO)

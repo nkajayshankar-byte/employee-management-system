@@ -22,6 +22,25 @@ public class EmailService {
     @Value("${sendgrid.from.email}")
     private String fromEmail;
 
+    @Async
+    public void sendWelcomeEmail(String toEmail, String name) {
+        String subject = "Welcome to Employee Management Portal!";
+        String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
+                + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
+                + "<div style='background:#667eea;padding:24px;text-align:center;'>"
+                + "<h2 style='color:#fff;margin:0;'>Welcome Aboard! 🚀</h2></div>"
+                + "<div style='padding:32px;'>"
+                + "<p style='font-size:15px;color:#333;'>Hello <strong>" + name + "</strong>,</p>"
+                + "<p style='font-size:15px;color:#333;'>We are thrilled to have you join the Employee Management Portal.</p>"
+                + "<p style='font-size:14px;color:#555;'>Our platform helps you manage your attendance, leave applications, assets, and career opportunities all in one place.</p>"
+                + "<p style='font-size:14px;color:#555;'>Log in now to explore your dashboard and get started.</p>"
+                + "</div>"
+                + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
+                + "font-size:12px;color:#aaa;'>Employee Management Portal</div></div>";
+
+        sendEmail(toEmail, subject, html);
+    }
+
     /**
      * Helper method to send email via SendGrid API
      */

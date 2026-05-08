@@ -21,7 +21,7 @@ public class ShiftService {
         return shiftDAO.findAll();
     }
 
-    public Shift updateShift(String id, Shift shiftDetails) {
+    public Shift updateShift(Long id, Shift shiftDetails) {
         Shift shift = shiftDAO.findById(id).orElseThrow(() -> new RuntimeException("Shift not found"));
         shift.setShiftName(shiftDetails.getShiftName());
         shift.setStartTime(shiftDetails.getStartTime());
@@ -30,7 +30,7 @@ public class ShiftService {
         return shiftDAO.save(shift);
     }
 
-    public void deleteShift(String id) {
+    public void deleteShift(Long id) {
         shiftDAO.deleteById(id);
     }
 }

@@ -7,5 +7,5 @@ import java.util.Optional;
 public interface CompanyDAO {
     Company save(Company company);
     List<Company> findAll();
-    Optional<Company> findById(String id);
+    Optional<Company> findById(Long id);
 }

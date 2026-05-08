@@ -10,9 +10,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeShift {
-    private String id;
-    private String employeeId;
-    private String shiftId;
+    private Long id;
+    private Long employeeId;
+    private Long shiftId;
 
     @JsonFormat(pattern = "dd-MM-yy")
     private LocalDate startDate;

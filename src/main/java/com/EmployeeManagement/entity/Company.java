@@ -1,27 +1,27 @@
 package com.EmployeeManagement.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Company {
 
-    private String id;
+    private Long id;
     private String name;
     private int foundedYear;
     private String mission;
     private String vision;
-    private List<String> values = new ArrayList<>();
-    private List<Location> locations = new ArrayList<>();
-
-    private List<Perk> perks = new ArrayList<>();
-    private List<Testimonial> testimonials = new ArrayList<>();
-    private List<CultureHighlight> cultureHighlights = new ArrayList<>();
-    private List<FAQ> faqs = new ArrayList<>();
-    private ContactInfo contactInfo;
+    
+    // These will be stored as JSON strings in MySQL LONGTEXT columns
+    private String companyValues; // Changed from List<String> to String for DB storage, logic handles JSON
+    private String locations;     // Changed from List<Location> to String
+    private String perks;         // Changed from List<Perk> to String
+    private String testimonials;  // Changed from List<Testimonial> to String
+    private String cultureHighlights; // Changed from List<CultureHighlight> to String
+    private String faqs;          // Changed from List<FAQ> to String
+    private String contactInfo;   // Changed from ContactInfo to String
 
     public Company() {}
 
-    // Inner Classes
+    // Inner Classes (kept for DTO or logic use if needed, but entity stores strings)
     public static class Perk {
         private String icon;
         private String title;
@@ -109,8 +109,8 @@ public class Company {
     }
 
     // Company Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public int getFoundedYear() { return foundedYear; }
@@ -119,18 +119,60 @@ public class Company {
     public void setMission(String mission) { this.mission = mission; }
     public String getVision() { return vision; }
     public void setVision(String vision) { this.vision = vision; }
-    public List<String> getValues() { return values; }
-    public void setValues(List<String> values) { this.values = values; }
-    public List<Location> getLocations() { return locations; }
-    public void setLocations(List<Location> locations) { this.locations = locations; }
-    public List<Perk> getPerks() { return perks; }
-    public void setPerks(List<Perk> perks) { this.perks = perks; }
-    public List<Testimonial> getTestimonials() { return testimonials; }
-    public void setTestimonials(List<Testimonial> testimonials) { this.testimonials = testimonials; }
-    public List<CultureHighlight> getCultureHighlights() { return cultureHighlights; }
-    public void setCultureHighlights(List<CultureHighlight> cultureHighlights) { this.cultureHighlights = cultureHighlights; }
-    public List<FAQ> getFaqs() { return faqs; }
-    public void setFaqs(List<FAQ> faqs) { this.faqs = faqs; }
-    public ContactInfo getContactInfo() { return contactInfo; }
-    public void setContactInfo(ContactInfo contactInfo) { this.contactInfo = contactInfo; }
+
+	public String getCompanyValues() {
+		return companyValues;
+	}
+
+	public void setCompanyValues(String companyValues) {
+		this.companyValues = companyValues;
+	}
+
+	public String getLocations() {
+		return locations;
+	}
+
+	public void setLocations(String locations) {
+		this.locations = locations;
+	}
+
+	public String getPerks() {
+		return perks;
+	}
+
+	public void setPerks(String perks) {
+		this.perks = perks;
+	}
+
+	public String getTestimonials() {
+		return testimonials;
+	}
+
+	public void setTestimonials(String testimonials) {
+		this.testimonials = testimonials;
+	}
+
+	public String getCultureHighlights() {
+		return cultureHighlights;
+	}
+
+	public void setCultureHighlights(String cultureHighlights) {
+		this.cultureHighlights = cultureHighlights;
+	}
+
+	public String getFaqs() {
+		return faqs;
+	}
+
+	public void setFaqs(String faqs) {
+		this.faqs = faqs;
+	}
+
+	public String getContactInfo() {
+		return contactInfo;
+	}
+
+	public void setContactInfo(String contactInfo) {
+		this.contactInfo = contactInfo;
+	}
 }

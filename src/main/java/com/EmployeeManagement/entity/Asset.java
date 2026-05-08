@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Asset {
-    
-    private String id;
-    private String employeeId;
+
+    private Long id;
+    private Long employeeId;
     private String assetName;
     private String assetType;
     private String serialNumber;
@@ -30,21 +30,22 @@ public class Asset {
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
     private LocalDateTime updatedAt;
 
+    // Virtual field – NOT stored in DB, populated via LEFT JOIN with users in DAO
     private String employeeName;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getEmployeeId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(String employeeId) {
+    public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
 

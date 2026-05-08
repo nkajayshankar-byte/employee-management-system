@@ -19,6 +19,8 @@ public class ApplicationMapper {
         dto.setResumeUrl(app.getResumeUrl());
         dto.setStatus(app.getStatus());
         dto.setAppliedDate(app.getAppliedDate());
+        dto.setJobTitle(app.getJobTitle());
+        dto.setJobActive(app.getJobActive());
 
         return dto;
     }
@@ -35,6 +37,8 @@ public class ApplicationMapper {
         app.setResumeUrl(dto.getResumeUrl());
         app.setStatus(dto.getStatus());
         app.setAppliedDate(dto.getAppliedDate());
+        app.setJobTitle(dto.getJobTitle());
+        app.setJobActive(dto.getJobActive());
 
         return app;
     }

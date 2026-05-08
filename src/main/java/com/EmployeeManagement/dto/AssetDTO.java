@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 
 public class AssetDTO {
-    private String id;
-    private String employeeId;
+    private Long id;
+    private Long employeeId;
     private String employeeName;
     private String assetName;
     private String assetType;
@@ -20,16 +20,17 @@ public class AssetDTO {
     private String conditions;
     private String description;
     private String remarks;
-	public String getId() {
+
+	public Long getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getEmployeeId() {
+	public Long getEmployeeId() {
 		return employeeId;
 	}
-	public void setEmployeeId(String employeeId) {
+	public void setEmployeeId(Long employeeId) {
 		this.employeeId = employeeId;
 	}
 	public String getEmployeeName() {

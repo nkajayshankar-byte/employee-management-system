@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface UserDAO {
     User save(User user);
-    Optional<User> findById(String id);
+    Optional<User> findById(Long id);
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
     List<User> findAll();
     long countByRole(Role role);
     List<User> findByRole(Role role);
-    void deleteById(String id);
+    void deleteById(Long id);
 }

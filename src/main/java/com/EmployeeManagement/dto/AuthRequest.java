@@ -14,5 +14,5 @@ public class AuthRequest {
     private String name;
     private String mobile;
     private String address;
-    
+    private String adminKey;
 }

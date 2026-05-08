@@ -24,7 +24,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email, String role, String userId) {
+    public String generateToken(String email, String role, Long userId) {
         return Jwts.builder() 
                 .setSubject(email)
                 .claim("role", role)
@@ -56,9 +56,9 @@ public class JwtService {
         Claims claims = extractAllClaims(token);
         return claims != null ? claims.get("role", String.class) : null;
     }
-    public String extractUserId(String token) {
+    public Long extractUserId(String token) {
         Claims claims = extractAllClaims(token);
-        return claims != null ? claims.get("userId", String.class) : null;
+        return claims != null ? claims.get("userId", Long.class) : null;
     }
 
     public boolean validateToken(String token) {

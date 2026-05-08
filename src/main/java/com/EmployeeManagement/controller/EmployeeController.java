@@ -24,21 +24,16 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> getById(@PathVariable String id) {
-
+    public ResponseEntity<EmployeeDTO> getById(@PathVariable Long id) {
         EmployeeDTO dto = employeeService.getEmployeeById(id);
-
         return (dto == null)
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(dto);
     }
 
-    // ---------------- GET BY EMAIL ----------------
     @GetMapping("/email/{email}")
     public ResponseEntity<EmployeeDTO> getByEmail(@PathVariable String email) {
-
         EmployeeDTO dto = employeeService.getEmployeeByEmail(email);
-
         return (dto == null)
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(dto);
@@ -55,37 +50,32 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDTO> update(@PathVariable String id,
+    public ResponseEntity<EmployeeDTO> update(@PathVariable Long id,
                                               @RequestBody EmployeeDTO dto) {
-
         EmployeeDTO updated = employeeService.updateEmployee(id, dto);
-
         return (updated == null)
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         return employeeService.deleteEmployee(id)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/bulk-delete")
-    public ResponseEntity<Void> bulkDelete(@RequestBody List<String> ids) {
+    public ResponseEntity<Void> bulkDelete(@RequestBody List<Long> ids) {
         employeeService.bulkDeleteEmployees(ids);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/upload-image")
-    public ResponseEntity<String> uploadImage(@PathVariable String id,
+    public ResponseEntity<String> uploadImage(@PathVariable Long id,
                                               @RequestParam MultipartFile file)
             throws IOException {
-
         String url = employeeService.uploadImage(id, file);
-
         return (url == null)
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(url);

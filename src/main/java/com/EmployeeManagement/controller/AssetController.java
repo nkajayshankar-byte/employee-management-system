@@ -24,13 +24,13 @@ public class AssetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AssetDTO> getById(@PathVariable String id) {
+    public ResponseEntity<AssetDTO> getById(@PathVariable Long id) {
         AssetDTO dto = service.getAssetById(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<?> getByEmployee(@PathVariable String employeeId) {
+    public ResponseEntity<?> getByEmployee(@PathVariable Long employeeId) {
         try {
             return ResponseEntity.ok(service.getAssetsByEmployee(employeeId));
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class AssetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody AssetDTO dto) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody AssetDTO dto) {
         dto.setId(id);
         service.updateAsset(dto);
 
@@ -68,7 +68,7 @@ public class AssetController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         service.deleteAsset(id);
 
         Map<String, Object> response = new HashMap<>();

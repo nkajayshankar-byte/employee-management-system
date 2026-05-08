@@ -26,7 +26,7 @@ public class LeaveController {
     @Autowired
     private JwtService jwtService;
 
-    private String getEmployeeIdFromToken() {
+    private Long getEmployeeIdFromToken() {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -57,13 +57,13 @@ public class LeaveController {
     }
     
     @GetMapping("/{id}")
-    public LeaveDTO getLeaveById(@PathVariable String id) {
+    public LeaveDTO getLeaveById(@PathVariable Long id) {
         return leaveService.getLeaveById(id);
     }
 
     @PutMapping("/{id}/cancel")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<ApiResponse> cancelLeave(@PathVariable String id) {
+    public ResponseEntity<ApiResponse> cancelLeave(@PathVariable Long id) {
         String result = leaveService.cancelLeave(id);
         if (result.equals("NOT_FOUND")) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -96,13 +96,13 @@ public class LeaveController {
 
     @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<LeaveDTO>> getEmployeeLeaves(@PathVariable String employeeId) {
+    public ResponseEntity<List<LeaveDTO>> getEmployeeLeaves(@PathVariable Long employeeId) {
         return ResponseEntity.ok(leaveService.getEmployeeLeaves(employeeId));
     }
 
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> approveLeave(@PathVariable String id,
+    public ResponseEntity<ApiResponse> approveLeave(@PathVariable Long id,
                                                     @RequestBody ApprovalRequest request) {
         String result = leaveService.approveLeave(
                 id,
@@ -119,7 +119,7 @@ public class LeaveController {
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> rejectLeave(@PathVariable String id,
+    public ResponseEntity<ApiResponse> rejectLeave(@PathVariable Long id,
                                                    @RequestBody ApprovalRequest request) {
         String result = leaveService.rejectLeave(
                 id,
@@ -139,4 +139,4 @@ public class LeaveController {
     public ResponseEntity<Map<String, Object>> getStatistics() {
         return ResponseEntity.ok(leaveService.getStatistics());
     }
-}
+}

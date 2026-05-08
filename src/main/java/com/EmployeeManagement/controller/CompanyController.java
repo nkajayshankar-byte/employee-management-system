@@ -50,7 +50,7 @@ public class CompanyController {
     private FileStorageService fileStorageService;
 
     @DeleteMapping("/location/{id}")
-    public void delete(@PathVariable String id) {
+    public void delete(@PathVariable Long id) {
         service.deleteLocation(id);
     }
 

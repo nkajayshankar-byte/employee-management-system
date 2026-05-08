@@ -43,14 +43,14 @@ public class CareerController {
     }
 
     @PutMapping("/jobs/{id}")
-    public JobDTO updateJob(@PathVariable String id, @RequestBody JobDTO jobDto) {
+    public JobDTO updateJob(@PathVariable Long id, @RequestBody JobDTO jobDto) {
         jobDto.setId(id);
         careerService.updateJob(jobDto);
         return jobDto;
     }
 
     @DeleteMapping("/jobs/{id}")
-    public Map<String, String> deleteJob(@PathVariable String id) {
+    public Map<String, String> deleteJob(@PathVariable Long id) {
         careerService.deleteJob(id);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Job deleted successfully");
@@ -63,25 +63,25 @@ public class CareerController {
     }
 
     @GetMapping("/applications/{jobId}")
-    public List<JobApplicationDTO> getApplicants(@PathVariable String jobId) {
+    public List<JobApplicationDTO> getApplicants(@PathVariable Long jobId) {
         return careerService.getApplicationsByJob(jobId);
     }
     
     @GetMapping("/applications/employee/{empId}")
-    public List<JobApplicationDTO> getApplicationsByEmployee(@PathVariable String empId) {
+    public List<JobApplicationDTO> getApplicationsByEmployee(@PathVariable Long empId) {
         return careerService.getApplicationsByEmployee(empId);
     }
     
     @GetMapping("/check-application")
     public boolean checkApplication(
-            @RequestParam String jobId,
-            @RequestParam String empId) {
+            @RequestParam Long jobId,
+            @RequestParam Long empId) {
         return careerService.hasApplied(jobId, empId);
     }
 
     @PutMapping("/applications/status/{id}")
     public void updateStatus(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         careerService.updateApplicationStatus(id, status);
@@ -94,4 +94,4 @@ public class CareerController {
             @RequestParam(required = false) String location) {
         return careerService.searchJobs(query, minSalary, location);
     }
-}
+}

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 public class JobApplicationDTO {
-    private String id;
-    private String jobId;
-    private String employeeId;
+    private Long id;
+    private Long jobId;
+    private Long employeeId;
     private String employeeName;
     private String employeeEmail;
     private String resumeUrl;
@@ -14,13 +14,20 @@ public class JobApplicationDTO {
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
     private LocalDateTime appliedDate;
 
+    private String jobTitle;
+    private Boolean jobActive;
+
     // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getJobId() { return jobId; }
-    public void setJobId(String jobId) { this.jobId = jobId; }
-    public String getEmployeeId() { return employeeId; }
-    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getJobId() { return jobId; }
+    public void setJobId(Long jobId) { this.jobId = jobId; }
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+    public Boolean getJobActive() { return jobActive; }
+    public void setJobActive(Boolean jobActive) { this.jobActive = jobActive; }
+    public Long getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public String getEmployeeEmail() { return employeeEmail; }

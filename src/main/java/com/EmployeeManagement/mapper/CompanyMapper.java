@@ -2,11 +2,19 @@ package com.EmployeeManagement.mapper;
 
 import com.EmployeeManagement.dto.CompanyDTO;
 import com.EmployeeManagement.entity.Company;
+import com.EmployeeManagement.entity.Location;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-import java.util.stream.Collectors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class CompanyMapper {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public CompanyDTO toDTO(Company company) {
         if (company == null) return null;
@@ -17,57 +25,38 @@ public class CompanyMapper {
         dto.setFounded(company.getFoundedYear());
         dto.setMission(company.getMission());
         dto.setVision(company.getVision());
-        dto.setValues(company.getValues());
-        dto.setLocations(company.getLocations());
 
-        if (company.getPerks() != null) {
-            dto.setPerks(company.getPerks().stream().map(p -> {
-                CompanyDTO.PerkDTO pd = new CompanyDTO.PerkDTO();
-                pd.setIcon(p.getIcon());
-                pd.setTitle(p.getTitle());
-                pd.setDescription(p.getDescription());
-                return pd;
-            }).collect(Collectors.toList()));
-        }
-
-        if (company.getTestimonials() != null) {
-            dto.setTestimonials(company.getTestimonials().stream().map(t -> {
-                CompanyDTO.TestimonialDTO td = new CompanyDTO.TestimonialDTO();
-                td.setName(t.getName());
-                td.setRole(t.getRole());
-                td.setQuote(t.getQuote());
-                td.setImageUrl(t.getImageUrl());
-                return td;
-            }).collect(Collectors.toList()));
-        }
-
-        if (company.getCultureHighlights() != null) {
-            dto.setCultureHighlights(company.getCultureHighlights().stream().map(ch -> {
-                CompanyDTO.CultureHighlightDTO chd = new CompanyDTO.CultureHighlightDTO();
-                chd.setTitle(ch.getTitle());
-                chd.setDescription(ch.getDescription());
-                chd.setImageUrl(ch.getImageUrl());
-                return chd;
-            }).collect(Collectors.toList()));
-        }
-
-        if (company.getFaqs() != null) {
-            dto.setFaqs(company.getFaqs().stream().map(f -> {
-                CompanyDTO.FAQDTO fd = new CompanyDTO.FAQDTO();
-                fd.setQuestion(f.getQuestion());
-                fd.setAnswer(f.getAnswer());
-                return fd;
-            }).collect(Collectors.toList()));
-        }
-
-        if (company.getContactInfo() != null) {
-            CompanyDTO.ContactInfoDTO cd = new CompanyDTO.ContactInfoDTO();
-            cd.setEmail(company.getContactInfo().getEmail());
-            cd.setPhone(company.getContactInfo().getPhone());
-            cd.setLinkedin(company.getContactInfo().getLinkedin());
-            cd.setTwitter(company.getContactInfo().getTwitter());
-            cd.setInstagram(company.getContactInfo().getInstagram());
-            dto.setContactInfo(cd);
+        try {
+            if (company.getCompanyValues() != null) {
+                dto.setValues(objectMapper.readValue(company.getCompanyValues(), new TypeReference<List<String>>() {}));
+            }
+            if (company.getLocations() != null) {
+                dto.setLocations(objectMapper.readValue(company.getLocations(), new TypeReference<List<Location>>() {}));
+            }
+            if (company.getPerks() != null) {
+                dto.setPerks(objectMapper.readValue(company.getPerks(), new TypeReference<List<CompanyDTO.PerkDTO>>() {}));
+            }
+            if (company.getTestimonials() != null) {
+                dto.setTestimonials(objectMapper.readValue(company.getTestimonials(), new TypeReference<List<CompanyDTO.TestimonialDTO>>() {}));
+            }
+            if (company.getCultureHighlights() != null) {
+                dto.setCultureHighlights(objectMapper.readValue(company.getCultureHighlights(), new TypeReference<List<CompanyDTO.CultureHighlightDTO>>() {}));
+            }
+            if (company.getFaqs() != null) {
+                dto.setFaqs(objectMapper.readValue(company.getFaqs(), new TypeReference<List<CompanyDTO.FAQDTO>>() {}));
+            }
+            if (company.getContactInfo() != null) {
+                dto.setContactInfo(objectMapper.readValue(company.getContactInfo(), CompanyDTO.ContactInfoDTO.class));
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            // Fallback to empty lists if parsing fails
+            dto.setValues(new ArrayList<>());
+            dto.setLocations(new ArrayList<>());
+            dto.setPerks(new ArrayList<>());
+            dto.setTestimonials(new ArrayList<>());
+            dto.setCultureHighlights(new ArrayList<>());
+            dto.setFaqs(new ArrayList<>());
         }
 
         return dto;
@@ -82,41 +71,31 @@ public class CompanyMapper {
         company.setFoundedYear(dto.getFounded());
         company.setMission(dto.getMission());
         company.setVision(dto.getVision());
-        company.setValues(dto.getValues());
-        company.setLocations(dto.getLocations());
 
-        if (dto.getPerks() != null) {
-            company.setPerks(dto.getPerks().stream().map(pd -> {
-                return new Company.Perk(pd.getIcon(), pd.getTitle(), pd.getDescription());
-            }).collect(Collectors.toList()));
-        }
-
-        if (dto.getTestimonials() != null) {
-            company.setTestimonials(dto.getTestimonials().stream().map(td -> {
-                return new Company.Testimonial(td.getName(), td.getRole(), td.getQuote(), td.getImageUrl());
-            }).collect(Collectors.toList()));
-        }
-
-        if (dto.getCultureHighlights() != null) {
-            company.setCultureHighlights(dto.getCultureHighlights().stream().map(chd -> {
-                return new Company.CultureHighlight(chd.getTitle(), chd.getDescription(), chd.getImageUrl());
-            }).collect(Collectors.toList()));
-        }
-
-        if (dto.getFaqs() != null) {
-            company.setFaqs(dto.getFaqs().stream().map(fd -> {
-                return new Company.FAQ(fd.getQuestion(), fd.getAnswer());
-            }).collect(Collectors.toList()));
-        }
-
-        if (dto.getContactInfo() != null) {
-            company.setContactInfo(new Company.ContactInfo(
-                dto.getContactInfo().getEmail(),
-                dto.getContactInfo().getPhone(),
-                dto.getContactInfo().getLinkedin(),
-                dto.getContactInfo().getTwitter(),
-                dto.getContactInfo().getInstagram()
-            ));
+        try {
+            if (dto.getValues() != null) {
+                company.setCompanyValues(objectMapper.writeValueAsString(dto.getValues()));
+            }
+            if (dto.getLocations() != null) {
+                company.setLocations(objectMapper.writeValueAsString(dto.getLocations()));
+            }
+            if (dto.getPerks() != null) {
+                company.setPerks(objectMapper.writeValueAsString(dto.getPerks()));
+            }
+            if (dto.getTestimonials() != null) {
+                company.setTestimonials(objectMapper.writeValueAsString(dto.getTestimonials()));
+            }
+            if (dto.getCultureHighlights() != null) {
+                company.setCultureHighlights(objectMapper.writeValueAsString(dto.getCultureHighlights()));
+            }
+            if (dto.getFaqs() != null) {
+                company.setFaqs(objectMapper.writeValueAsString(dto.getFaqs()));
+            }
+            if (dto.getContactInfo() != null) {
+                company.setContactInfo(objectMapper.writeValueAsString(dto.getContactInfo()));
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
 
         return company;

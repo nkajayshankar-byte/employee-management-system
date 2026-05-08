@@ -8,12 +8,12 @@ import java.util.Optional;
 
 public interface EmployeeShiftDAO {
     EmployeeShift save(EmployeeShift employeeShift);
-    Optional<EmployeeShift> findById(String id);
+    Optional<EmployeeShift> findById(Long id);
     List<EmployeeShift> findAll();
-    List<EmployeeShift> findByEmployeeId(String employeeId);
+    List<EmployeeShift> findByEmployeeId(Long employeeId);
     List<EmployeeShift> findAssignmentsForDate(LocalDate date);
-    Optional<EmployeeShift> findByEmployeeIdAndDate(String employeeId, LocalDate date);
-    Optional<Shift> findShiftByEmployeeIdAndDate(String employeeId, LocalDate date);
-    void deleteById(String id);
-    void deleteByEmployeeId(String employeeId);
+    Optional<EmployeeShift> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
+    Optional<Shift> findShiftByEmployeeIdAndDate(Long employeeId, LocalDate date);
+    void deleteById(Long id);
+    void deleteByEmployeeId(Long employeeId);
 }

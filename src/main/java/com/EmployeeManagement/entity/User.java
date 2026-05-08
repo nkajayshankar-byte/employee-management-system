@@ -3,9 +3,8 @@ package com.EmployeeManagement.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
-
 public class User {
-    private String id;
+    private Long id;
     private String email;
     private String password;
     private String name;
@@ -127,11 +126,11 @@ public class User {
 		this.updatedAt = updatedAt;
 	}
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 }

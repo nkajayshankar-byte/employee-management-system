@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class JobDTO {
-    private String id;
+    private Long id;
     private String title;
     private String department;
     private String location;
@@ -21,8 +21,8 @@ public class JobDTO {
     private Boolean isActive;
 
     // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDepartment() { return department; }

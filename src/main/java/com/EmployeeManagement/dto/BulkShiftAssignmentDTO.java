@@ -6,8 +6,8 @@ import java.util.List;
 
 @Data
 public class BulkShiftAssignmentDTO {
-    private List<String> employeeIds;
-    private String shiftId;
+    private List<Long> employeeIds;
+    private Long shiftId;
     private LocalDate startDate;
     private LocalDate endDate;
 }

@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface AttendanceDAO {
     Attendance save(Attendance attendance);
-    Optional<Attendance> findById(String id);
+    Optional<Attendance> findById(Long id);
     List<Attendance> findAll();
-    List<Attendance> findByEmployeeId(String employeeId);
-    Optional<Attendance> findByEmployeeIdAndDate(String employeeId, LocalDate date);
+    List<Attendance> findByEmployeeId(Long employeeId);
+    Optional<Attendance> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
     List<Attendance> findByDate(LocalDate date);
-    void deleteById(String id);
-    void deleteByEmployeeId(String employeeId);
+    void deleteById(Long id);
+    void deleteByEmployeeId(Long employeeId);
 }

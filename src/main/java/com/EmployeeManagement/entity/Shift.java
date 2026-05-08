@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Shift {
-    private String id;
+    private Long id;
     private String shiftName; // Morning, Evening, Night
 
     @JsonFormat(pattern = "HH:mm")
@@ -21,4 +21,3 @@ public class Shift {
 
     private String description;
 }
-

@@ -2,19 +2,17 @@ package com.EmployeeManagement.dao.impl;
 
 import com.EmployeeManagement.dao.CompanyDAO;
 import com.EmployeeManagement.entity.Company;
-import com.EmployeeManagement.entity.Location;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class CompanyDAOImpl implements CompanyDAO {
@@ -22,76 +20,45 @@ public class CompanyDAOImpl implements CompanyDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private final RowMapper<Company> companyRowMapper = new RowMapper<Company>() {
-        @Override
-        public Company mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Company company = new Company();
-            company.setId(rs.getString("id"));
-            company.setName(rs.getString("name"));
-            company.setFoundedYear(rs.getInt("foundedYear"));
-            company.setMission(rs.getString("mission"));
-            company.setVision(rs.getString("vision"));
-            try {
-                company.setValues(objectMapper.readValue(rs.getString("companyValues"), new TypeReference<List<String>>() {}));
-                company.setLocations(objectMapper.readValue(rs.getString("locations"), new TypeReference<List<Location>>() {}));
-                company.setPerks(objectMapper.readValue(rs.getString("perks"), new TypeReference<List<Company.Perk>>() {}));
-                company.setTestimonials(objectMapper.readValue(rs.getString("testimonials"), new TypeReference<List<Company.Testimonial>>() {}));
-                company.setCultureHighlights(objectMapper.readValue(rs.getString("cultureHighlights"), new TypeReference<List<Company.CultureHighlight>>() {}));
-                company.setFaqs(objectMapper.readValue(rs.getString("faqs"), new TypeReference<List<Company.FAQ>>() {}));
-                company.setContactInfo(objectMapper.readValue(rs.getString("contactInfo"), Company.ContactInfo.class));
-            } catch (Exception e) {
-                // Log error or handle empty strings
-            }
-            return company;
-        }
-    };
-
     @Override
     public Company save(Company company) {
-        if (company.getId() == null || company.getId().isEmpty()) {
-            company.setId(UUID.randomUUID().toString());
-            String sql = "INSERT INTO company (id, name, foundedYear, mission, vision, companyValues, locations, perks, testimonials, cultureHighlights, faqs, contactInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try {
-                jdbcTemplate.update(sql, 
-                    company.getId(), 
-                    company.getName(), 
-                    company.getFoundedYear(), 
-                    company.getMission(), 
-                    company.getVision(),
-                    objectMapper.writeValueAsString(company.getValues()),
-                    objectMapper.writeValueAsString(company.getLocations()),
-                    objectMapper.writeValueAsString(company.getPerks()),
-                    objectMapper.writeValueAsString(company.getTestimonials()),
-                    objectMapper.writeValueAsString(company.getCultureHighlights()),
-                    objectMapper.writeValueAsString(company.getFaqs()),
-                    objectMapper.writeValueAsString(company.getContactInfo())
-                );
-            } catch (Exception e) {
-                throw new RuntimeException("Error saving company", e);
-            }
+        if (company.getId() == null) {
+            String sql = "INSERT INTO company (name, foundedYear, mission, vision, companyValues, locations, perks, testimonials, cultureHighlights, faqs, contactInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, company.getName());
+                ps.setObject(2, company.getFoundedYear());
+                ps.setString(3, company.getMission());
+                ps.setString(4, company.getVision());
+                ps.setString(5, company.getCompanyValues());
+                ps.setString(6, company.getLocations());
+                ps.setString(7, company.getPerks());
+                ps.setString(8, company.getTestimonials());
+                ps.setString(9, company.getCultureHighlights());
+                ps.setString(10, company.getFaqs());
+                ps.setString(11, company.getContactInfo());
+                return ps;
+            }, keyHolder);
+
+            company.setId(keyHolder.getKey().longValue());
         } else {
             String sql = "UPDATE company SET name = ?, foundedYear = ?, mission = ?, vision = ?, companyValues = ?, locations = ?, perks = ?, testimonials = ?, cultureHighlights = ?, faqs = ?, contactInfo = ? WHERE id = ?";
-            try {
-                jdbcTemplate.update(sql, 
-                    company.getName(), 
-                    company.getFoundedYear(), 
-                    company.getMission(), 
-                    company.getVision(),
-                    objectMapper.writeValueAsString(company.getValues()),
-                    objectMapper.writeValueAsString(company.getLocations()),
-                    objectMapper.writeValueAsString(company.getPerks()),
-                    objectMapper.writeValueAsString(company.getTestimonials()),
-                    objectMapper.writeValueAsString(company.getCultureHighlights()),
-                    objectMapper.writeValueAsString(company.getFaqs()),
-                    objectMapper.writeValueAsString(company.getContactInfo()),
-                    company.getId()
-                );
-            } catch (Exception e) {
-                throw new RuntimeException("Error updating company", e);
-            }
+            jdbcTemplate.update(sql,
+                company.getName(),
+                company.getFoundedYear(),
+                company.getMission(),
+                company.getVision(),
+                company.getCompanyValues(),
+                company.getLocations(),
+                company.getPerks(),
+                company.getTestimonials(),
+                company.getCultureHighlights(),
+                company.getFaqs(),
+                company.getContactInfo(),
+                company.getId()
+            );
         }
         return company;
     }
@@ -99,14 +66,14 @@ public class CompanyDAOImpl implements CompanyDAO {
     @Override
     public List<Company> findAll() {
         String sql = "SELECT * FROM company";
-        return jdbcTemplate.query(sql, companyRowMapper);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Company.class));
     }
 
     @Override
-    public Optional<Company> findById(String id) {
+    public Optional<Company> findById(Long id) {
         String sql = "SELECT * FROM company WHERE id = ?";
         try {
-            Company company = jdbcTemplate.queryForObject(sql, companyRowMapper, id);
+            Company company = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Company.class), id);
             return Optional.ofNullable(company);
         } catch (Exception e) {
             return Optional.empty();

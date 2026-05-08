@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface ShiftDAO {
     Shift save(Shift shift);
-    Optional<Shift> findById(String id);
+    Optional<Shift> findById(Long id);
     List<Shift> findAll();
-    void deleteById(String id);
+    void deleteById(Long id);
 }

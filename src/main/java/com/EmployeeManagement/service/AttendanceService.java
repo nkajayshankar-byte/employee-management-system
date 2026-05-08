@@ -24,7 +24,7 @@ public class AttendanceService {
     @Autowired
     private EmployeeShiftDAO employeeShiftDAO;
 
-    public Attendance checkIn(String employeeId) {
+    public Attendance checkIn(Long employeeId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
         Optional<Attendance> existing = attendanceDAO.findByEmployeeIdAndDate(employeeId, today);
         if (existing.isPresent()) {
@@ -35,19 +35,19 @@ public class AttendanceService {
         attendance.setEmployeeId(employeeId);
         attendance.setDate(today);
         
-        // Use India Standard Time (IST) as per user's location (+05:30)
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
         attendance.setCheckInTime(now);
 
-        // Logic to mark "Late": Status is Present for up to 1 hour after shift start
-        // Use a JOIN to get shift details directly
         Shift shift = employeeShiftDAO.findShiftByEmployeeIdAndDate(employeeId, today).orElse(null);
         if (shift != null) {
             LocalTime shiftStartTime = shift.getStartTime();
-            LocalTime lateThreshold = shiftStartTime.plusHours(1);
-            
-            if (now.toLocalTime().isAfter(lateThreshold)) {
-                attendance.setStatus("Late");
+            if (shiftStartTime != null) {
+                LocalTime lateThreshold = shiftStartTime.plusHours(1);
+                if (now.toLocalTime().isAfter(lateThreshold)) {
+                    attendance.setStatus("Late");
+                } else {
+                    attendance.setStatus("Present");
+                }
             } else {
                 attendance.setStatus("Present");
             }
@@ -58,7 +58,7 @@ public class AttendanceService {
         return attendanceDAO.save(attendance);
     }
 
-    public Attendance checkOut(String employeeId) {
+    public Attendance checkOut(Long employeeId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
         Attendance attendance = attendanceDAO.findByEmployeeIdAndDate(employeeId, today)
                 .orElseThrow(() -> new RuntimeException("No check-in record found for today"));
@@ -69,7 +69,6 @@ public class AttendanceService {
 
         attendance.setCheckOutTime(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
 
-        // Calculate working hours
         Duration duration = Duration.between(attendance.getCheckInTime(), attendance.getCheckOutTime());
         double hours = duration.toMinutes() / 60.0;
         attendance.setWorkingHours(hours);
@@ -77,7 +76,7 @@ public class AttendanceService {
         return attendanceDAO.save(attendance);
     }
 
-    public List<Attendance> getEmployeeAttendance(String employeeId) {
+    public List<Attendance> getEmployeeAttendance(Long employeeId) {
         return attendanceDAO.findByEmployeeId(employeeId);
     }
 

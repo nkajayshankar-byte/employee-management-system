@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Attendance {
-    private String id;
-    private String employeeId;
+    private Long id;
+    private Long employeeId;
 
     @JsonFormat(pattern = "dd-MM-yy")
     private LocalDate date;
@@ -27,4 +27,3 @@ public class Attendance {
     private String status; // Present, Absent, Late
     private Double workingHours;
 }
-

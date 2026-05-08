@@ -5,8 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class LeaveDTO {
-    private String id;
-    private String employeeId;
+    private Long id;
+    private Long employeeId;
     private String employeeName;
     private String leaveType;
     @JsonFormat(pattern = "dd-MM-yy")
@@ -17,7 +17,7 @@ public class LeaveDTO {
     private int numberOfDays;
     private String reason;
     private String status;
-    private String approverId;
+    private Long approverId;
     private String approverName;
     private String approverComments;
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
@@ -30,10 +30,10 @@ public class LeaveDTO {
     private LocalDateTime updatedAt;
 
     // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getEmployeeId() { return employeeId; }
-    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
     public String getEmployeeName() { return employeeName; }
     public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
     public String getLeaveType() { return leaveType; }
@@ -48,8 +48,8 @@ public class LeaveDTO {
     public void setReason(String reason) { this.reason = reason; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public String getApproverId() { return approverId; }
-    public void setApproverId(String approverId) { this.approverId = approverId; }
+    public Long getApproverId() { return approverId; }
+    public void setApproverId(Long approverId) { this.approverId = approverId; }
     public String getApproverName() { return approverName; }
     public void setApproverName(String approverName) { this.approverName = approverName; }
     public String getApproverComments() { return approverComments; }

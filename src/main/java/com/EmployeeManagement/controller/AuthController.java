@@ -24,6 +24,10 @@ public class AuthController {
     public ResponseEntity<?> signup(@RequestBody AuthRequest request) {
         AuthResponse response = authService.signup(request);
         if (response.getToken() == null) {
+            if ("INVALID_ADMIN_KEY".equals(response.getMessage())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid Admin Secret Key"));
+            }
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", response.getMessage()));
         }
@@ -40,6 +44,14 @@ public class AuthController {
             Map<String, Object> response = authService.loginUser(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            if ("User not found".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", e.getMessage()));
+            }
+            if ("Invalid password".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", e.getMessage()));
+            }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", e.getMessage()));
         }

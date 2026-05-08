@@ -6,10 +6,10 @@ import java.util.Optional;
 
 public interface AssetDAO {
     Asset save(Asset asset);
-    Optional<Asset> findById(String id);
+    Optional<Asset> findById(Long id);
     List<Asset> findAll();
-    List<Asset> findByEmployeeId(String employeeId);
+    List<Asset> findByEmployeeId(Long employeeId);
     List<Asset> findByAssetNameContainingIgnoreCaseOrSerialNumberContainingIgnoreCase(String name, String serial);
-    void deleteById(String id);
-    void deleteByEmployeeId(String employeeId);
+    void deleteById(Long id);
+    void deleteByEmployeeId(Long employeeId);
 }

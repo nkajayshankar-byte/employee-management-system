@@ -35,7 +35,7 @@ public class EmployeeShiftController {
     }
 
     @GetMapping("/employee/{id}")
-    public ResponseEntity<List<EmployeeShift>> getEmployeeShifts(@PathVariable String id) {
+    public ResponseEntity<List<EmployeeShift>> getEmployeeShifts(@PathVariable Long id) {
         return ResponseEntity.ok(employeeShiftService.getEmployeeShifts(id));
     }
 
@@ -51,13 +51,13 @@ public class EmployeeShiftController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAssignment(@PathVariable String id) {
+    public ResponseEntity<Void> deleteAssignment(@PathVariable Long id) {
         employeeShiftService.deleteAssignment(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/bulk-delete")
-    public ResponseEntity<Void> bulkDelete(@RequestBody List<String> ids) {
+    public ResponseEntity<Void> bulkDelete(@RequestBody List<Long> ids) {
         employeeShiftService.bulkDelete(ids);
         return ResponseEntity.ok().build();
     }

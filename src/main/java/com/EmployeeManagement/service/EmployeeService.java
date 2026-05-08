@@ -1,21 +1,19 @@
 package com.EmployeeManagement.service;
 
+import com.EmployeeManagement.dao.*;
 import com.EmployeeManagement.dto.EmployeeDTO;
 import com.EmployeeManagement.entity.Role;
 import com.EmployeeManagement.entity.User;
 import com.EmployeeManagement.mapper.EmployeeMapper;
-import com.EmployeeManagement.dao.JobDAO;
-import com.EmployeeManagement.dao.UserDAO;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
@@ -27,185 +25,104 @@ public class EmployeeService {
     private EmployeeMapper employeeMapper;
 
     @Autowired
-    private JobDAO jobDAO;
-
-    @Autowired
-    private com.EmployeeManagement.dao.AttendanceDAO attendanceDAO;
-
-    @Autowired
-    private com.EmployeeManagement.dao.LeaveDAO leaveDAO;
-
-    @Autowired
-    private com.EmployeeManagement.dao.AssetDAO assetDAO;
-
-    @Autowired
-    private com.EmployeeManagement.dao.EmployeeShiftDAO employeeShiftDAO;
-
-    @Autowired
-    private com.EmployeeManagement.dao.ApplicationDAO applicationDAO;
-
-    public EmployeeDTO addEmployee(EmployeeDTO dto) {
-
-        if (userDAO.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = employeeMapper.toEntity(dto);
-
-        if (user.getRole() == null) {
-            user.setRole(Role.EMPLOYEE);
-        }
-
-        user.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
-        user.setUpdatedAt(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
-
-        userDAO.save(user);
-
-        return employeeMapper.toDTO(user);
-    }
-
-    public List<EmployeeDTO> getUsersByRole(String role) {
-
-        List<User> users;
-
-        if (role == null || role.trim().isEmpty()) {
-            users = userDAO.findAll();
-        } else {
-            try {
-                Role enumRole = Role.valueOf(role.toUpperCase());
-                users = userDAO.findByRole(enumRole);
-            } catch (Exception e) {
-                users = new ArrayList<>();
-            }
-        }
-
-        List<EmployeeDTO> dtoList = new ArrayList<>();
-
-        for (User user : users) {
-            EmployeeDTO edto = employeeMapper.toDTO(user);
-            
-            // If jobRole is missing, try to resolve it from applications using a JOIN
-            if ((user.getJobRole() == null || user.getJobRole().isEmpty()) && user.getRole() == Role.EMPLOYEE) {
-                String title = jobDAO.findHiredJobTitleByEmployeeId(user.getId());
-                if (title != null) {
-                    edto.setJobRole(title);
-                    user.setJobRole(title);
-                    userDAO.save(user);
-                }
-            }
-            dtoList.add(edto);
-        }
-
-        return dtoList;
-    }
-
-    public EmployeeDTO getEmployeeById(String id) {
-        Optional<User> optional = userDAO.findById(id);
-        return optional.map(employeeMapper::toDTO).orElse(null);
-    }
-
-    public EmployeeDTO getEmployeeByEmail(String email) {
-        Optional<User> optional = userDAO.findByEmail(email);
-        return optional.map(employeeMapper::toDTO).orElse(null);
-    }
-
-    public EmployeeDTO updateEmployee(String id, EmployeeDTO dto) {
-
-        Optional<User> optional = userDAO.findById(id);
-
-        if (optional.isEmpty()) return null;
-
-        User user = optional.get();
-
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setMobile(dto.getMobile());
-        user.setAddress(dto.getAddress());
-        user.setSkills(dto.getSkills());
-        user.setJobRole(dto.getJobRole());
-        user.setCompanyInfo(dto.getCompanyInfo());
-        if (dto.getRole() != null) {
-            try {
-                user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
-            } catch (Exception e) {
-                // ignore invalid role
-            }
-        }
-        user.setUpdatedAt(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
-
-        userDAO.save(user);
-
-        return employeeMapper.toDTO(user);
-    }
-
-    public boolean deleteEmployee(String id) {
-        if (userDAO.findById(id).isEmpty()) return false;
-        
-        // Cascading Deletes
-        attendanceDAO.deleteByEmployeeId(id);
-        leaveDAO.deleteByEmployeeId(id);
-        assetDAO.deleteByEmployeeId(id);
-        employeeShiftDAO.deleteByEmployeeId(id);
-        applicationDAO.deleteByEmployeeId(id);
-        
-        userDAO.deleteById(id);
-        return true;
-    }
-
-    public void bulkDeleteEmployees(List<String> ids) {
-        for (String id : ids) {
-            deleteEmployee(id);
-        }
-    }
-
-    public List<EmployeeDTO> searchEmployees(String term) {
-
-        List<User> employees = userDAO.findByRole(Role.EMPLOYEE);
-        List<EmployeeDTO> result = new ArrayList<>();
-
-        String search = term.toLowerCase();
-
-        for (User emp : employees) {
-            boolean match =
-                    (emp.getName() != null && emp.getName().toLowerCase().contains(search)) ||
-                    (emp.getEmail() != null && emp.getEmail().toLowerCase().contains(search)) ||
-                    (emp.getMobile() != null && emp.getMobile().contains(term));
-
-            if (match) {
-                EmployeeDTO edto = employeeMapper.toDTO(emp);
-                // Dynamic resolution using JOIN
-                if ((emp.getJobRole() == null || emp.getJobRole().isEmpty())) {
-                    String title = jobDAO.findHiredJobTitleByEmployeeId(emp.getId());
-                    if (title != null) {
-                        edto.setJobRole(title);
-                        emp.setJobRole(title);
-                        userDAO.save(emp);
-                    }
-                }
-                result.add(edto);
-            }
-        }
-
-        return result;
-    }
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private FileStorageService fileStorageService;
 
-    public String uploadImage(String userId, MultipartFile file) throws IOException {
+    public List<EmployeeDTO> getUsersByRole(String roleName) {
+        if (roleName != null) {
+            try {
+                Role role = Role.valueOf(roleName.toUpperCase());
+                return userDAO.findByRole(role).stream()
+                        .map(employeeMapper::toDTO)
+                        .collect(Collectors.toList());
+            } catch (IllegalArgumentException e) {
+                return List.of();
+            }
+        }
+        return userDAO.findAll().stream()
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
-        Optional<User> optional = userDAO.findById(userId);
+    public EmployeeDTO getEmployeeById(Long id) {
+        return userDAO.findById(id)
+                .map(employeeMapper::toDTO)
+                .orElse(null);
+    }
 
-        if (optional.isEmpty()) return null;
+    public EmployeeDTO getEmployeeByEmail(String email) {
+        return userDAO.findByEmail(email)
+                .map(employeeMapper::toDTO)
+                .orElse(null);
+    }
 
-        User user = optional.get();
+    public List<EmployeeDTO> searchEmployees(String term) {
+        String lowerTerm = term.toLowerCase();
+        return userDAO.findAll().stream()
+                .filter(u -> (u.getName() != null && u.getName().toLowerCase().contains(lowerTerm)) ||
+                             u.getEmail().toLowerCase().contains(lowerTerm))
+                .map(employeeMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
-        String fileUrl = fileStorageService.save(file);
+    public EmployeeDTO addEmployee(EmployeeDTO dto) {
+        User user = employeeMapper.toEntity(dto);
+        if (user.getPassword() == null) {
+            user.setPassword(passwordEncoder.encode("Welcome123")); // Default password
+        }
+        user.onCreate();
+        User saved = userDAO.save(user);
+        return employeeMapper.toDTO(saved);
+    }
 
-        user.setImageUrl(fileUrl);
+    public EmployeeDTO updateEmployee(Long id, EmployeeDTO dto) {
+        Optional<User> existing = userDAO.findById(id);
+        if (existing.isPresent()) {
+            User user = existing.get();
+            user.setName(dto.getName());
+            user.setEmail(dto.getEmail());
+            user.setMobile(dto.getMobile());
+            user.setAddress(dto.getAddress());
+            user.setSkills(dto.getSkills());
+            user.setJobRole(dto.getJobRole());
+            user.setCompanyInfo(dto.getCompanyInfo());
+            user.setImageUrl(dto.getImageUrl());
+            if (dto.getRole() != null) {
+                user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
+            }
+            user.onUpdate();
+            User saved = userDAO.save(user);
+            return employeeMapper.toDTO(saved);
+        }
+        return null;
+    }
 
-        userDAO.save(user);
+    public boolean deleteEmployee(Long id) {
+        if (userDAO.findById(id).isPresent()) {
+            // Relational integrity handled by MySQL ON DELETE CASCADE
+            userDAO.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 
-        return fileUrl;
+    public void bulkDeleteEmployees(List<Long> ids) {
+        for (Long id : ids) {
+            deleteEmployee(id);
+        }
+    }
+
+    public String uploadImage(Long id, MultipartFile file) throws IOException {
+        Optional<User> userOpt = userDAO.findById(id);
+        if (userOpt.isPresent()) {
+            String url = fileStorageService.save(file);
+            User user = userOpt.get();
+            user.setImageUrl(url);
+            userDAO.save(user);
+            return url;
+        }
+        return null;
     }
 }

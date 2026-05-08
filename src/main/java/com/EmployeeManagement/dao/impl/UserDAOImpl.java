@@ -6,11 +6,14 @@ import com.EmployeeManagement.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
@@ -20,24 +23,28 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User save(User user) {
-        if (user.getId() == null || user.getId().isEmpty()) {
-            user.setId(UUID.randomUUID().toString());
-            String sql = "INSERT INTO users (id, email, password, name, mobile, address, role, imageUrl, skills, jobRole, companyInfo, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sql, 
-                user.getId(), 
-                user.getEmail(), 
-                user.getPassword(), 
-                user.getName(), 
-                user.getMobile(), 
-                user.getAddress(), 
-                user.getRole() != null ? user.getRole().name() : null, 
-                user.getImageUrl(), 
-                user.getSkills(), 
-                user.getJobRole(), 
-                user.getCompanyInfo(), 
-                user.getCreatedAt(), 
-                user.getUpdatedAt()
-            );
+        if (user.getId() == null) {
+            String sql = "INSERT INTO users (email, password, name, mobile, address, role, imageUrl, skills, jobRole, companyInfo, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, user.getEmail());
+                ps.setString(2, user.getPassword());
+                ps.setString(3, user.getName());
+                ps.setString(4, user.getMobile());
+                ps.setString(5, user.getAddress());
+                ps.setString(6, user.getRole() != null ? user.getRole().name() : Role.USER.name());
+                ps.setString(7, user.getImageUrl());
+                ps.setString(8, user.getSkills());
+                ps.setString(9, user.getJobRole());
+                ps.setString(10, user.getCompanyInfo());
+                ps.setObject(11, user.getCreatedAt());
+                ps.setObject(12, user.getUpdatedAt());
+                return ps;
+            }, keyHolder);
+
+            user.setId(keyHolder.getKey().longValue());
         } else {
             String sql = "UPDATE users SET email = ?, password = ?, name = ?, mobile = ?, address = ?, role = ?, imageUrl = ?, skills = ?, jobRole = ?, companyInfo = ?, updatedAt = ? WHERE id = ?";
             jdbcTemplate.update(sql, 
@@ -59,7 +66,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Optional<User> findById(String id) {
+    public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try {
             User user = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), id);
@@ -107,7 +114,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }

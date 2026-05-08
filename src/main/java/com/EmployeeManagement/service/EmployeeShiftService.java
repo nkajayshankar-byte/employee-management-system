@@ -18,7 +18,7 @@ public class EmployeeShiftService {
         return employeeShiftDAO.save(employeeShift);
     }
 
-    public List<EmployeeShift> getEmployeeShifts(String employeeId) {
+    public List<EmployeeShift> getEmployeeShifts(Long employeeId) {
         return employeeShiftDAO.findByEmployeeId(employeeId);
     }
 
@@ -30,22 +30,22 @@ public class EmployeeShiftService {
         return employeeShiftDAO.findAll();
     }
 
-    public EmployeeShift getShiftForEmployeeOnDate(String employeeId, LocalDate date) {
+    public EmployeeShift getShiftForEmployeeOnDate(Long employeeId, LocalDate date) {
         return employeeShiftDAO.findByEmployeeIdAndDate(employeeId, date).orElse(null);
     }
 
-    public void deleteAssignment(String id) {
+    public void deleteAssignment(Long id) {
         employeeShiftDAO.deleteById(id);
     }
 
-    public void bulkDelete(List<String> ids) {
-        for (String id : ids) {
+    public void bulkDelete(List<Long> ids) {
+        for (Long id : ids) {
             employeeShiftDAO.deleteById(id);
         }
     }
 
-    public void bulkAssign(List<String> employeeIds, String shiftId, LocalDate startDate, LocalDate endDate) {
-        for (String empId : employeeIds) {
+    public void bulkAssign(List<Long> employeeIds, Long shiftId, LocalDate startDate, LocalDate endDate) {
+        for (Long empId : employeeIds) {
             List<EmployeeShift> existing = employeeShiftDAO.findByEmployeeId(empId);
             for (EmployeeShift ex : existing) {
                 // Overlap check: (StartA <= EndB) and (EndA >= StartB)
