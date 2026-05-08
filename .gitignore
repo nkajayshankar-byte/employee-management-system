@@ -31,3 +31,20 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Backend (Spring Boot)
+*.log
+
+# Frontend (Angular)
+node_modules/
+dist/
+
+# Environment files
+.env
+
+# OS files
+.DS_Store
+
+# Uploads
+backend/uploads/
+**/uploads/

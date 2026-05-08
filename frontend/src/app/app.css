@@ -1,0 +1,34 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: padding-left 0.3s ease;
+}
+
+.with-sidebar .main-layout {
+  padding-left: 100px; /* Match compact sidebar width */
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+  background: #f8f9fa; /* Light grey background for main content like in image */
+}
+
+@media (max-width: 1024px) {
+  .with-sidebar .main-layout {
+    padding-left: 0;
+  }
+}
+
+main {
+  min-height: calc(100vh - 60px);
+  background: var(--bg-color);
+}

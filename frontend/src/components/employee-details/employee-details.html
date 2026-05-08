@@ -1,0 +1,78 @@
+<div class="details-container">
+  <div class="details-header">
+    <button class="btn-mac-secondary sm" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Directory
+    </button>
+    <div class="header-actions" *ngIf="employee">
+      <a [routerLink]="['/admin/edit-employee', employee.id]" class="btn-mac sm">
+        <i class="fa-solid fa-user-pen"></i> Edit Profile
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <p>Loading member profile...</p>
+  </div>
+
+  <div *ngIf="!loading && employee" class="details-content">
+    <div class="profile-card">
+      <div class="profile-sidebar">
+        <div class="profile-image-container">
+          <img 
+            [src]="employee.imageUrl ? apiUrl + employee.imageUrl : 'assets/default-avatar.png'" 
+            alt="Employee"
+            class="profile-image">
+        </div>
+        <div class="sidebar-info">
+          <span class="role-pill">
+            {{ employee.role === 'ADMIN' ? 'ADMIN' : (employee.role === 'EMPLOYEE' ? (employee.jobRole || 'EMPLOYEE') : 'USER') }}
+          </span>
+          <span class="id-badge">
+            {{ employee.role === 'ADMIN' ? 'ADMIN' : (employee.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'USER') }} ID: {{ employee.id }}
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-main">
+        <div class="main-header">
+          <h1>{{ employee.name }}</h1>
+          <p class="email-link"><i class="fa-solid fa-envelope"></i> {{ employee.email }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Contact & Location</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label><i class="fa-solid fa-phone"></i> Mobile</label>
+              <p>{{ employee.mobile || '—' }}</p>
+            </div>
+            <div class="info-item">
+              <label><i class="fa-solid fa-location-dot"></i> Office Location</label>
+              <p>{{ employee.address || '—' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Skills & Expertise</h3>
+          <div class="skills-wrapper">
+            <ng-container *ngIf="employee.skills; else noSkills">
+              <span *ngFor="let skill of employee.skills.split(',')" class="skill-pill">
+                {{ skill.trim() }}
+              </span>
+            </ng-container>
+            <ng-template #noSkills><p class="empty-hint">No skills listed</p></ng-template>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Organization Notes</h3>
+          <div class="notes-box">
+            <p>{{ employee.companyInfo || 'No additional organization information available.' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

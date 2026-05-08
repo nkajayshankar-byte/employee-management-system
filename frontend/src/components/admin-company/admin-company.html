@@ -1,0 +1,280 @@
+<div class="admin-company">
+  <header class="settings-header">
+    <div class="header-info">
+      <h2>Company Settings</h2>
+      <p>Configure organizational identity and core presence</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-mac" (click)="saveCompany()">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Save Settings
+      </button>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <!-- Identity Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('identity')">
+        <span class="section-title"><i class="fa-solid fa-id-card"></i> Identity</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.identity" [class.fa-chevron-up]="expandedSections.identity"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.identity">
+        <div class="form-group required">
+          <label>Company Name</label>
+          <input class="mac-input" [(ngModel)]="company.name" placeholder="Organization Name">
+        </div>
+
+        <div class="form-group">
+          <label>Founded Year</label>
+          <input type="number" class="mac-input" [(ngModel)]="company.founded" placeholder="e.g. 2024">
+        </div>
+      </div>
+    </div>
+
+    <!-- Narrative Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('narrative')">
+        <span class="section-title"><i class="fa-solid fa-quote-left"></i> Narrative</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.narrative" [class.fa-chevron-up]="expandedSections.narrative"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.narrative">
+        <div class="form-group">
+          <label>Mission Statement</label>
+          <textarea class="mac-input" [(ngModel)]="company.mission" placeholder="Our core purpose..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Vision Statement</label>
+          <textarea class="mac-input" [(ngModel)]="company.vision" placeholder="Our future goals..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Culture & Presence Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('culture')">
+        <span class="section-title"><i class="fa-solid fa-earth-americas"></i> Culture & Presence</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.culture" [class.fa-chevron-up]="expandedSections.culture"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.culture">
+        <div class="form-group">
+          <label>Core Values</label>
+          <input class="mac-input" [(ngModel)]="company.values" placeholder="Innovation, Integrity, Excellence">
+          <span class="help-text">Separate values with commas</span>
+        </div>
+
+        <div class="form-group">
+          <label>Office Locations</label>
+          <input class="mac-input" [(ngModel)]="locationInput" placeholder="New York, London, Tokyo">
+          <span class="help-text">Separate cities with commas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social & Contact Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('social')">
+        <span class="section-title"><i class="fa-solid fa-share-nodes"></i> Social & Contact</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.social" [class.fa-chevron-up]="expandedSections.social"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.social">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Public Email</label>
+            <input class="mac-input" [(ngModel)]="company.contactInfo.email" placeholder="contact@company.com">
+          </div>
+          <div class="form-group">
+            <label>Contact Phone</label>
+            <input class="mac-input" [(ngModel)]="company.contactInfo.phone" placeholder="+1 (555) 000-0000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>LinkedIn</label>
+            <input class="mac-input" [(ngModel)]="company.contactInfo.linkedin" placeholder="linkedin.com/company/...">
+          </div>
+          <div class="form-group">
+            <label>Twitter/X</label>
+            <input class="mac-input" [(ngModel)]="company.contactInfo.twitter" placeholder="twitter.com/...">
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input class="mac-input" [(ngModel)]="company.contactInfo.instagram" placeholder="instagram.com/...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Perks Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('perks')">
+        <span class="section-title"><i class="fa-solid fa-gift"></i> Employee Perks</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.perks" [class.fa-chevron-up]="expandedSections.perks"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.perks">
+        <div class="section-header">
+          <div class="section-actions">
+            <button class="btn-icon" (click)="addPerk(1)" title="Add One"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-mac-small" (click)="addPerk(3)">+ Add 3</button>
+          </div>
+        </div>
+        
+        <div *ngFor="let perk of company.perks; let i = index" class="list-item-form">
+          <div class="item-header">
+            <span class="item-index">Perk #{{ i + 1 }}</span>
+            <button class="btn-remove" (click)="removeItem(company.perks, i)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>FontAwesome Icon</label>
+              <input class="mac-input" [(ngModel)]="perk.icon" placeholder="fa-star">
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input class="mac-input" [(ngModel)]="perk.title" placeholder="e.g. Health Insurance">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="mac-input" [(ngModel)]="perk.description" placeholder="Briefly describe this perk..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('testimonials')">
+        <span class="section-title"><i class="fa-solid fa-star"></i> Success Stories</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.testimonials" [class.fa-chevron-up]="expandedSections.testimonials"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.testimonials">
+        <div class="section-header">
+          <div class="section-actions">
+            <button class="btn-icon" (click)="addTestimonial(1)" title="Add One"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-mac-small" (click)="addTestimonial(3)">+ Add 3</button>
+          </div>
+        </div>
+        
+        <div *ngFor="let t of company.testimonials; let i = index" class="list-item-form">
+          <div class="item-header">
+            <span class="item-index">Story #{{ i + 1 }}</span>
+            <button class="btn-remove" (click)="removeItem(company.testimonials, i)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input class="mac-input" [(ngModel)]="t.name" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              <input class="mac-input" [(ngModel)]="t.role" placeholder="e.g. Senior Architect">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Quote</label>
+            <textarea class="mac-input" [(ngModel)]="t.quote" placeholder="What did they say?"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Upload Image</label>
+            <input type="file" class="mac-input" (change)="onImageUpload($event, t)" accept="image/*">
+            <span class="help-text" *ngIf="t.imageUrl">Current: {{ t.imageUrl }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Culture Highlights Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('highlights')">
+        <span class="section-title"><i class="fa-solid fa-camera-retro"></i> Culture Highlights</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.highlights" [class.fa-chevron-up]="expandedSections.highlights"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.highlights">
+        <div class="section-header">
+          <div class="section-actions">
+            <button class="btn-icon" (click)="addCultureHighlight(1)" title="Add One"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-mac-small" (click)="addCultureHighlight(3)">+ Add 3</button>
+          </div>
+        </div>
+        
+        <div *ngFor="let ch of company.cultureHighlights; let i = index" class="list-item-form">
+          <div class="item-header">
+            <span class="item-index">Highlight #{{ i + 1 }}</span>
+            <button class="btn-remove" (click)="removeItem(company.cultureHighlights, i)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="form-group">
+            <label>Title</label>
+            <input class="mac-input" [(ngModel)]="ch.title" placeholder="e.g. Annual Retreat">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="mac-input" [(ngModel)]="ch.description" placeholder="Describe the culture event..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Upload Image</label>
+            <input type="file" class="mac-input" (change)="onImageUpload($event, ch)" accept="image/*">
+            <span class="help-text" *ngIf="ch.imageUrl">Current: {{ ch.imageUrl }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQs Section -->
+    <div class="settings-section accordion-section">
+      <div class="section-toggle" (click)="toggleSection('faqs')">
+        <span class="section-title"><i class="fa-solid fa-circle-question"></i> Frequent Questions</span>
+        <i class="fa-solid" [class.fa-chevron-down]="!expandedSections.faqs" [class.fa-chevron-up]="expandedSections.faqs"></i>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections.faqs">
+        <div class="section-header">
+          <div class="section-actions">
+            <button class="btn-icon" (click)="addFAQ(1)" title="Add One"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-mac-small" (click)="addFAQ(3)">+ Add 3</button>
+          </div>
+        </div>
+        
+        <div *ngFor="let faq of company.faqs; let i = index" class="list-item-form">
+          <div class="item-header">
+            <span class="item-index">FAQ #{{ i + 1 }}</span>
+            <button class="btn-remove" (click)="removeItem(company.faqs, i)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="form-group">
+            <label>Question</label>
+            <input class="mac-input" [(ngModel)]="faq.question" placeholder="e.g. What is the remote policy?">
+          </div>
+          <div class="form-group">
+            <label>Answer</label>
+            <textarea class="mac-input" [(ngModel)]="faq.answer" placeholder="Provide a clear answer..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-mac" (click)="saveCompany()">
+      <i class="fa-solid fa-cloud-arrow-up"></i> Save Settings
+    </button>
+  </div>
+
+  <div class="summary-cards">
+    <div class="summary-card">
+      <h4>{{ employeeCount }}</h4>
+      <p>Active Staff</p>
+    </div>
+    <div class="summary-card">
+      <h4>{{ getLocationCount() }}</h4>
+      <p>Active Hubs</p>
+    </div>
+  </div>
+</div>

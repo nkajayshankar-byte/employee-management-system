@@ -1,0 +1,146 @@
+<div class="employee-list-container">
+  <div class="list-header">
+    <div class="header-left">
+      <h2 class="title">Directory</h2>
+      <p class="subtitle">{{ filteredEmployees.length }} members total</p>
+    </div>
+    <div class="header-right">
+      <button *ngIf="selectedEmployeeIds.length > 0" (click)="bulkDelete()" class="btn-mac-danger">
+        <i class="fa-solid fa-trash-can"></i> Delete Selected ({{ selectedEmployeeIds.length }})
+      </button>
+      <button (click)="exportToExcel()" class="btn-mac-success">
+        <i class="fa-solid fa-file-excel"></i> Export
+      </button>
+      <a routerLink="/admin/add-employee" class="btn-mac">
+        <i class="fa-solid fa-plus"></i> Add Employee
+      </a>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text"
+             class="mac-input"
+             placeholder="Search name, email, or mobile..."
+             [(ngModel)]="searchTerm"
+             (keyup)="onSearch()">
+    </div>
+    <div class="sort-box">
+      <select [(ngModel)]="sortBy" (change)="sortEmployees()" class="mac-input">
+        <option value="name">Sort by Name</option>
+        <option value="email">Sort by Email</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <div *ngIf="loading" class="loading-state">
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <p>Loading directory...</p>
+    </div>
+
+    <table class="employees-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th style="width: 40px;">
+            <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()">
+          </th>
+          <th>User</th>
+          <th>Contact</th>
+          <th>Address</th>
+          <th>Job Role</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of filteredEmployees" class="employee-row" [class.selected]="selectedEmployeeIds.includes(emp.id!)">
+          <td>
+            <input type="checkbox" [checked]="selectedEmployeeIds.includes(emp.id!)" (change)="toggleEmployeeSelection(emp.id)">
+          </td>
+          <td class="user-cell">
+            <div class="avatar-wrapper">
+              <img [src]="emp.imageUrl ? apiUrl + emp.imageUrl : 'assets/default-avatar.png'"
+                   alt="Employee" class="employee-image">
+            </div>
+            <div class="user-info">
+              <span class="name">{{ emp.name }}</span>
+              <span class="id">ID: {{ emp.id }}</span>
+              <span class="system-role">{{ emp.role }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="contact-info">
+              <span class="email"><i class="fa-solid fa-envelope"></i> {{ emp.email }}</span>
+              <span class="mobile" *ngIf="emp.mobile"><i class="fa-solid fa-phone"></i> {{ emp.mobile }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="address" [title]="emp.address || 'N/A'">
+              {{ emp.address ? (emp.address | slice:0:30) + (emp.address.length > 30 ? '...' : '') : 'N/A' }}
+            </span>
+          </td>
+          <td>
+            <span class="role-badge">{{ emp.role === 'ADMIN' ? 'ADMIN' : (emp.jobRole || 'N/A') }}</span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon" (click)="viewDetails(emp.id)" title="View Details">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button *ngIf="emp.role === 'USER'" class="btn-icon hire" (click)="hireEmployee(emp.id)" title="Hire User">
+              <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <button class="btn-icon promote" title="Promote to Admin" (click)="promoteToAdmin(emp)" *ngIf="emp.role === 'USER'">
+              <i class="fa-solid fa-shield-halved"></i>
+            </button>
+            <button class="btn-icon" (click)="editEmployee(emp.id)" title="Edit">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn-icon delete" (click)="deleteEmployee(emp.id)" title="Delete">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && filteredEmployees.length === 0" class="empty-state">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <p>No employees match your search</p>
+    </div>
+  </div>
+
+  <!-- Hiring Modal -->
+  <div class="modal-overlay" *ngIf="showHireModal" (click)="closeHireModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Hire User</h3>
+        <button class="btn-close" (click)="closeHireModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Select a job role for <strong>{{ selectedUserForHire?.name }}</strong>. This will update their role to EMPLOYEE.</p>
+        
+        <div class="form-group">
+          <label>Select Job Role</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-briefcase input-icon"></i>
+            <select class="mac-input" [(ngModel)]="selectedJobRole">
+              <option value="">Choose a position...</option>
+              <option *ngFor="let role of availableJobRoles" [value]="role.title">
+                {{ role.title }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-mac-secondary" (click)="closeHireModal()">Cancel</button>
+        <button class="btn-mac" (click)="confirmHire()" [disabled]="!selectedJobRole">
+          <i class="fa-solid fa-user-plus"></i> Confirm Hire
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

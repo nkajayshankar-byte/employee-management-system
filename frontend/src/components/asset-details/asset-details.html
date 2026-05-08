@@ -1,0 +1,85 @@
+<div class="details-container">
+  <div class="details-header">
+    <button class="btn-mac-secondary sm" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Inventory
+    </button>
+    <div class="header-actions" *ngIf="asset && isAdmin">
+      <a [routerLink]="['/admin/assets/edit', asset.id]" class="btn-mac sm">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Asset
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <p>Retrieving asset specifications...</p>
+  </div>
+
+  <div *ngIf="!loading && asset" class="details-content">
+    <div class="profile-card">
+      <div class="profile-sidebar">
+        <div class="profile-image-container">
+          <div class="asset-visual">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+        </div>
+        <div class="sidebar-info">
+          <span class="status-pill" [ngClass]="asset.status?.toLowerCase()">{{ asset.status }}</span>
+          <span class="id-badge">ID: {{ asset.id | slice:0:8 }}</span>
+        </div>
+        
+        <div class="sidebar-actions" *ngIf="isAdmin">
+           <button class="btn-mac-danger sm full-width" (click)="deleteAsset()">
+             <i class="fa-solid fa-trash"></i> Decommission
+           </button>
+        </div>
+      </div>
+
+      <div class="profile-main">
+        <div class="main-header">
+          <h1>{{ asset.assetName }}</h1>
+          <p class="type-badge">{{ asset.assetType }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Technical Specifications</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label><i class="fa-solid fa-barcode"></i> Serial Number</label>
+              <p class="mono-highlight">{{ asset.serialNumber }}</p>
+            </div>
+            <div class="info-item">
+              <label><i class="fa-solid fa-user-tag"></i> Assigned To</label>
+              <p>{{ asset.employeeName || 'Inventory Stock' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Lifecycle & Condition</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label><i class="fa-solid fa-heart-pulse"></i> Condition</label>
+              <p><span class="condition-badge" [attr.data-condition]="asset.conditions">{{ asset.conditions }}</span></p>
+            </div>
+            <div class="info-item">
+              <label><i class="fa-solid fa-calendar-check"></i> Allocation Date</label>
+              <p>{{ asset.assignedDate | date: 'MMMM d, y' }}</p>
+            </div>
+            <div class="info-item" *ngIf="asset.returnDate">
+              <label><i class="fa-solid fa-calendar-xmark"></i> Expected Return</label>
+              <p>{{ asset.returnDate | date: 'MMMM d, y' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3 class="section-title">Administrative Notes</h3>
+          <div class="notes-box">
+            <p>{{ asset.description || asset.remarks || 'No additional documentation available for this asset.' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

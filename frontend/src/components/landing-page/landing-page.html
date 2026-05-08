@@ -1,0 +1,252 @@
+<nav class="apple-nav">
+  <div class="nav-content">
+    <div class="nav-logo" (click)="scrollToSection('hero')">
+      <i class="fa-solid fa-fire-alt"></i>
+      <span>Phoenix Ltd</span>
+    </div>
+    <div class="nav-links">
+      <a (click)="scrollToSection('company')">Company</a>
+      <a (click)="scrollToSection('careers')">Careers</a>
+      <div class="nav-menu-container">
+        <button class="nav-menu-btn" (click)="toggleDropdown()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="nav-dropdown" *ngIf="showDropdown">
+          <a (click)="logoutAndLogin()">Login</a>
+          <a (click)="logoutAndSignup()">Signup</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="landing-container">
+  <!-- Hero Section -->
+  <section id="hero" class="hero-section">
+    <div class="hero-content">
+      <h1 class="fade-in">Innovation starts here.</h1>
+      <p class="fade-in-delayed">Build the next generation of enterprise solutions with a team that values creativity and excellence.</p>
+      <div class="hero-actions fade-in-more">
+        <button class="apple-btn-primary" (click)="scrollToSection('careers')">View Openings</button>
+        <button class="apple-btn-link" (click)="scrollToSection('perks')">Learn more <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <!-- Abstract visual placeholder -->
+      <div class="abstract-shape"></div>
+    </div>
+  </section>
+
+  <!-- Company Section -->
+  <section id="company" class="company-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2 *ngIf="company">{{ company.name }}</h2>
+        <h2 *ngIf="!company">Our Mission</h2>
+        <p class="mission-text">{{ company?.mission || 'To empower every professional to achieve more through intuitive and powerful tools.' }}</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{{ employeeCount || '0' }}</span>
+          <span class="stat-label">Innovators</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ company?.locations?.length || '12' }}</span>
+          <span class="stat-label">Global Offices</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">98%</span>
+          <span class="stat-label">Customer Love</span>
+        </div>
+      </div>
+
+      <div class="values-grid">
+        <div class="value-item" *ngFor="let val of company?.values">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>{{ val }}</span>
+        </div>
+        <div class="value-item" *ngIf="!company?.values">
+          <i class="fa-solid fa-heart"></i>
+          <span>Empathy first</span>
+        </div>
+        <div class="value-item" *ngIf="!company?.values">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Speed matters</span>
+        </div>
+        <div class="value-item" *ngIf="!company?.values">
+          <i class="fa-solid fa-shield"></i>
+          <span>Trust is earned</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Careers Section -->
+  <section id="careers" class="careers-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Career Opportunities</h2>
+        <p>We're looking for passionate individuals to join our journey.</p>
+      </div>
+
+      <div class="jobs-grid" *ngIf="jobs.length > 0">
+        <div class="job-card apple-card" *ngFor="let job of jobs">
+          <div class="job-header">
+            <span class="job-dept">{{ job.department }}</span>
+            <h3 class="job-title">{{ job.title }}</h3>
+          </div>
+          <div class="job-meta">
+            <span><i class="fa-solid fa-location-dot"></i> {{ job.location }}</span>
+            <span><i class="fa-solid fa-clock"></i> {{ job.type }}</span>
+          </div>
+          <p class="job-desc">{{ job.description | slice:0:100 }}...</p>
+          <div class="job-footer">
+            <button class="apple-btn-small" (click)="onApply(job)">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-jobs" *ngIf="jobs.length === 0 && !loading">
+        <p>No current openings. Check back soon!</p>
+      </div>
+
+      <div class="view-all-container">
+        <a (click)="logoutAndSignup()" class="apple-btn-link" style="cursor: pointer;">View all positions <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits & Perks Section -->
+  <section id="perks" class="perks-section" *ngIf="company?.perks?.length > 0">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Benefits & Perks</h2>
+        <p>We take care of our people so they can focus on what matters.</p>
+      </div>
+      <div class="perks-grid">
+        <div class="perk-card" *ngFor="let perk of company.perks">
+          <div class="perk-icon">
+            <i class="fa-solid" [ngClass]="perk.icon || 'fa-star'"></i>
+          </div>
+          <h3>{{ perk.title }}</h3>
+          <p>{{ perk.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Voices from the Team -->
+  <section id="testimonials" class="testimonials-section" *ngIf="company?.testimonials?.length > 0">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Voices from the Team</h2>
+        <p>Hear from the people who make Phoenix Ltd. extraordinary.</p>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow carousel-prev" (click)="prevTestimonial()" *ngIf="company.testimonials.length > 1">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="testimonial-card carousel-card">
+          <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+          <p class="testimonial-text">{{ company.testimonials[testimonialIndex].quote }}</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <img *ngIf="company.testimonials[testimonialIndex].imageUrl" [src]="apiUrl + company.testimonials[testimonialIndex].imageUrl" alt="">
+              <i *ngIf="!company.testimonials[testimonialIndex].imageUrl" class="fa-solid fa-circle-user"></i>
+            </div>
+            <div class="author-info">
+              <strong>{{ company.testimonials[testimonialIndex].name }}</strong>
+              <span>{{ company.testimonials[testimonialIndex].role }}</span>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-arrow carousel-next" (click)="nextTestimonial()" *ngIf="company.testimonials.length > 1">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+      <div class="carousel-dots" *ngIf="company.testimonials.length > 1">
+        <span *ngFor="let t of company.testimonials; let i = index" 
+              class="dot" [class.active]="i === testimonialIndex" 
+              (click)="testimonialIndex = i"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Life at Phoenix Ltd. -->
+  <section id="culture" class="culture-section" *ngIf="company?.cultureHighlights?.length > 0">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Life at Phoenix Ltd.</h2>
+        <p>A glimpse into our culture, values, and everyday experience.</p>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow carousel-prev" (click)="prevCulture()" *ngIf="company.cultureHighlights.length > 1">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="culture-card carousel-card">
+          <div class="culture-image" *ngIf="company.cultureHighlights[cultureIndex].imageUrl">
+            <img [src]="apiUrl + company.cultureHighlights[cultureIndex].imageUrl" alt="">
+          </div>
+          <div class="culture-icon" *ngIf="!company.cultureHighlights[cultureIndex].imageUrl">
+            <i class="fa-solid" [ngClass]="company.cultureHighlights[cultureIndex].icon || 'fa-heart'"></i>
+          </div>
+          <h3>{{ company.cultureHighlights[cultureIndex].title }}</h3>
+          <p>{{ company.cultureHighlights[cultureIndex].description }}</p>
+        </div>
+        <button class="carousel-arrow carousel-next" (click)="nextCulture()" *ngIf="company.cultureHighlights.length > 1">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+      <div class="carousel-dots" *ngIf="company.cultureHighlights.length > 1">
+        <span *ngFor="let c of company.cultureHighlights; let i = index" 
+              class="dot" [class.active]="i === cultureIndex" 
+              (click)="cultureIndex = i"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Candidate FAQ -->
+  <section id="faq" class="faq-section" *ngIf="company?.faqs?.length > 0">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Candidate FAQ</h2>
+        <p>Answers to commonly asked questions about working with us.</p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item" *ngFor="let faq of company.faqs; let i = index" [class.open]="openFaqIndex === i">
+          <div class="faq-question" (click)="toggleFaq(i)">
+            <span>{{ faq.question }}</span>
+            <i class="fa-solid" [class.fa-plus]="openFaqIndex !== i" [class.fa-minus]="openFaqIndex === i"></i>
+          </div>
+          <div class="faq-answer" *ngIf="openFaqIndex === i">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="apple-footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <p>&copy; 2026 Phoenix Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-contact" *ngIf="company?.contactInfo">
+      <span><i class="fa-solid fa-envelope"></i> {{ company.contactInfo.email }}</span>
+      <span><i class="fa-solid fa-phone"></i> {{ company.contactInfo.phone }}</span>
+    </div>
+    <div class="footer-social" *ngIf="company?.contactInfo">
+      <a *ngIf="company.contactInfo.linkedin && company.contactInfo.linkedin.trim()" [href]="company.contactInfo.linkedin" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn">
+        <i class="fa-brands fa-linkedin"></i>
+      </a>
+      <a *ngIf="company.contactInfo.twitter && company.contactInfo.twitter.trim()" [href]="company.contactInfo.twitter" target="_blank" rel="noopener noreferrer" class="social-link" title="X (Twitter)">
+        <i class="fa-brands fa-x-twitter"></i>
+      </a>
+      <a *ngIf="company.contactInfo.instagram && company.contactInfo.instagram.trim()" [href]="company.contactInfo.instagram" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,206 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <div class="header-left">
+      <h2 class="title">Command Center</h2>
+      <p>System Overview & Intelligence</p>
+    </div>
+    <div class="header-right">
+      <span class="date-display">{{ today | date:'dd-MM-yy' }}</span>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card tooltip-container">
+      <div class="stat-icon-wrapper users">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ stats.totalUsers }}</h3>
+        <p>Total Users</p>
+      </div>
+      <div class="custom-tooltip">
+        <div class="tooltip-item"><i class="fa-solid fa-user-tie"></i> Employees: {{ stats.totalEmployees }}</div>
+        <div class="tooltip-divider"></div>
+        <div class="tooltip-item"><i class="fa-solid fa-shield-halved"></i> Admins: {{ stats.totalAdmins }}</div>
+      </div>
+    </div>
+
+
+
+    <div class="stat-card highlight" [class.leaves-alert]="stats.pendingLeaves > 0" *ngIf="stats.pendingLeaves > 0">
+      <div class="stat-icon-wrapper leaves">
+        <i class="fa-solid fa-calendar-day"></i>
+      </div>
+      <div class="stat-info">
+        <h3 class="count-badge">{{ stats.pendingLeaves }}</h3>
+        <p>Pending Leaves</p>
+      </div>
+    </div>
+
+    <div class="stat-card highlight" [class.applicants-alert]="stats.pendingApplicants > 0" *ngIf="stats.pendingApplicants > 0">
+      <div class="stat-icon-wrapper assets">
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+      <div class="stat-info">
+        <h3 class="count-badge">{{ stats.pendingApplicants }}</h3>
+        <p>New Applicants</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper assets">
+        <i class="fa-solid fa-laptop-code"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ stats.totalAssets }}</h3>
+        <p>Assets</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grouped Modules -->
+  <div class="modules-grid">
+    <!-- Group 1: People & Resources -->
+    <div class="module-card">
+      <div class="module-header">
+        <i class="fa-solid fa-people-roof"></i>
+        <span>People & Resources</span>
+      </div>
+      <div class="module-actions">
+        <a routerLink="/admin/employees" class="action-item">
+          <i class="fa-solid fa-users-viewfinder"></i>
+          <span>Employee Directory</span>
+        </a>
+        <a routerLink="/admin/add-employee" class="action-item">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Onboard New</span>
+        </a>
+        <a routerLink="/admin/assets" class="action-item">
+          <i class="fa-solid fa-laptop-medical"></i>
+          <span>Asset Inventory</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Group 2: Organization -->
+    <div class="module-card">
+      <div class="module-header">
+        <i class="fa-solid fa-sitemap"></i>
+        <span>Organization</span>
+      </div>
+      <div class="module-actions">
+        <a routerLink="/admin/company" class="action-item">
+          <i class="fa-solid fa-building-user"></i>
+          <span>Company Profile</span>
+        </a>
+        <a routerLink="/careers" class="action-item">
+          <i class="fa-solid fa-bullhorn"></i>
+          <span>Job Postings</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Group 3: Operations -->
+    <div class="module-card">
+      <div class="module-header">
+        <i class="fa-solid fa-gears"></i>
+        <span>Operations</span>
+      </div>
+      <div class="module-actions">
+        <a routerLink="/admin/attendance" class="action-item">
+          <i class="fa-solid fa-user-check"></i>
+          <span>Attendance Tracker</span>
+        </a>
+        <a routerLink="/admin/leaves" class="action-item">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Leave Requests</span>
+        </a>
+        <a routerLink="/admin/shifts" class="action-item">
+          <i class="fa-solid fa-clock"></i>
+          <span>Shift Config</span>
+        </a>
+        <a routerLink="/admin/shift-assignment" class="action-item">
+          <i class="fa-solid fa-user-clock"></i>
+          <span>Roster Planning</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <!-- Pending Leaves Alert -->
+    <div class="alert-panel" *ngIf="!loading && pendingLeaves.length > 0">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-bell"></i> Time-Off Alerts</h3>
+        <span class="badge badge-danger">{{ pendingLeaves.length }} Pending</span>
+      </div>
+      <div class="alert-list">
+        <div class="alert-item" *ngFor="let leave of pendingLeaves">
+          <div class="item-info">
+            <span class="item-primary">{{ leave.employeeName }}</span>
+            <span class="item-secondary">{{ leave.leaveType }}</span>
+          </div>
+          <span class="item-meta">{{ leave.numberOfDays }} Days</span>
+          <a [routerLink]="['/admin/leaves', leave.id]" class="view-link">Review <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Jobs Alert -->
+    <div class="alert-panel job-alerts" *ngIf="!loading && pendingApplicants.length > 0">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-briefcase"></i> Talent Pipeline</h3>
+        <span class="badge badge-warning">{{ pendingApplicants.length }} Awaiting Review</span>
+      </div>
+      <div class="alert-list">
+        <div class="alert-item" *ngFor="let app of pendingApplicants">
+          <div class="item-info">
+            <span class="item-primary">{{ app.employeeName }}</span>
+            <span class="item-secondary">Applied for {{ app.jobTitle }}</span>
+          </div>
+          <span class="item-meta">{{ app.appliedDate }}</span>
+          <a [routerLink]="['/careers']" [queryParams]="{ jobId: app.jobId }" class="view-link">View Talent <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Employees -->
+    <div class="recent-employees">
+      <div class="section-header">
+        <h3>Recent Onboardings</h3>
+        <a routerLink="/admin/employees" class="view-all">See All Directory</a>
+      </div>
+
+      <div *ngIf="loading" class="loading-state">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <p>Refreshing data...</p>
+      </div>
+
+      <div class="employees-list" *ngIf="!loading && recentEmployees.length > 0">
+        <div class="employee-card" *ngFor="let emp of recentEmployees">
+          <div class="avatar-wrapper">
+            <img 
+              [src]="emp.imageUrl ? apiUrl + emp.imageUrl : 'assets/default-avatar.png'"
+              alt="Employee"
+            >
+          </div>
+          <div class="employee-info">
+            <h4>{{ emp.name }}</h4>
+            <p>{{ emp.role }}</p>
+          </div>
+          <div class="employee-actions">
+            <a [routerLink]="['/admin/edit-employee', emp.id]" class="btn-icon">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && recentEmployees.length === 0" class="empty-state">
+        <i class="fa-solid fa-folder-open"></i>
+        <p>No recent activity found</p>
+      </div>
+    </div>
+  </div>
+</div>

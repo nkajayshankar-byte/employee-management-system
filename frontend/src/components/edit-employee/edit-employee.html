@@ -1,0 +1,137 @@
+<div class="details-container">
+  <div class="details-header">
+    <button class="btn-mac-secondary sm" (click)="onCancel()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Directory
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <p>Retrieving profile data...</p>
+  </div>
+
+  <div *ngIf="!loading" class="details-content">
+    <div class="profile-card">
+      <div class="profile-sidebar">
+        <div class="profile-image-container">
+          <img 
+            [src]="imagePreview || (form.get('imageUrl')?.value ? apiUrl + form.get('imageUrl')?.value : 'assets/default-avatar.png')" 
+            alt="Employee"
+            class="profile-image">
+        </div>
+        
+        <div class="sidebar-info">
+          <input type="file" 
+                 accept="image/*"
+                 (change)="onFileSelected($event)"
+                 #fileInput hidden>
+          <div class="button-group-vertical">
+            <button type="button" 
+                    class="btn-mac-secondary sm"
+                    (click)="fileInput.click()">
+              <i class="fa-solid fa-camera"></i> Change Photo
+            </button>
+            <button type="button" 
+                    class="btn-mac-success sm"
+                    (click)="uploadImage()"
+                    [disabled]="!selectedFile">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+            </button>
+          </div>
+          <span class="role-pill">
+            {{ form.get('role')?.value === 'EMPLOYEE' ? (form.get('jobRole')?.value || 'EMPLOYEE') : 'USER' }}
+          </span>
+          <span class="id-badge" *ngIf="employeeId">
+            {{ form.get('role')?.value === 'EMPLOYEE' ? 'EMPLOYEE' : 'USER' }} ID: {{ employeeId | slice:0:8 }}
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-main">
+        <div class="main-header">
+          <h1>Edit Profile</h1>
+          <p class="subtitle">Modify organizational and personal information</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mac-form">
+          <div class="details-section">
+            <h3 class="section-title">Personal Information</h3>
+            <div class="form-group required">
+              <label>Full Name</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" class="mac-input" formControlName="name">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-envelope input-icon"></i>
+                  <input type="email" class="mac-input" formControlName="email">
+                </div>
+              </div>
+              <div class="form-group required">
+                <label>Mobile Number</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-phone input-icon"></i>
+                  <input type="text" class="mac-input" formControlName="mobile">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <h3 class="section-title">Professional Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Office Location / Address</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-location-dot input-icon"></i>
+                  <input type="text" class="mac-input" formControlName="address">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Job Role</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-briefcase input-icon"></i>
+                  <select class="mac-input" formControlName="jobRole">
+                    <option value="">Select Job Role</option>
+                    <option *ngFor="let role of availableJobRoles" [value]="role.title">
+                      {{ role.title }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Skills & Expertise</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-list-check textarea-icon"></i>
+                <textarea class="mac-input" formControlName="skills" rows="2"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Organization Bio / Notes</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-building textarea-icon"></i>
+                <textarea class="mac-input" formControlName="companyInfo" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-mac-secondary" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn-mac" [disabled]="submitting">
+              <i class="fa-solid fa-check" *ngIf="!submitting"></i>
+              {{ submitting ? 'Saving Changes...' : 'Update Profile' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

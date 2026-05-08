@@ -1,0 +1,297 @@
+<div class="amazon-careers-portal">
+  <!-- Amazon Style Hero Section -->
+  <section class="amazon-hero">
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <h1 class="hero-main-title">Find jobs. <span class="hero-highlight">Build the future.</span></h1>
+        
+        <!-- Integrated Search Bar -->
+        <div class="amazon-search-container">
+          <div class="search-input-group">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" [(ngModel)]="filters.query" (input)="onSearch()" placeholder="Search for jobs by title, keyword, or ID">
+          </div>
+          <button class="amazon-search-btn" (click)="onSearch()">Search</button>
+        </div>
+
+        <div class="hero-actions" *ngIf="isAdmin">
+          <button class="btn-amazon-secondary" (click)="showJobForm ? (showJobForm = false) : openAddForm()">
+            <i class="fa-solid" [class.fa-plus]="!showJobForm" [class.fa-xmark]="showJobForm"></i>
+            {{ showJobForm ? 'Exit Post Editor' : 'Post a New Job' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="portal-body">
+    <div class="portal-container">
+      <div class="layout-grid">
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar">
+          <div class="sidebar-section">
+            <h3 class="sidebar-title">Filter by</h3>
+            <div class="jobs-found-sidebar">
+              <span class="count-val">{{ jobs.length }}</span> jobs found
+            </div>
+            
+            <div class="filter-group">
+              <label>Minimum Salary</label>
+              <div class="salary-display">₹{{ filters.minSalary / 100000 | number:'1.1-1' }}L +</div>
+              <input type="range" min="0" max="5000000" step="100000" [(ngModel)]="filters.minSalary" (change)="onSearch()" class="amazon-range">
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <!-- Application History Widget -->
+            <div class="history-widget" *ngIf="!isAdmin">
+              <button class="history-toggle" (click)="showMyApplications = !showMyApplications" [class.active]="showMyApplications">
+                <span>Your Applications</span>
+                <i class="fa-solid" [class.fa-chevron-down]="!showMyApplications" [class.fa-chevron-up]="showMyApplications"></i>
+              </button>
+              
+              <div class="history-panel" *ngIf="showMyApplications">
+                <div class="history-item" *ngFor="let app of myApplications">
+                  <div class="h-info">
+                    <span class="h-title">{{ app.jobTitle }} <span *ngIf="app.jobActive === false" class="closed-label">(Position Closed)</span></span>
+                    <span class="h-date">{{ app.appliedDate }}</span>
+                  </div>
+                  <div class="h-status-pill" [ngClass]="app.status?.toLowerCase()">{{ app.status }}</div>
+                </div>
+                <div class="empty-history" *ngIf="myApplications.length === 0">No applications yet.</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Results Section -->
+        <main class="results-main">
+          <!-- Admin Form -->
+          <div class="amazon-job-form-card" *ngIf="showJobForm && isAdmin">
+            <div class="form-header">
+              <h3>{{ selectedJobForEdit ? 'Edit Job Posting' : 'Create New Job Posting' }}</h3>
+            </div>
+            <form [formGroup]="jobForm" class="amazon-form">
+              <div class="form-row">
+                <div class="form-col">
+                  <label>Job Title *</label>
+                  <input formControlName="title" placeholder="e.g. Software Development Engineer">
+                </div>
+                <div class="form-col">
+                  <label>Department *</label>
+                  <input formControlName="department" placeholder="e.g. AWS, Fulfillment">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label>Location *</label>
+                  <input formControlName="location" placeholder="City, State">
+                </div>
+                <div class="form-col">
+                  <label>Job Type</label>
+                  <select formControlName="type">
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label>Min Salary (₹)</label>
+                  <input type="number" formControlName="minSalary">
+                </div>
+                <div class="form-col">
+                  <label>Max Salary (₹)</label>
+                  <input type="number" formControlName="maxSalary">
+                </div>
+              </div>
+              <div class="form-col full">
+                <label>Skills (comma separated) *</label>
+                <input formControlName="requiredSkills" placeholder="Java, Python, AWS...">
+              </div>
+              <div class="form-col full">
+                <label>Job Description *</label>
+                <textarea formControlName="description" rows="4"></textarea>
+              </div>
+              <div class="form-col full">
+                <label>Key Responsibilities *</label>
+                <textarea formControlName="keyResponsibilities" rows="4" placeholder="Describe the day-to-day duties..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="amazon-btn-primary" (click)="selectedJobForEdit ? saveEdit() : saveJob()">
+                  <span *ngIf="selectedJobForEdit">Update Job</span>
+                  <span *ngIf="!selectedJobForEdit">Post Job</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+
+
+          <!-- Job List -->
+          <div class="amazon-job-list">
+            <div class="amazon-job-card" *ngFor="let job of jobs">
+              <div class="job-card-content">
+                <div class="job-main-info">
+                  <div class="job-top-line">
+                    <h2 class="job-title" (click)="viewJobDetails(job)">{{ job.title }}</h2>
+                    <div class="match-badge" *ngIf="!isAdmin">
+                      <i class="fa-solid fa-bolt"></i>
+                      <span class="match-val" [ngClass]="getMatchPercentage(job) >= 70 ? 'high' : getMatchPercentage(job) >= 40 ? 'medium' : 'low'">{{ getMatchPercentage(job) }}% Match</span>
+                    </div>
+                  </div>
+                  <div class="job-sub-line">
+                    <span class="job-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</span>
+                    <span class="job-salary" *ngIf="job.minSalary || job.maxSalary">
+                      | <i class="fa-solid fa-indian-rupee-sign" style="font-size: 0.9em;"></i> {{ job.minSalary ? (job.minSalary / 100000 | number:'1.0-2') + 'L' : '0L' }} - {{ job.maxSalary ? (job.maxSalary / 100000 | number:'1.0-2') + 'L' : 'Unlimited' }}
+                    </span>
+                    <span class="job-id">| Job ID: #{{ job.id || 'N/A' }}</span>
+                  </div>
+                  <div class="job-description-preview">
+                    {{ job.description | slice:0:180 }}...
+                  </div>
+                  <div class="job-tags">
+                    <span class="amazon-pill" *ngFor="let skill of job.requiredSkills">{{ skill }}</span>
+                  </div>
+                </div>
+
+                <div class="job-actions">
+                  <button class="amazon-btn-outline" *ngIf="!isAdmin" (click)="viewJobDetails(job)">
+                    {{ appliedJobs.has(job.id) ? 'Applied' : 'View job' }}
+                  </button>
+                  
+                  <div class="admin-tools" *ngIf="isAdmin">
+                    <button class="amazon-btn-action" (click)="viewApplicants(job)">
+                      <i class="fa-solid fa-users"></i> Applicants
+                    </button>
+                    <div class="tool-icons">
+                      <button class="icon-btn" (click)="editJob(job)"><i class="fa-solid fa-pencil"></i></button>
+                      <button class="icon-btn delete" (click)="deleteJob(job.id)"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="amazon-empty-state" *ngIf="jobs.length === 0">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>No jobs found matching your criteria. Try adjusting your filters.</p>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Details Modal (Amazon Style) -->
+  <div class="amazon-modal-overlay" *ngIf="selectedJobForDetails" (click)="selectedJobForDetails = null">
+    <div class="amazon-modal lg" (click)="$event.stopPropagation()">
+      <div class="modal-header details-header">
+        <div class="header-main">
+          <h1>{{ selectedJobForDetails?.title }}</h1>
+          <div class="header-meta">
+            <span>Job ID: #{{ selectedJobForDetails?.id }}</span> | 
+            <span>{{ selectedJobForDetails?.location }}</span> | 
+            <span>{{ selectedJobForDetails?.department }}</span>
+          </div>
+        </div>
+        <button class="close-icon" (click)="selectedJobForDetails = null"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body job-details-body">
+        <div class="details-layout">
+          <div class="details-content">
+            <section class="details-section">
+              <h3>DESCRIPTION</h3>
+              <p>{{ selectedJobForDetails?.description }}</p>
+            </section>
+
+            <section class="details-section">
+              <h3>BASIC QUALIFICATIONS</h3>
+              <ul class="amazon-list">
+                <li *ngFor="let skill of selectedJobForDetails?.requiredSkills">{{ skill }}</li>
+              </ul>
+            </section>
+
+            <section class="details-section" *ngIf="selectedJobForDetails?.keyResponsibilities">
+              <h3>KEY RESPONSIBILITIES</h3>
+              <p class="pre-wrap">{{ selectedJobForDetails?.keyResponsibilities }}</p>
+            </section>
+          </div>
+
+          <div class="details-sidebar">
+            <div class="sticky-apply-card">
+              <button class="amazon-btn-primary w-100" (click)="applyForJob(selectedJobForDetails)">
+                {{ appliedJobs.has(selectedJobForDetails?.id) ? 'Already Applied' : 'Apply now' }}
+              </button>
+              <p class="apply-note" *ngIf="!appliedJobs.has(selectedJobForDetails?.id)">
+                Joining our team means you will have the opportunity to make a massive impact.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applicants Modal -->
+  <div class="amazon-modal-overlay" *ngIf="selectedJobForApplicants" (click)="selectedJobForApplicants = null">
+    <div class="amazon-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Applicants Pool</h2>
+        <button class="close-icon" (click)="selectedJobForApplicants = null"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="search-wrapper" style="margin-bottom: 20px;">
+          <div class="amazon-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="applicantSearchQuery" 
+              placeholder="Search by name, email or status..."
+              class="amazon-input"
+            >
+          </div>
+        </div>
+
+        <div class="applicants-list">
+          <div class="applicant-row" *ngFor="let app of filteredApplicants">
+            <div class="a-details">
+              <span class="a-name">{{ app.employeeName }}</span>
+              <span class="a-email">{{ app.employeeEmail }}</span>
+            </div>
+            <div class="a-resume">
+              <a *ngIf="app.resumeUrl" [href]="apiUrl + app.resumeUrl" target="_blank" class="amazon-link">
+                <i class="fa-solid fa-file-lines"></i> View Resume
+              </a>
+              <span *ngIf="!app.resumeUrl" class="na-text">N/A</span>
+            </div>
+            <div class="a-status">
+              <select (change)="changeStatus(app.id, $any($event.target).value)" [value]="app.status" class="amazon-select">
+                <option value="PENDING">Pending</option>
+                <option value="SHORTLISTED">Shortlisted</option>
+                <option value="HIRED">Hired</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+          </div>
+          <div *ngIf="applicants.length === 0" style="text-align: center; padding: 40px 20px; color: #86868b;">
+            <i class="fa-solid fa-users-slash" style="font-size: 36px; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+            <p style="margin: 0; font-size: 15px; font-weight: 600;">No applicants yet</p>
+            <p style="margin: 6px 0 0; font-size: 13px;">Candidates will appear here once they apply for this position.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Modal -->
+  <app-job-application-form 
+    *ngIf="selectedJobForApplication"
+    [jobId]="selectedJobForApplication.id || selectedJobForApplication._id"
+    [jobTitle]="selectedJobForApplication.title"
+    (close)="selectedJobForApplication = null"
+    (success)="onApplicationSuccess()">
+  </app-job-application-form>
+</div>

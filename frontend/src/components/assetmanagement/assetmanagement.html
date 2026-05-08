@@ -1,0 +1,95 @@
+<div class="asset-management">
+  <div class="asset-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">Inventory</h1>
+        <p class="page-subtitle" *ngIf="isAdmin">Manage organization assets and distributions</p>
+        <p class="page-subtitle" *ngIf="isEmployee">Assigned organizational equipment</p>
+      </div>
+
+      <div class="header-right">
+        <button class="btn-mac-success" (click)="exportToExcel()" *ngIf="isAdmin">
+          <i class="fa-solid fa-file-excel"></i> Export
+        </button>
+        <a routerLink="/admin/assets/add" class="btn-mac" *ngIf="isAdmin">
+          <i class="fa-solid fa-plus"></i> Register Asset
+        </a>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-section">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" 
+               class="mac-input"
+               placeholder="Search inventory by name or serial..."
+               [(ngModel)]="searchTerm" 
+               (input)="searchAssets()" 
+               [ngModelOptions]="{standalone: true}" />
+      </div>
+    </div>
+
+    <!-- Inventory Grid/Table -->
+    <div class="table-wrapper">
+      <div *ngIf="loading" class="loading-state">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <p>Refreshing inventory...</p>
+      </div>
+
+      <div *ngIf="!loading && filteredAssets.length > 0" class="table-container">
+        <table class="mac-table">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Serial Number</th>
+              <th *ngIf="isAdmin">Assigned To</th>
+              <th>Status</th>
+              <th>Condition</th>
+              <th>Timeline</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let asset of filteredAssets" class="asset-row">
+              <td>
+                <div class="asset-info">
+                  <span class="asset-name">{{ asset.assetName }}</span>
+                  <span class="asset-type">{{ asset.assetType }}</span>
+                </div>
+              </td>
+              <td><span class="serial-tag">{{ asset.serialNumber }}</span></td>
+              <td *ngIf="isAdmin">
+                <span class="emp-name" *ngIf="asset.employeeName">{{ asset.employeeName }}</span>
+                <span class="unassigned" *ngIf="!asset.employeeName">Unassigned</span>
+              </td>
+              <td>
+                <span class="status-pill" [ngClass]="asset.status?.toLowerCase()">{{ asset.status }}</span>
+              </td>
+              <td>
+                <span class="condition-badge" [attr.data-condition]="asset.conditions">{{ asset.conditions }}</span>
+              </td>
+              <td>
+                <div class="timeline-info">
+                  <span class="date" title="Assigned Date"><i class="fa-solid fa-calendar-check"></i> {{ (asset.assignedDate | date: 'MMM d, y') || 'N/A' }}</span>
+                  <span class="date return" *ngIf="asset.returnDate" title="Return Date"><i class="fa-solid fa-calendar-xmark"></i> {{ asset.returnDate | date: 'MMM d, y' }}</span>
+                </div>
+              </td>
+              <td class="text-center">
+                <a [routerLink]="[isAdmin ? '/admin/assets/view' : '/employee/assets/view', asset.id]" class="btn-icon" title="View Details">
+                  <i class="fa-solid fa-circle-info"></i>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading && filteredAssets.length === 0" class="empty-state">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <p>No inventory records matching your query.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="login-container">
+  <div class="bg-circles">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+  <div class="login-wrapper">
+    <button class="back-home-btn" routerLink="/" title="Back to Home">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="login-header">
+      <i class="fa-solid fa-shield-halved header-icon"></i>
+      <h2 class="form-title">{{ isSignup ? 'Create Account' : 'Welcome Back' }}</h2>
+    </div>
+
+    <div class="toggle-container">
+      <button class="toggle-btn" [class.active]="!isSignup" (click)="isSignup = false">
+        Login
+      </button>
+      <button class="toggle-btn" [class.active]="isSignup" (click)="isSignup = true">
+        Sign Up
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form *ngIf="!isSignup" [formGroup]="loginForm" autocomplete="off">
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope input-icon"></i>
+          <input type="email" 
+                 class="form-control" 
+                 [class.is-invalid]="isInvalid(loginForm, 'email')"
+                 formControlName="email"
+                 placeholder="Email address"
+                 autocomplete="off">
+        </div>
+        <span class="error-text" *ngIf="isInvalid(loginForm, 'email')">
+          Please enter a valid email (.com)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock input-icon"></i>
+           <input type="password" 
+                  class="form-control" 
+                  [class.is-invalid]="isInvalid(loginForm, 'password')"
+                  formControlName="password"
+                  placeholder="Password"
+                  (keyup.enter)="onLogin()"
+                  autocomplete="new-password">
+        </div>
+        <span class="error-text" *ngIf="isInvalid(loginForm, 'password')">
+          Password is required
+        </span>
+      </div>
+
+
+
+      <button type="button" class="reset-btn" (click)="goToResetPassword()">
+        Forgot password?
+      </button>
+
+      <button type="button" class="btn-primary" (click)="onLogin()" [disabled]="loading">
+        <i class="fa-solid fa-right-to-bracket" *ngIf="!loading"></i>
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
+    </form>
+
+    <!-- Signup Form -->
+    <form *ngIf="isSignup" [formGroup]="signupForm" (ngSubmit)="onSignup()" autocomplete="off">
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope input-icon"></i>
+          <input type="email" 
+                 class="form-control" 
+                 [class.is-invalid]="isInvalid(signupForm, 'email')"
+                 formControlName="email"
+                 placeholder="Email address">
+        </div>
+        <span class="error-text" *ngIf="isInvalid(signupForm, 'email')">
+          Please enter a valid email (.com)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input type="password" 
+                 class="form-control" 
+                 [class.is-invalid]="isInvalid(signupForm, 'password')"
+                 formControlName="password"
+                 placeholder="Password (min 6 chars)">
+        </div>
+        <span class="error-text" *ngIf="isInvalid(signupForm, 'password')">
+          Min 6 characters required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-check-double input-icon"></i>
+          <input type="password" 
+                 class="form-control" 
+                 [class.is-invalid]="isInvalid(signupForm, 'confirmPassword') || signupForm.hasError('passwordMismatch')"
+                 formControlName="confirmPassword"
+                 placeholder="Confirm password">
+        </div>
+        <span class="error-text" *ngIf="isInvalid(signupForm, 'confirmPassword') || signupForm.hasError('passwordMismatch')">
+          Passwords must match
+        </span>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-user-tag input-icon"></i>
+          <select class="form-control" formControlName="role" required>
+            <option value="USER">New User</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="signupForm.get('role')?.value === 'ADMIN'">
+        <div class="input-wrapper">
+          <i class="fa-solid fa-key input-icon"></i>
+          <input type="password" 
+                 class="form-control" 
+                 formControlName="adminKey"
+                 placeholder="Admin Secret Key"
+                 required>
+        </div>
+        <span class="error-text" style="color: #6e6e73; font-size: 11px;">
+          Contact super-admin for the key
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        <i class="fa-solid fa-user-plus" *ngIf="!loading"></i>
+        {{ loading ? 'Creating account...' : 'Sign Up' }}
+      </button>
+    </form>
+  </div>
+</div>
