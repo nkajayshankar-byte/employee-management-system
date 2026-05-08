@@ -20,7 +20,7 @@ export class ShiftManagementComponent implements OnInit {
     description: ''
   };
   isEditing = false;
-  editingId = '';
+  editingId: string | number = '';
 
   constructor(
     private shiftService: ShiftService,
@@ -70,7 +70,7 @@ export class ShiftManagementComponent implements OnInit {
     this.newShift = { ...shift };
   }
 
-  deleteShift(id: string): void {
+  deleteShift(id: string | number): void {
     if (confirm('Are you sure you want to delete this shift?')) {
       this.shiftService.deleteShift(id).subscribe({
         next: () => {

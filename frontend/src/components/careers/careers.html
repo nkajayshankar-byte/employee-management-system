@@ -53,7 +53,7 @@
               <div class="history-panel" *ngIf="showMyApplications">
                 <div class="history-item" *ngFor="let app of myApplications">
                   <div class="h-info">
-                    <span class="h-title">{{ getJobTitle(app.jobId) }}</span>
+                    <span class="h-title">{{ app.jobTitle }} <span *ngIf="app.jobActive === false" class="closed-label">(Position Closed)</span></span>
                     <span class="h-date">{{ app.appliedDate }}</span>
                   </div>
                   <div class="h-status-pill" [ngClass]="app.status?.toLowerCase()">{{ app.status }}</div>
@@ -146,7 +146,7 @@
                     <span class="job-salary" *ngIf="job.minSalary || job.maxSalary">
                       | <i class="fa-solid fa-indian-rupee-sign" style="font-size: 0.9em;"></i> {{ job.minSalary ? (job.minSalary / 100000 | number:'1.0-2') + 'L' : '0L' }} - {{ job.maxSalary ? (job.maxSalary / 100000 | number:'1.0-2') + 'L' : 'Unlimited' }}
                     </span>
-                    <span class="job-id">| Job ID: #{{ job.id?.slice(-6) || 'N/A' }}</span>
+                    <span class="job-id">| Job ID: #{{ job.id || 'N/A' }}</span>
                   </div>
                   <div class="job-description-preview">
                     {{ job.description | slice:0:180 }}...
@@ -192,7 +192,7 @@
         <div class="header-main">
           <h1>{{ selectedJobForDetails?.title }}</h1>
           <div class="header-meta">
-            <span>Job ID: #{{ selectedJobForDetails?.id?.slice(-6) }}</span> | 
+            <span>Job ID: #{{ selectedJobForDetails?.id }}</span> | 
             <span>{{ selectedJobForDetails?.location }}</span> | 
             <span>{{ selectedJobForDetails?.department }}</span>
           </div>
@@ -243,8 +243,20 @@
         <button class="close-icon" (click)="selectedJobForApplicants = null"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
+        <div class="search-wrapper" style="margin-bottom: 20px;">
+          <div class="amazon-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="applicantSearchQuery" 
+              placeholder="Search by name, email or status..."
+              class="amazon-input"
+            >
+          </div>
+        </div>
+
         <div class="applicants-list">
-          <div class="applicant-row" *ngFor="let app of applicants">
+          <div class="applicant-row" *ngFor="let app of filteredApplicants">
             <div class="a-details">
               <span class="a-name">{{ app.employeeName }}</span>
               <span class="a-email">{{ app.employeeEmail }}</span>

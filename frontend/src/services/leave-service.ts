@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -27,7 +26,7 @@ export class LeaveService {
   }
 
   // Employee - Cancel leave
-  cancelLeave(id: string): Observable<any> {
+  cancelLeave(id: number | string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/cancel`, {});
   }
 
@@ -47,17 +46,17 @@ export class LeaveService {
   }
 
   // Admin - Get employee leaves
-  getEmployeeLeaves(employeeId: number): Observable<any[]> {
+  getEmployeeLeaves(employeeId: number | string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/employee/${employeeId}`);
   }
 
   // Admin - Approve leave
-  approveLeave(id: string, approverData: any): Observable<any> {
+  approveLeave(id: number | string, approverData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/approve`, approverData);
   }
 
   // Admin - Reject leave
-  rejectLeave(id: string, approverData: any): Observable<any> {
+  rejectLeave(id: number | string, approverData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/reject`, approverData);
   }
 
@@ -66,7 +65,7 @@ export class LeaveService {
     return this.http.get(`${this.apiUrl}/statistics/dashboard`);
   }
 
-  getLeaveById(id: string | null): Observable<any> {
+  getLeaveById(id: number | string | null): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 }

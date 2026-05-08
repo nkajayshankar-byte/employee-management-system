@@ -54,7 +54,8 @@ export class EditEmployeeComponent implements OnInit, HasUnsavedChanges {
     this.loadEmployee(id);
     this.careerService.getJobs().subscribe({
       next: (jobs) => {
-        this.availableJobRoles = jobs;
+        // Only show active job roles for onboarding
+        this.availableJobRoles = jobs.filter(j => j.isActive !== false);
         this.cd.detectChanges();
       },
       error: () => console.error('Failed to load job roles')

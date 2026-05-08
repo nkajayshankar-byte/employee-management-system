@@ -65,7 +65,7 @@
             </div>
             <div class="user-info">
               <span class="name">{{ emp.name }}</span>
-              <span class="id">ID: {{ emp.id | slice:0:8 }}</span>
+              <span class="id">ID: {{ emp.id }}</span>
               <span class="system-role">{{ emp.role }}</span>
             </div>
           </td>
@@ -81,7 +81,7 @@
             </span>
           </td>
           <td>
-            <span class="role-badge">{{ emp.jobRole || 'N/A' }}</span>
+            <span class="role-badge">{{ emp.role === 'ADMIN' ? 'ADMIN' : (emp.jobRole || 'N/A') }}</span>
           </td>
           <td class="actions-cell">
             <button class="btn-icon" (click)="viewDetails(emp.id)" title="View Details">
@@ -89,6 +89,9 @@
             </button>
             <button *ngIf="emp.role === 'USER'" class="btn-icon hire" (click)="hireEmployee(emp.id)" title="Hire User">
               <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <button class="btn-icon promote" title="Promote to Admin" (click)="promoteToAdmin(emp)" *ngIf="emp.role === 'USER'">
+              <i class="fa-solid fa-shield-halved"></i>
             </button>
             <button class="btn-icon" (click)="editEmployee(emp.id)" title="Edit">
               <i class="fa-solid fa-pen-to-square"></i>
@@ -106,4 +109,38 @@
       <p>No employees match your search</p>
     </div>
   </div>
-</div>
+
+  <!-- Hiring Modal -->
+  <div class="modal-overlay" *ngIf="showHireModal" (click)="closeHireModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Hire User</h3>
+        <button class="btn-close" (click)="closeHireModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Select a job role for <strong>{{ selectedUserForHire?.name }}</strong>. This will update their role to EMPLOYEE.</p>
+        
+        <div class="form-group">
+          <label>Select Job Role</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-briefcase input-icon"></i>
+            <select class="mac-input" [(ngModel)]="selectedJobRole">
+              <option value="">Choose a position...</option>
+              <option *ngFor="let role of availableJobRoles" [value]="role.title">
+                {{ role.title }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-mac-secondary" (click)="closeHireModal()">Cancel</button>
+        <button class="btn-mac" (click)="confirmHire()" [disabled]="!selectedJobRole">
+          <i class="fa-solid fa-user-plus"></i> Confirm Hire
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -17,8 +17,8 @@ export class ShiftAssignmentComponent implements OnInit {
   shifts: Shift[] = [];
   assignments: any[] = [];
   
-  selectedEmployeeIds: string[] = [];
-  selectedAssignmentIds: string[] = [];
+  selectedEmployeeIds: (string | number)[] = [];
+  selectedAssignmentIds: (string | number)[] = [];
   viewMode: 'daily' | 'all' = 'all';
   viewDate = (() => {
     const d = new Date();
@@ -141,7 +141,7 @@ export class ShiftAssignmentComponent implements OnInit {
     });
   }
 
-  deleteAssignment(id: string): void {
+  deleteAssignment(id: string | number): void {
     if (confirm('Are you sure you want to remove this assignment?')) {
       this.shiftService.deleteAssignment(id).subscribe({
         next: () => {
@@ -168,7 +168,7 @@ export class ShiftAssignmentComponent implements OnInit {
     }
   }
 
-  toggleEmployee(empId: string): void {
+  toggleEmployee(empId: string | number): void {
     const index = this.selectedEmployeeIds.indexOf(empId);
     if (index > -1) {
       this.selectedEmployeeIds.splice(index, 1);
@@ -177,7 +177,7 @@ export class ShiftAssignmentComponent implements OnInit {
     }
   }
 
-  toggleAssignmentSelection(id: string): void {
+  toggleAssignmentSelection(id: string | number): void {
     const index = this.selectedAssignmentIds.indexOf(id);
     if (index > -1) {
       this.selectedAssignmentIds.splice(index, 1);

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
 export interface Shift {
-  id?: string;
+  id?: number | string;
   shiftName: string;
   startTime: string;
   endTime: string;
@@ -12,9 +12,9 @@ export interface Shift {
 }
 
 export interface EmployeeShift {
-  id?: string;
-  employeeId: string;
-  shiftId: string;
+  id?: number | string;
+  employeeId: number | string;
+  shiftId: number | string;
   startDate: string;
   endDate: string;
 }
@@ -36,11 +36,11 @@ export class ShiftService {
     return this.http.post<Shift>(`${this.apiUrl}/shifts`, shift);
   }
 
-  updateShift(id: string, shift: Shift): Observable<Shift> {
+  updateShift(id: number | string, shift: Shift): Observable<Shift> {
     return this.http.put<Shift>(`${this.apiUrl}/shifts/${id}`, shift);
   }
 
-  deleteShift(id: string): Observable<void> {
+  deleteShift(id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/shifts/${id}`);
   }
 
@@ -53,7 +53,7 @@ export class ShiftService {
     return this.http.post<void>(`${this.apiUrl}/shift-assign/bulk`, bulkData);
   }
 
-  getEmployeeShifts(employeeId: string): Observable<EmployeeShift[]> {
+  getEmployeeShifts(employeeId: number | string): Observable<EmployeeShift[]> {
     return this.http.get<EmployeeShift[]>(`${this.apiUrl}/shift-assign/employee/${employeeId}`);
   }
 
@@ -65,11 +65,11 @@ export class ShiftService {
     return this.http.get<EmployeeShift[]>(`${this.apiUrl}/shift-assign/date/${date}`);
   }
 
-  deleteAssignment(id: string): Observable<void> {
+  deleteAssignment(id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/shift-assign/${id}`);
   }
 
-  bulkDeleteAssignments(ids: string[]): Observable<void> {
+  bulkDeleteAssignments(ids: (number | string)[]): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/shift-assign/bulk-delete`, ids);
   }
 }

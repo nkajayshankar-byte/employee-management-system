@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
-interface AssetDTO {
-  id?: string;
-  employeeId: string;
+export interface AssetDTO {
+  id?: number | string;
+  employeeId: number | string;
   employeeName?: string;
   assetName: string;
   assetType: string;
@@ -14,7 +14,7 @@ interface AssetDTO {
   assignedDate: Date;
   returnDate?: Date;
   conditions: string;
-  description:string;
+  description: string;
   remarks: string;
 }
 
@@ -30,11 +30,11 @@ export class AssetService {
     return this.http.get<AssetDTO[]>(this.apiUrl);
   }
 
-  getAssetById(id: string): Observable<AssetDTO> {
+  getAssetById(id: number | string): Observable<AssetDTO> {
     return this.http.get<AssetDTO>(`${this.apiUrl}/${id}`);
   }
 
-  getAssetsByEmployee(employeeId: string): Observable<AssetDTO[]> {
+  getAssetsByEmployee(employeeId: number | string): Observable<AssetDTO[]> {
     return this.http.get<AssetDTO[]>(`${this.apiUrl}/employee/${employeeId}`);
   }
 
@@ -42,17 +42,17 @@ export class AssetService {
     return this.http.get<AssetDTO[]>(`${this.apiUrl}/search/${searchTerm}`);
   }
 
-   createAsset(asset: AssetDTO): Observable<any> {
+  createAsset(asset: AssetDTO): Observable<any> {
     return this.http.post(this.apiUrl, asset, {
-      responseType: 'text' as 'json'   // 🔥 prevents 200 OK error issue
+      responseType: 'text' as 'json'
     });
   }
 
-  updateAsset(id: string, asset: AssetDTO): Observable<any> {
+  updateAsset(id: number | string, asset: AssetDTO): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, asset);
   }
 
-  deleteAsset(id: string): Observable<any> {
+  deleteAsset(id: number | string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

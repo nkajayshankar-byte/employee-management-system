@@ -50,10 +50,9 @@ export class LandingPageComponent implements OnInit {
       }
     });
 
-    // Load Employee Count (exclude USER role)
     this.employeeService.getAllEmployees().subscribe({
       next: (employees: any[]) => {
-        this.employeeCount = employees.filter((e: any) => e.role === 'EMPLOYEE' || e.role === 'ADMIN').length;
+        this.employeeCount = employees.filter((e: any) => e.role === 'EMPLOYEE').length;
         this.cdr.detectChanges();
       }
     });

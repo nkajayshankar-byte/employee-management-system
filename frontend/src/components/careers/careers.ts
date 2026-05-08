@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
 import { CareerService } from '../../services/carrerservice';
+import { EmployeeService } from '../../services/employee';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JobApplicationFormComponent } from '../job-application-form/job-application-form';
 
@@ -24,6 +25,7 @@ export class CareersComponent implements OnInit {
   showJobForm = false;
   jobForm!: FormGroup;
   selectedJobForApplicants: any = null;
+  applicantSearchQuery = '';
   selectedJobForApplication: any = null;
   selectedJobForDetails: any = null; // Amazon-style detail view
   userId: string = '';
@@ -37,7 +39,8 @@ export class CareersComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private employeeService: EmployeeService
   ) {
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
@@ -71,18 +74,35 @@ export class CareersComponent implements OnInit {
 
   loadJobs(): void {
     // Load user skills/address for matching
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    if (user.skills) {
-      this.userSkills = user.skills.split(',').map((s: string) => s.trim().toLowerCase()).filter((s: string) => !!s);
-    } else {
-      this.userSkills = [];
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.userSkills = [];
+    this.userAddress = '';
+
+    if (currentUser.email) {
+      this.employeeService.getEmployeeByEmail(currentUser.email).subscribe(emp => {
+        if (emp.skills) {
+          this.userSkills = emp.skills.split(',').map((s: string) => s.trim().toLowerCase()).filter((s: string) => !!s);
+        }
+        this.userAddress = (emp.address || '').trim().toLowerCase();
+        
+        // Refresh matches after getting user data
+        if (this.jobs.length > 0) {
+          this.jobs.sort((a, b) => this.getMatchPercentage(b) - this.getMatchPercentage(a));
+          this.cdr.detectChanges();
+        }
+      });
     }
-    this.userAddress = (user.address || '').trim().toLowerCase();
 
     this.careerService.getJobs().subscribe(res => {
       this.allJobs = res;
-      // Filter for active jobs in the main grid
-      this.jobs = res.filter((j: any) => j.isActive !== false);
+      // Filter for active jobs and sort by match percentage for users
+      let filteredJobs = res.filter((j: any) => j.isActive !== false);
+      
+      if (!this.isAdmin) {
+        filteredJobs.sort((a, b) => this.getMatchPercentage(b) - this.getMatchPercentage(a));
+      }
+      
+      this.jobs = filteredJobs;
       this.cdr.detectChanges();
     });
   }
@@ -107,7 +127,7 @@ export class CareersComponent implements OnInit {
       // The shorter one must be at least 60% the length of the longer to avoid "go" matching "golang"
       const shorter = normUser.length <= normJob.length ? normUser : normJob;
       const longer = normUser.length > normJob.length ? normUser : normJob;
-      if (shorter.length / longer.length >= 0.5 && longer.startsWith(shorter)) return true;
+      if (shorter.length / longer.length >= 0.4 && longer.includes(shorter)) return true;
     }
     return false;
   }
@@ -163,14 +183,20 @@ export class CareersComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
       if (params['jobId'] && this.isAdmin) {
-        this.careerService.getJobs().subscribe(jobs => {
-          const targetJob = jobs.find((j: any) => j.id === params['jobId']);
-          if (targetJob) {
-            this.ngZone.run(() => {
-              this.viewApplicants(targetJob);
-            });
+        // We wait for allJobs to be loaded by loadJobs() first
+        const checkJobs = () => {
+          if (this.allJobs && this.allJobs.length > 0) {
+            const targetJob = this.allJobs.find((j: any) => String(j.id) === String(params['jobId']));
+            if (targetJob) {
+              this.ngZone.run(() => {
+                this.viewApplicants(targetJob);
+              });
+            }
+          } else {
+            setTimeout(checkJobs, 100);
           }
-        });
+        };
+        checkJobs();
       }
     });
   }
@@ -324,11 +350,22 @@ export class CareersComponent implements OnInit {
   viewApplicants(job: any): void {
     this.ngZone.run(() => {
       this.selectedJobForApplicants = job;
+      this.applicantSearchQuery = ''; // Reset search when opening new pool
       this.careerService.getApplicants(job.id).subscribe(res => {
         this.applicants = res;
         this.cdr.detectChanges();
       });
     });
+  }
+
+  get filteredApplicants(): any[] {
+    if (!this.applicantSearchQuery.trim()) return this.applicants;
+    const query = this.applicantSearchQuery.toLowerCase();
+    return this.applicants.filter(app => 
+      app.employeeName?.toLowerCase().includes(query) || 
+      app.employeeEmail?.toLowerCase().includes(query) ||
+      app.status?.toLowerCase().includes(query)
+    );
   }
 
   changeStatus(appId: string, status: string): void {
@@ -339,11 +376,5 @@ export class CareersComponent implements OnInit {
       },
       error: () => this.toastr.error('Failed to update status')
     });
-  }
-
-  getJobTitle(jobId: string): string {
-    const job = this.allJobs.find(j => j.id === jobId || j._id === jobId);
-    if (!job) return 'Position';
-    return job.isActive === false ? `${job.title} (Position Closed)` : job.title;
   }
 }

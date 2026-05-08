@@ -3,89 +3,72 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
- export interface Job {
-    id?: string;
+  export interface Job {
+    id?: number | string;
     title: string;
     department: string;
     location: string;
     type: string;
     description: string;
+    isActive?: boolean;
   }
 
   export interface JobApplication {
-    id?: string;
-    jobId: string;
-    employeeId: string;
+    id?: number | string;
+    jobId: number | string;
+    jobTitle?: string;
+    jobActive?: boolean;
+    employeeId: number | string;
     employeeName: string;
     employeeEmail: string;
+    status?: string;
     appliedDate?: Date;
   }
 @Injectable({
   providedIn: 'root',
 })
  export class CareerService {
-    // Replace with your actual backend API URL
     private apiUrl = `${environment.apiUrl}/api/careers`;
 
     constructor(private http: HttpClient) {}
 
-    // --- Job Management (Admin) ---
-
-    /**
-     * Fetch all available job postings
-     */
     getJobs(): Observable<Job[]> {
       return this.http.get<Job[]>(`${this.apiUrl}/jobs`);
     }
 
-    /**
-     * Add or Update a job posting
-     */
     saveJob(job: Job): Observable<Job> {
       if (job.id) {
-        // Update existing job
         return this.http.put<Job>(`${this.apiUrl}/jobs/${job.id}`, job);
       } else {
-        // Create new job
         return this.http.post<Job>(`${this.apiUrl}/jobs`, job);
       }
     }
 
-    updateJob(id: string, job: Job): Observable<Job> {
+    updateJob(id: number | string, job: Job): Observable<Job> {
       return this.http.put<Job>(`${this.apiUrl}/jobs/${id}`, job);
     }
 
-    /**
-     * Delete a job posting
-     */
-    deleteJob(id: string): Observable<any> {
+    deleteJob(id: number | string): Observable<any> {
       return this.http.delete(`${this.apiUrl}/jobs/${id}`);
     }
 
-    // --- Application Management ---
-
-    /**
-     * Submit a job application (Employee)
-     */
     apply(application: JobApplication): Observable<JobApplication> {
       return this.http.post<JobApplication>(`${this.apiUrl}/apply`, application);
     }
 
-    /**
-     * Get all employees who applied for a specific job (Admin)
-     */
-    getApplicants(jobId: string): Observable<JobApplication[]> {
+    getApplicants(jobId: number | string): Observable<JobApplication[]> {
       return this.http.get<JobApplication[]>(`${this.apiUrl}/applications/${jobId}`);
     }
 
-    hasApplied(jobId: string, employeeId: string): Observable<boolean> {
+    hasApplied(jobId: number | string, employeeId: number | string): Observable<boolean> {
      return this.http.get<boolean>(`${this.apiUrl}/check-application?jobId=${jobId}&empId=${employeeId}`);
     }
 
-    updateStatus(id: string, status: string): Observable<any> {
+    updateStatus(id: number | string, status: string): Observable<any> {
       return this.http.put(`${this.apiUrl}/applications/status/${id}`, { status });
     }
-    getMyApplications(employeeId: string): Observable<JobApplication[]> {
+
+    getMyApplications(employeeId: number | string): Observable<JobApplication[]> {
       return this.http.get<JobApplication[]>(
         `${this.apiUrl}/applications/employee/${employeeId}`
       );

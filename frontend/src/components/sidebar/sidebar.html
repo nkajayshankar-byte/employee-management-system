@@ -5,6 +5,12 @@
 
   <div class="sidebar-scroll">
     <nav class="sidebar-nav">
+      <!-- Global User Greeting -->
+      <div class="user-greeting" *ngIf="currentUser">
+        <span class="greeting-text">Hi,</span>
+        <span class="user-name">{{ currentUser.name }}</span>
+      </div>
+
       <!-- Admin Links -->
       <ng-container *ngIf="isAdmin">
         <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
@@ -40,13 +46,10 @@
           <span class="nav-label">Company</span>
         </a>
       </ng-container>
+      
 
       <!-- Employee & User Shared Links -->
       <ng-container *ngIf="isEmployee || isUser">
-        <div class="user-greeting" *ngIf="currentUser">
-          <span class="greeting-text">Hi,</span>
-          <span class="user-name">{{ currentUser.name }}</span>
-        </div>
         <a routerLink="/employee/portfolio" routerLinkActive="active" class="nav-item">
           <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
           <span class="nav-label">Portfolio</span>

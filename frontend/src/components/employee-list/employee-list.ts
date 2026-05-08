@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Employee, EmployeeService } from '../../services/employee';
+import { CareerService, Job } from '../../services/carrerservice';
 import { environment } from '../../environments/environment';
 import { ChangeDetectorRef } from '@angular/core';
  import * as XLSX from 'xlsx'; // Import xlsx
@@ -20,33 +21,47 @@ export class EmployeeListComponent implements OnInit {
   searchTerm = '';
   loading = false;
   sortBy: 'name' | 'email' = 'name';
-  selectedEmployeeIds: string[] = [];
+  selectedEmployeeIds: (string | number)[] = [];
   isAllSelected = false;
   apiUrl = environment.apiUrl;
+
+  // Hiring Modal State
+  showHireModal = false;
+  selectedUserForHire: Employee | null = null;
+  selectedJobRole = '';
+  availableJobRoles: Job[] = [];
 
   constructor(
     private employeeService: EmployeeService,
     private toastr: ToastrService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private careerService: CareerService
   ) { }
 
 ngOnInit(): void {
   this.loadEmployees();
+  this.loadJobRoles();
+}
+
+loadJobRoles(): void {
+  this.careerService.getJobs().subscribe({
+    next: (jobs) => {
+      this.availableJobRoles = jobs.filter(j => j.isActive !== false);
+      this.cdr.detectChanges();
+    },
+    error: () => console.error('Failed to load job roles')
+  });
 }
 
   loadEmployees(): void {
-    setTimeout(() => {
-      this.loading = true;
-      this.cdr.detectChanges();
-    }, 0);
-
+    this.loading = true;
     this.employeeService.getAllEmployees().subscribe({
       next: (data) => {
         this.ngZone.run(() => {
           this.employees = (data || []).filter(
-            (user: any) => user.role === 'EMPLOYEE' || user.role === 'USER'
+            (user: any) => user.role === 'EMPLOYEE' || user.role === 'USER' || user.role === 'ADMIN'
           );
           this.filteredEmployees = [...this.employees];
           this.sortEmployees();
@@ -94,19 +109,19 @@ ngOnInit(): void {
     });
   }
 
-  viewDetails(id: string | undefined): void {
+  viewDetails(id: string | number | undefined): void {
     if (id) {
       this.router.navigate(['/admin/employee', id]);
     }
   }
 
-  editEmployee(id: string | undefined): void {
+  editEmployee(id: string | number | undefined): void {
     if (id) {
       this.router.navigate(['/admin/edit-employee', id]);
     }
   }
 
-  deleteEmployee(id: string | undefined): void {
+  deleteEmployee(id: string | number | undefined): void {
     if (!id) return;
 
     if (confirm('Are you sure you want to delete this employee?')) {
@@ -127,14 +142,14 @@ ngOnInit(): void {
     if (this.isAllSelected) {
       this.selectedEmployeeIds = this.filteredEmployees
         .map(emp => emp.id)
-        .filter(id => !!id) as string[];
+        .filter(id => !!id) as (string | number)[];
     } else {
       this.selectedEmployeeIds = [];
     }
     this.cdr.detectChanges();
   }
 
-  toggleEmployeeSelection(id: string | undefined): void {
+  toggleEmployeeSelection(id: string | number | undefined): void {
     if (!id) return;
     const index = this.selectedEmployeeIds.indexOf(id);
     if (index > -1) {
@@ -165,24 +180,63 @@ ngOnInit(): void {
     }
   }
 
-  hireEmployee(id: string | undefined): void {
+  hireEmployee(id: string | number | undefined): void {
     if (!id) return;
     
-    if (confirm('Are you sure you want to hire this user? Their role will be updated to EMPLOYEE.')) {
-      const user = this.employees.find(e => e.id === id);
-      if (user) {
-        const updatedUser = { ...user, role: 'EMPLOYEE' };
-        this.employeeService.updateEmployee(id, updatedUser).subscribe({
-          next: () => {
-            this.toastr.success('User hired successfully!');
-            this.loadEmployees();
-          },
-          error: () => {
-            this.toastr.error('Failed to hire user');
-          }
-        });
-      }
+    const user = this.employees.find(e => e.id === id);
+    if (user) {
+      this.selectedUserForHire = user;
+      this.selectedJobRole = '';
+      this.showHireModal = true;
+      this.cdr.detectChanges();
     }
+  }
+
+  confirmHire(): void {
+    if (!this.selectedUserForHire || !this.selectedUserForHire.id) return;
+    if (!this.selectedJobRole) {
+      this.toastr.warning('Please select a job role');
+      return;
+    }
+
+    const updatedUser = { 
+      ...this.selectedUserForHire, 
+      role: 'EMPLOYEE',
+      jobRole: this.selectedJobRole 
+    };
+
+    this.employeeService.updateEmployee(this.selectedUserForHire.id, updatedUser).subscribe({
+      next: () => {
+        this.toastr.success('User hired successfully!');
+        this.showHireModal = false;
+        this.selectedUserForHire = null;
+        this.loadEmployees();
+      },
+      error: () => {
+        this.toastr.error('Failed to hire user');
+      }
+    });
+  }
+
+  promoteToAdmin(employee: Employee): void {
+    if (!employee || !employee.id) return;
+
+    if (confirm(`Are you sure you want to promote ${employee.name} to Administrator? This will grant them full access to the system.`)) {
+      const updatedUser = { ...employee, role: 'ADMIN' };
+      this.employeeService.updateEmployee(employee.id, updatedUser).subscribe({
+        next: () => {
+          this.toastr.success(`${employee.name} promoted to Admin successfully!`);
+          this.loadEmployees();
+        },
+        error: () => this.toastr.error('Failed to promote user')
+      });
+    }
+  }
+
+  closeHireModal(): void {
+    this.showHireModal = false;
+    this.selectedUserForHire = null;
+    this.cdr.detectChanges();
   }
 
   exportToExcel(): void {

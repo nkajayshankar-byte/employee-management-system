@@ -32,7 +32,9 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required,
       Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['', Validators.required],
+      address: [''],
+      role: ['USER', Validators.required],
+      adminKey: [''],
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 
@@ -86,28 +88,28 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const { email, password, role } = this.signupForm.value;
-    const user = { email, password, role };
+    const { email, password, role, adminKey, address } = this.signupForm.value;
+    const user = { email, password, role, adminKey, address };
 
     this.loading = true;
     this.authService.signup(user).subscribe({
       next: () => {
-        this.loading = false;
-        this.toastr.success('Account created successfully! Please login.');
-
-        // Redirect to login mode
-        this.isSignup = false;
-
-        // Pre-fill login form for better UX
-        this.loginForm.patchValue({ email, role });
-
-        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.loading = false;
+          this.toastr.success('Account created successfully! Please login.');
+          this.isSignup = false;
+          this.loginForm.patchValue({ email });
+          this.cdr.detectChanges();
+        }, 0);
       },
-      error: (err) => {
-        this.loading = false;
-        let msg = 'Signup failed';
-        if (err.status === 409) msg = 'Email already exists';
-        this.toastr.error(msg);
+      error: (err: any) => {
+        setTimeout(() => {
+          this.loading = false;
+          let msg = 'Signup failed';
+          if (err.status === 409 || err.error === 'Email already exists') msg = 'Email already exists';
+          this.toastr.error(msg);
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
   }

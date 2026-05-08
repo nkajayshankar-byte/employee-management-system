@@ -133,10 +133,10 @@
         <p><i class="fa-solid fa-phone"></i> {{ companyDetails.contactInfo.phone }}</p>
       </div>
       <div class="social-links">
-        <ng-container *ngIf="companyDetails.contactInfo.linkedin || companyDetails.contactInfo.twitter || companyDetails.contactInfo.instagram; else noSocialLinks">
-          <a *ngIf="companyDetails.contactInfo.linkedin" [href]="companyDetails.contactInfo.linkedin" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-          <a *ngIf="companyDetails.contactInfo.twitter" [href]="companyDetails.contactInfo.twitter" target="_blank" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
-          <a *ngIf="companyDetails.contactInfo.instagram" [href]="companyDetails.contactInfo.instagram" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <ng-container *ngIf="(companyDetails.contactInfo.linkedin && companyDetails.contactInfo.linkedin.trim()) || (companyDetails.contactInfo.twitter && companyDetails.contactInfo.twitter.trim()) || (companyDetails.contactInfo.instagram && companyDetails.contactInfo.instagram.trim()); else noSocialLinks">
+          <a *ngIf="companyDetails.contactInfo.linkedin && companyDetails.contactInfo.linkedin.trim()" [href]="companyDetails.contactInfo.linkedin" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+          <a *ngIf="companyDetails.contactInfo.twitter && companyDetails.contactInfo.twitter.trim()" [href]="companyDetails.contactInfo.twitter" target="_blank" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          <a *ngIf="companyDetails.contactInfo.instagram && companyDetails.contactInfo.instagram.trim()" [href]="companyDetails.contactInfo.instagram" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
         </ng-container>
         <ng-template #noSocialLinks>
           <span style="color: var(--text-secondary); font-size: 14px; font-style: italic;">Not Found</span>

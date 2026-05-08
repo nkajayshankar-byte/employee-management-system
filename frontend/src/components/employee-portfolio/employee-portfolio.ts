@@ -117,6 +117,10 @@ export class EmployeePortfolioComponent implements OnInit, HasUnsavedChanges {
             this.editMode = false;
             if (this.employee) {
               this.pristineEmployee = JSON.stringify(this.employee);
+              // Update localStorage with fresh data
+              const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+              const updatedUser = { ...currentUser, ...this.employee };
+              localStorage.setItem('currentUser', JSON.stringify(updatedUser));
             }
             this.loadPortfolio();
             this.loading = false;

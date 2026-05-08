@@ -48,7 +48,7 @@
             {{ employee.role === 'EMPLOYEE' ? (employee.jobRole || 'EMPLOYEE') : 'USER' }}
           </span>
           <span class="id-badge">
-            {{ employee.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'USER' }} ID: {{ employee.id | slice:0:8 }}
+            {{ employee.role === 'EMPLOYEE' ? 'EMPLOYEE' : 'USER' }} ID: {{ employee.id }}
           </span>
         </div>
       </div>

@@ -112,7 +112,7 @@
       </div>
 
       <div class="view-all-container">
-        <a [routerLink]="['/careers']" class="apple-btn-link">View all positions <i class="fa-solid fa-chevron-right"></i></a>
+        <a (click)="logoutAndSignup()" class="apple-btn-link" style="cursor: pointer;">View all positions <i class="fa-solid fa-chevron-right"></i></a>
       </div>
     </div>
   </section>
@@ -238,13 +238,13 @@
       <span><i class="fa-solid fa-phone"></i> {{ company.contactInfo.phone }}</span>
     </div>
     <div class="footer-social" *ngIf="company?.contactInfo">
-      <a *ngIf="company.contactInfo.linkedin" [href]="company.contactInfo.linkedin" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn">
+      <a *ngIf="company.contactInfo.linkedin && company.contactInfo.linkedin.trim()" [href]="company.contactInfo.linkedin" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn">
         <i class="fa-brands fa-linkedin"></i>
       </a>
-      <a *ngIf="company.contactInfo.twitter" [href]="company.contactInfo.twitter" target="_blank" rel="noopener noreferrer" class="social-link" title="X (Twitter)">
+      <a *ngIf="company.contactInfo.twitter && company.contactInfo.twitter.trim()" [href]="company.contactInfo.twitter" target="_blank" rel="noopener noreferrer" class="social-link" title="X (Twitter)">
         <i class="fa-brands fa-x-twitter"></i>
       </a>
-      <a *ngIf="company.contactInfo.instagram" [href]="company.contactInfo.instagram" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+      <a *ngIf="company.contactInfo.instagram && company.contactInfo.instagram.trim()" [href]="company.contactInfo.instagram" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
         <i class="fa-brands fa-instagram"></i>
       </a>
     </div>
