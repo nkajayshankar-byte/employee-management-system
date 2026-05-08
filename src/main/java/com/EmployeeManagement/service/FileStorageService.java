@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 @Service
 public class FileStorageService {
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     private final Path root = Paths.get("uploads");
 
     public FileStorageService() {
@@ -25,6 +28,16 @@ public class FileStorageService {
     }
 
     public String save(MultipartFile file) {
+        // Use Cloudinary if configured (typically in Production/Render)
+        String cloudName = System.getenv("CLOUDINARY_CLOUD_NAME");
+        if (cloudName != null && !cloudName.isEmpty()) {
+            try {
+                return cloudinaryService.upload(file);
+            } catch (IOException e) {
+                throw new RuntimeException("Cloudinary upload failed: " + e.getMessage());
+            }
+        }
+
         try {
             byte[] content = file.getBytes();
             String fullHash = calculateHash(content);
