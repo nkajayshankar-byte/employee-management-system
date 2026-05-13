@@ -8,10 +8,12 @@ import { AuthService } from '../services/auth';
 import { map, startWith } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
 
+import { ChatbotComponent } from '../components/chatbot/chatbot';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, ChatbotComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

@@ -7,7 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,10 +29,7 @@ public class SecurityConfig {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/assets/**", "/static/**");
-    }
+
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,8 +39,9 @@ public class SecurityConfig {
 	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+	            .requestMatchers("/assets/**", "/static/**").permitAll()
 	            .requestMatchers("/uploads/**").permitAll()
-	            .requestMatchers("/", "/api/auth/**").permitAll()
+	            .requestMatchers("/", "/api/auth/**", "/api/chat/**").permitAll()
 	            .requestMatchers(HttpMethod.GET, "/api/employees/**").permitAll()
 	            .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
 	            .requestMatchers(HttpMethod.POST, "/api/employees/*/upload-image").hasAnyRole("USER", "EMPLOYEE", "ADMIN")
