@@ -95,26 +95,27 @@ export class JobApplicationFormComponent implements OnInit {
         return;
       }
 
-      this.uploading = true;
-      this.careerService.uploadResume(file).subscribe({
-        next: (res: any) => {
-          this.resumeUrl = res.url;
-          this.applicationForm.patchValue({ resume: res.url });
-          this.applicationForm.get('resume')?.setErrors(null);
-          this.uploading = false;
-          this.toastr.success('Resume uploaded successfully');
-        },
-        error: (err) => {
-          this.toastr.error('Failed to upload resume');
-          this.uploading = false;
-        }
+      // Fix: Wrap in setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.uploading = true;
+        this.careerService.uploadResume(file).subscribe({
+          next: (res: any) => {
+            this.resumeUrl = res.url;
+            this.applicationForm.patchValue({ resume: res.url });
+            this.applicationForm.get('resume')?.setErrors(null);
+            this.uploading = false;
+            this.toastr.success('Resume uploaded successfully');
+          },
+          error: (err) => {
+            this.toastr.error('Failed to upload resume');
+            this.uploading = false;
+          }
+        });
       });
     }
   }
 
   submitApplication(): void {
-    console.log('Submitting application...', this.applicationForm.value);
-    
     // Explicit Resume Check
     if (!this.resumeUrl) {
       this.applicationForm.get('resume')?.setErrors({ required: true });
@@ -165,16 +166,15 @@ export class JobApplicationFormComponent implements OnInit {
       status: 'PENDING'
     };
 
-    console.log('Final Application Data:', applicationData);
+
 
     this.careerService.apply(applicationData).subscribe({
       next: (res) => {
-        console.log('Application success:', res);
+
         this.toastr.success('Application submitted successfully!');
         this.success.emit();
       },
       error: (err) => {
-        console.error('Submission error:', err);
         const errorMsg = err.error?.message || 'Failed to submit application. Please try again.';
         this.toastr.error(errorMsg);
       }

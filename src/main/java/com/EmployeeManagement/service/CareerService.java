@@ -42,6 +42,9 @@ public class CareerService {
     @Autowired
     private ApplicationMapper applicationMapper;
 
+    @Autowired
+    private ResumeScreeningService screeningService;
+
     public List<JobDTO> getAllJobs() { 
         List<Job> jobs = jobDAO.findAll();
         // Return only active jobs
@@ -97,19 +100,39 @@ public class CareerService {
         JobApplication application = applicationMapper.toEntity(dto);
         JobApplication savedApp = appDAO.save(application);
 
-        // Fetch again to get joined fields for email
-        JobApplication fullApp = appDAO.findById(savedApp.getId()).orElse(savedApp);
 
         try {
             String jobTitle = jobCheck.get().getTitle();
-            if (fullApp.getEmployeeEmail() != null) {
-                emailService.sendApplicationReceivedEmail(fullApp.getEmployeeEmail(), 
-                    fullApp.getEmployeeName() != null ? fullApp.getEmployeeName() : "Applicant", 
+            if (savedApp.getEmployeeEmail() != null) {
+                emailService.sendApplicationReceivedEmail(savedApp.getEmployeeEmail(), 
+                    savedApp.getEmployeeName() != null ? savedApp.getEmployeeName() : "Applicant", 
                     jobTitle);
             }
         } catch (Exception e) {
             System.err.println("Failed to send application confirmation email: " + e.getMessage());
         }
+        
+        // Trigger AI Screening
+        try {
+            if (savedApp.getResumeUrl() != null && !savedApp.getResumeUrl().isEmpty()) {
+                var aiAnalysis = screeningService.screenResume(savedApp.getResumeUrl(), savedApp.getJobId());
+                savedApp.setMatchPercentage(aiAnalysis.getMatchPercentage());
+                savedApp.setMissingSkills(String.join(", ", aiAnalysis.getMissingSkills()));
+                savedApp.setStrengths(String.join(", ", aiAnalysis.getStrengths()));
+                savedApp.setSummary(aiAnalysis.getSummary());
+                savedApp.setExtractedSkills(aiAnalysis.getExtractedSkills());
+                savedApp.setExtractedExperience(aiAnalysis.getExtractedExperience());
+                savedApp.setExtractedEducation(aiAnalysis.getExtractedEducation());
+                
+                // Save AI insights
+                appDAO.save(savedApp);
+            }
+        } catch (Exception e) {
+            System.err.println("AI Screening failed: " + e.getMessage());
+        }
+
+        // Fetch again to get joined fields (name, email, title) and AI insights
+        JobApplication fullApp = appDAO.findById(savedApp.getId()).orElse(savedApp);
         
         return applicationMapper.toDTO(fullApp);
     }

@@ -22,4 +22,13 @@ public class JobApplication {
     private String status = "PENDING";
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
     private LocalDateTime appliedDate = LocalDateTime.now();
+
+    // AI Screening results
+    private Integer matchPercentage;
+    private String missingSkills;
+    private String strengths;
+    private String summary;
+    private String extractedSkills;
+    private String extractedExperience;
+    private String extractedEducation;
 }

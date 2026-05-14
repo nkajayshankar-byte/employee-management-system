@@ -21,7 +21,16 @@ public class ApplicationMapper {
         dto.setAppliedDate(app.getAppliedDate());
         dto.setJobTitle(app.getJobTitle());
         dto.setJobActive(app.getJobActive());
-
+        
+        // AI Fields
+        dto.setMatchPercentage(app.getMatchPercentage());
+        dto.setMissingSkills(app.getMissingSkills());
+        dto.setStrengths(app.getStrengths());
+        dto.setSummary(app.getSummary());
+        dto.setExtractedSkills(app.getExtractedSkills());
+        dto.setExtractedExperience(app.getExtractedExperience());
+        dto.setExtractedEducation(app.getExtractedEducation());
+        
         return dto;
     }
 
@@ -39,6 +48,15 @@ public class ApplicationMapper {
         app.setAppliedDate(dto.getAppliedDate());
         app.setJobTitle(dto.getJobTitle());
         app.setJobActive(dto.getJobActive());
+
+        // AI Fields
+        app.setMatchPercentage(dto.getMatchPercentage());
+        app.setMissingSkills(dto.getMissingSkills());
+        app.setStrengths(dto.getStrengths());
+        app.setSummary(dto.getSummary());
+        app.setExtractedSkills(dto.getExtractedSkills());
+        app.setExtractedExperience(dto.getExtractedExperience());
+        app.setExtractedEducation(dto.getExtractedEducation());
 
         return app;
     }

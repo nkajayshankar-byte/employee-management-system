@@ -256,24 +256,62 @@
         </div>
 
         <div class="applicants-list">
-          <div class="applicant-row" *ngFor="let app of filteredApplicants">
-            <div class="a-details">
-              <span class="a-name">{{ app.employeeName }}</span>
-              <span class="a-email">{{ app.employeeEmail }}</span>
+          <div class="applicant-row-wrapper" *ngFor="let app of filteredApplicants">
+            <div class="applicant-row">
+              <div class="a-details">
+                <span class="a-name">{{ app.employeeName }}</span>
+                <span class="a-email">{{ app.employeeEmail }}</span>
+              </div>
+              <div class="a-ai-score" *ngIf="app.matchPercentage !== null">
+                <div class="score-mini-pill" [ngClass]="app.matchPercentage >= 70 ? 'high' : app.matchPercentage >= 40 ? 'medium' : 'low'">
+                  {{ app.matchPercentage }}% AI Match
+                </div>
+                <button class="ai-insight-btn" (click)="toggleAiInsight(app.id)">
+                  <i class="fa-solid" [class.fa-chevron-down]="expandedAppId !== app.id" [class.fa-chevron-up]="expandedAppId === app.id"></i>
+                  AI Insights
+                </button>
+              </div>
+              <div class="a-resume">
+                <a *ngIf="app.resumeUrl" [href]="app.resumeUrl.startsWith('http') ? app.resumeUrl : apiUrl + app.resumeUrl" target="_blank" class="amazon-link">
+                  <i class="fa-solid fa-file-lines"></i> Resume
+                </a>
+                <span *ngIf="!app.resumeUrl" class="na-text">N/A</span>
+              </div>
+              <div class="a-status">
+                <select (change)="changeStatus(app.id, $any($event.target).value)" [value]="app.status" class="amazon-select">
+                  <option value="PENDING">Pending</option>
+                  <option value="SHORTLISTED">Shortlisted</option>
+                  <option value="HIRED">Hired</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
             </div>
-            <div class="a-resume">
-              <a *ngIf="app.resumeUrl" [href]="app.resumeUrl.startsWith('http') ? app.resumeUrl : apiUrl + app.resumeUrl" target="_blank" class="amazon-link">
-                <i class="fa-solid fa-file-lines"></i> View Resume
-              </a>
-              <span *ngIf="!app.resumeUrl" class="na-text">N/A</span>
-            </div>
-            <div class="a-status">
-              <select (change)="changeStatus(app.id, $any($event.target).value)" [value]="app.status" class="amazon-select">
-                <option value="PENDING">Pending</option>
-                <option value="SHORTLISTED">Shortlisted</option>
-                <option value="HIRED">Hired</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
+
+            <!-- AI Insight Panel -->
+            <div class="ai-insight-panel" *ngIf="expandedAppId === app.id">
+              <div class="ai-insight-grid">
+                <div class="ai-section">
+                  <h4 class="ai-label">Candidate Summary</h4>
+                  <p class="ai-text">{{ app.summary || 'Analyzing...' }}</p>
+                </div>
+                <div class="ai-section">
+                  <h4 class="ai-label">Strengths</h4>
+                  <div class="ai-pills">
+                    <span class="ai-pill strength" *ngFor="let s of app.strengths?.split(',')">{{ s }}</span>
+                  </div>
+                </div>
+                <div class="ai-section">
+                  <h4 class="ai-label">Missing Skills</h4>
+                  <div class="ai-pills">
+                    <span class="ai-pill missing" *ngFor="let s of app.missingSkills?.split(',')">{{ s }}</span>
+                  </div>
+                </div>
+                <div class="ai-section">
+                  <h4 class="ai-label">Education & Experience</h4>
+                  <p class="ai-text"><strong>Education:</strong> {{ app.extractedEducation }}</p>
+                  <p class="ai-text"><strong>Experience:</strong> {{ app.extractedExperience }}</p>
+                </div>
+              </div>
             </div>
           </div>
           <div *ngIf="applicants.length === 0" style="text-align: center; padding: 40px 20px; color: #86868b;">

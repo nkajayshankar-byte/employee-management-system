@@ -23,6 +23,14 @@ import { environment } from '../environments/environment';
     employeeEmail: string;
     status?: string;
     appliedDate?: Date;
+    resumeUrl?: string;
+    matchPercentage?: number;
+    missingSkills?: string;
+    strengths?: string;
+    summary?: string;
+    extractedSkills?: string;
+    extractedExperience?: string;
+    extractedEducation?: string;
   }
 @Injectable({
   providedIn: 'root',

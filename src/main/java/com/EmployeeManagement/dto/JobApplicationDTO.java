@@ -17,6 +17,15 @@ public class JobApplicationDTO {
     private String jobTitle;
     private Boolean jobActive;
 
+    // AI Screening results
+    private Integer matchPercentage;
+    private String missingSkills;
+    private String strengths;
+    private String summary;
+    private String extractedSkills;
+    private String extractedExperience;
+    private String extractedEducation;
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -38,4 +47,19 @@ public class JobApplicationDTO {
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getAppliedDate() { return appliedDate; }
     public void setAppliedDate(LocalDateTime appliedDate) { this.appliedDate = appliedDate; }
+
+    public Integer getMatchPercentage() { return matchPercentage; }
+    public void setMatchPercentage(Integer matchPercentage) { this.matchPercentage = matchPercentage; }
+    public String getMissingSkills() { return missingSkills; }
+    public void setMissingSkills(String missingSkills) { this.missingSkills = missingSkills; }
+    public String getStrengths() { return strengths; }
+    public void setStrengths(String strengths) { this.strengths = strengths; }
+    public String getSummary() { return summary; }
+    public void setSummary(String summary) { this.summary = summary; }
+    public String getExtractedSkills() { return extractedSkills; }
+    public void setExtractedSkills(String extractedSkills) { this.extractedSkills = extractedSkills; }
+    public String getExtractedExperience() { return extractedExperience; }
+    public void setExtractedExperience(String extractedExperience) { this.extractedExperience = extractedExperience; }
+    public String getExtractedEducation() { return extractedEducation; }
+    public void setExtractedEducation(String extractedEducation) { this.extractedEducation = extractedEducation; }
 }

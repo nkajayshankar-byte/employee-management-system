@@ -31,6 +31,7 @@ export class CareersComponent implements OnInit {
   userId: string = '';
   showMyApplications = false;
   apiUrl = environment.apiUrl;
+  expandedAppId: string | null = null;
 
   constructor(
     private careerService: CareerService,
@@ -376,5 +377,13 @@ export class CareersComponent implements OnInit {
       },
       error: () => this.toastr.error('Failed to update status')
     });
+  }
+
+  toggleAiInsight(appId: string): void {
+    if (this.expandedAppId === appId) {
+      this.expandedAppId = null;
+    } else {
+      this.expandedAppId = appId;
+    }
   }
 }

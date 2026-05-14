@@ -35,6 +35,15 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         app.setJobTitle(rs.getString("jobTitle"));
         app.setJobActive(rs.getBoolean("jobActive"));
         
+        // AI Fields
+        app.setMatchPercentage(rs.getObject("matchPercentage") != null ? rs.getInt("matchPercentage") : null);
+        app.setMissingSkills(rs.getString("missingSkills"));
+        app.setStrengths(rs.getString("strengths"));
+        app.setSummary(rs.getString("summary"));
+        app.setExtractedSkills(rs.getString("extractedSkills"));
+        app.setExtractedExperience(rs.getString("extractedExperience"));
+        app.setExtractedEducation(rs.getString("extractedEducation"));
+        
         return app;
     };
 
@@ -46,7 +55,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     @Override
     public JobApplication save(JobApplication application) {
         if (application.getId() == null) {
-            String sql = "INSERT INTO job_applications (jobId, employeeId, resumeUrl, status, appliedDate) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO job_applications (jobId, employeeId, resumeUrl, status, appliedDate, matchPercentage, missingSkills, strengths, summary, extractedSkills, extractedExperience, extractedEducation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(connection -> {
@@ -56,18 +65,32 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 ps.setString(3, application.getResumeUrl());
                 ps.setString(4, application.getStatus());
                 ps.setObject(5, application.getAppliedDate());
+                ps.setObject(6, application.getMatchPercentage());
+                ps.setString(7, application.getMissingSkills());
+                ps.setString(8, application.getStrengths());
+                ps.setString(9, application.getSummary());
+                ps.setString(10, application.getExtractedSkills());
+                ps.setString(11, application.getExtractedExperience());
+                ps.setString(12, application.getExtractedEducation());
                 return ps;
             }, keyHolder);
 
             application.setId(keyHolder.getKey().longValue());
         } else {
-            String sql = "UPDATE job_applications SET jobId = ?, employeeId = ?, resumeUrl = ?, status = ?, appliedDate = ? WHERE id = ?";
+            String sql = "UPDATE job_applications SET jobId = ?, employeeId = ?, resumeUrl = ?, status = ?, appliedDate = ?, matchPercentage = ?, missingSkills = ?, strengths = ?, summary = ?, extractedSkills = ?, extractedExperience = ?, extractedEducation = ? WHERE id = ?";
             jdbcTemplate.update(sql,
                 application.getJobId(),
                 application.getEmployeeId(),
                 application.getResumeUrl(),
                 application.getStatus(),
                 application.getAppliedDate(),
+                application.getMatchPercentage(),
+                application.getMissingSkills(),
+                application.getStrengths(),
+                application.getSummary(),
+                application.getExtractedSkills(),
+                application.getExtractedExperience(),
+                application.getExtractedEducation(),
                 application.getId()
             );
         }

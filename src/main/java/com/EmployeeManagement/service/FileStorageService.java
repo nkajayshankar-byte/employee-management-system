@@ -15,6 +15,9 @@ import java.util.stream.Stream;
 @Service
 public class FileStorageService {
 
+    @org.springframework.beans.factory.annotation.Value("${cloudinary.cloud_name:}")
+    private String cloudName;
+
     @Autowired
     private CloudinaryService cloudinaryService;
 
@@ -24,18 +27,17 @@ public class FileStorageService {
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
-            throw new RuntimeException("Could not initialize folder for upload!");
+            // Initialization failed
         }
     }
 
     public String save(MultipartFile file) {
-        // Use Cloudinary if configured (typically in Production/Render)
-        String cloudName = System.getenv("CLOUDINARY_CLOUD_NAME");
+        // Use Cloudinary if configured
         if (cloudName != null && !cloudName.isEmpty()) {
             try {
                 return cloudinaryService.upload(file);
-            } catch (IOException e) {
-                throw new RuntimeException("Cloudinary upload failed: " + e.getMessage());
+            } catch (Exception e) {
+                // Fallback to local
             }
         }
 

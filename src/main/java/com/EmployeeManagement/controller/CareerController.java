@@ -23,8 +23,8 @@ public class CareerController {
     @Autowired
     private FileStorageService fileStorageService;
 
-    @PostMapping("/upload-resume")
-    public Map<String, String> uploadResume(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/upload-resume", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, String> uploadResume(@RequestPart("file") MultipartFile file) {
         String url = fileStorageService.save(file);
         Map<String, String> res = new HashMap<>();
         res.put("url", url);
@@ -43,14 +43,14 @@ public class CareerController {
     }
 
     @PutMapping("/jobs/{id}")
-    public JobDTO updateJob(@PathVariable Long id, @RequestBody JobDTO jobDto) {
+    public JobDTO updateJob(@PathVariable("id") Long id, @RequestBody JobDTO jobDto) {
         jobDto.setId(id);
         careerService.updateJob(jobDto);
         return jobDto;
     }
 
     @DeleteMapping("/jobs/{id}")
-    public Map<String, String> deleteJob(@PathVariable Long id) {
+    public Map<String, String> deleteJob(@PathVariable("id") Long id) {
         careerService.deleteJob(id);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Job deleted successfully");
@@ -63,25 +63,30 @@ public class CareerController {
     }
 
     @GetMapping("/applications/{jobId}")
-    public List<JobApplicationDTO> getApplicants(@PathVariable Long jobId) {
-        return careerService.getApplicationsByJob(jobId);
+    public List<JobApplicationDTO> getApplicants(@PathVariable("jobId") String jobId) {
+        try {
+            Long id = Long.parseLong(jobId.trim());
+            return careerService.getApplicationsByJob(id);
+        } catch (NumberFormatException e) {
+            throw e;
+        }
     }
     
     @GetMapping("/applications/employee/{empId}")
-    public List<JobApplicationDTO> getApplicationsByEmployee(@PathVariable Long empId) {
+    public List<JobApplicationDTO> getApplicationsByEmployee(@PathVariable("empId") Long empId) {
         return careerService.getApplicationsByEmployee(empId);
     }
     
     @GetMapping("/check-application")
     public boolean checkApplication(
-            @RequestParam Long jobId,
-            @RequestParam Long empId) {
+            @RequestParam("jobId") Long jobId,
+            @RequestParam("empId") Long empId) {
         return careerService.hasApplied(jobId, empId);
     }
 
     @PutMapping("/applications/status/{id}")
     public void updateStatus(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         careerService.updateApplicationStatus(id, status);
@@ -89,9 +94,9 @@ public class CareerController {
 
     @GetMapping("/search")
     public List<JobDTO> searchJobs(
-            @RequestParam(required = false) String query,
-            @RequestParam(required = false) Integer minSalary,
-            @RequestParam(required = false) String location) {
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "minSalary", required = false) Integer minSalary,
+            @RequestParam(value = "location", required = false) String location) {
         return careerService.searchJobs(query, minSalary, location);
     }
 }
