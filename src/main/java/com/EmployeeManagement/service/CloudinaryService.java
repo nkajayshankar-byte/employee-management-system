@@ -28,16 +28,20 @@ public class CloudinaryService {
 
     public String upload(MultipartFile file) throws IOException {
         String contentType = file.getContentType();
-        String resourceType = (contentType != null && contentType.startsWith("image/")) ? "image" : "raw";
-
         String originalFilename = file.getOriginalFilename();
         
+        // Cloudinary handles PDFs and Images as 'image' resource_type
+        // Word documents and other files should be 'raw'
+        boolean isViewable = contentType != null && (contentType.startsWith("image/") || contentType.equals("application/pdf"));
+        String resourceType = isViewable ? "image" : "raw";
+
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader()
                 .upload(file.getBytes(), ObjectUtils.asMap(
                         "resource_type", resourceType,
                         "use_filename", true,
-                        "unique_filename", true
+                        "unique_filename", true,
+                        "folder", "resumes"
                 ));
 
         return uploadResult.get("secure_url").toString();

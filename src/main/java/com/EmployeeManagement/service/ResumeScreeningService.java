@@ -7,6 +7,8 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -114,12 +117,19 @@ public class ResumeScreeningService {
     private String extractTextFromUrl(String resumeUrl) throws IOException {
         // Handle relative URLs (like /uploads/...)
         if (resumeUrl.startsWith("/")) {
-            // Assuming this is running on a server where /uploads is in the root or accessible
-            // For local development, we might need the full path
-            // Let's use a simple check
             String filePath = resumeUrl.substring(1); // remove leading /
-            try (PDDocument document = Loader.loadPDF(new File(filePath))) {
-                return new PDFTextStripper().getText(document);
+            File file = new File(filePath);
+            
+            if (filePath.toLowerCase().endsWith(".doc") || filePath.toLowerCase().endsWith(".docx")) {
+                try (FileInputStream fis = new FileInputStream(file);
+                     XWPFDocument doc = new XWPFDocument(fis)) {
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+                    return extractor.getText();
+                }
+            } else {
+                try (PDDocument document = Loader.loadPDF(file)) {
+                    return new PDFTextStripper().getText(document);
+                }
             }
         } else {
             // Remote URL (Cloudinary)
@@ -144,8 +154,16 @@ public class ResumeScreeningService {
             try (InputStream in = conn.getInputStream()) {
                 byte[] bytes = in.readAllBytes();
                 System.out.println("Read " + bytes.length + " bytes from remote URL.");
-                try (PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(bytes))) {
-                    return new PDFTextStripper().getText(document);
+                
+                if (resumeUrl.toLowerCase().contains(".doc") || resumeUrl.toLowerCase().contains(".docx")) {
+                    try (XWPFDocument doc = new XWPFDocument(new java.io.ByteArrayInputStream(bytes))) {
+                        XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+                        return extractor.getText();
+                    }
+                } else {
+                    try (PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(bytes))) {
+                        return new PDFTextStripper().getText(document);
+                    }
                 }
             }
         }

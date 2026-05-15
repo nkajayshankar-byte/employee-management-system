@@ -386,4 +386,21 @@ export class CareersComponent implements OnInit {
       this.expandedAppId = appId;
     }
   }
+
+  viewResume(resumeUrl: string): void {
+    if (!resumeUrl) return;
+    const fullUrl = resumeUrl.startsWith('http') ? resumeUrl : this.apiUrl + resumeUrl;
+    const isLocal = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1');
+    
+    // Online viewers (Google/Office) ONLY work for public URLs. 
+    // They cannot see your 'localhost'.
+    if (!isLocal && (fullUrl.toLowerCase().includes('.doc') || fullUrl.toLowerCase().includes('.docx'))) {
+      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+      window.open(viewerUrl, '_blank');
+    } else {
+      // For PDFs, images, or local Word docs, open directly 
+      // (Local Word docs will download, which is better than a broken Google error)
+      window.open(fullUrl, '_blank');
+    }
+  }
 }
