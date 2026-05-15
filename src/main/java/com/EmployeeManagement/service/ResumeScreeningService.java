@@ -94,8 +94,10 @@ public class ResumeScreeningService {
             
             // Provide specific hints based on common errors
             String errorDetail = e.getMessage();
-            if (errorDetail != null && errorDetail.contains("401")) {
-                errorDetail = "API Key authentication failed (401). Please check GOOGLE_AI_GEMINI_API_KEY.";
+            if (resumeText == null || resumeText.startsWith("[Resume content could not be extracted")) {
+                errorDetail = "Resume extraction failed. Check Cloudinary URL access and PDF integrity.";
+            } else if (errorDetail != null && errorDetail.contains("401")) {
+                errorDetail = "AI Service authentication failed (401). Please check GROQ_API_KEY.";
             } else if (errorDetail != null && errorDetail.contains("429")) {
                 errorDetail = "Rate limit exceeded (429). Please try again later.";
             }
@@ -125,10 +127,12 @@ public class ResumeScreeningService {
             java.net.URL url = new java.net.URL(resumeUrl);
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
             
-            // Add User-Agent to avoid 401/403 errors from CDNs that block default Java agents
+            // Add comprehensive browser headers to avoid being blocked by CDNs (like Cloudinary/Render)
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            conn.setConnectTimeout(10000); // 10 seconds
-            conn.setReadTimeout(15000);    // 15 seconds
+            conn.setRequestProperty("Accept", "application/pdf,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+            conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+            conn.setConnectTimeout(15000); // 15 seconds
+            conn.setReadTimeout(20000);    // 20 seconds
             
             int responseCode = conn.getResponseCode();
             System.out.println("HTTP Response Code from resume download: " + responseCode);

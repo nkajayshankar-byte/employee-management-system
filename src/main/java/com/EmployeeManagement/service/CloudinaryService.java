@@ -27,10 +27,18 @@ public class CloudinaryService {
     }
 
     public String upload(MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+        String resourceType = (contentType != null && contentType.startsWith("image/")) ? "image" : "raw";
 
+        String originalFilename = file.getOriginalFilename();
+        
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader()
-                .upload(file.getBytes(), ObjectUtils.emptyMap());
+                .upload(file.getBytes(), ObjectUtils.asMap(
+                        "resource_type", resourceType,
+                        "use_filename", true,
+                        "unique_filename", true
+                ));
 
         return uploadResult.get("secure_url").toString();
     }
