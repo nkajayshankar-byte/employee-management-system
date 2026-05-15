@@ -12,12 +12,17 @@ export class ChatService {
 
   constructor(private http: HttpClient) {}
 
-  sendMessage(message: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { message }).pipe(
+  sendMessage(message: string, chatId?: string): Observable<any> {
+    const payload = { message, chatId };
+    return this.http.post<any>(this.apiUrl, payload).pipe(
       timeout(20000), // 20 seconds timeout
       catchError(err => {
         return throwError(() => err);
       })
     );
+  }
+
+  clearHistory(chatId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/history/${chatId}`);
   }
 }

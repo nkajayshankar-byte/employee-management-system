@@ -24,6 +24,9 @@ export class ChatbotComponent implements AfterViewChecked, OnDestroy, OnInit {
     { text: 'Hello! I am your HR Assistant. How can I help you today?', sender: 'ai' }
   ];
   isLoading = false;
+  chatId = '';
+  editingIndex: number | null = null;
+  editInput = '';
 
   constructor(
     private chatService: ChatService,
@@ -37,8 +40,13 @@ export class ChatbotComponent implements AfterViewChecked, OnDestroy, OnInit {
       this.messages = [
         { text: 'Hello! I am your HR Assistant. How can I help you today?', sender: 'ai' }
       ];
+      this.chatId = this.generateChatId();
       this.cdr.detectChanges();
     });
+  }
+
+  private generateChatId(): string {
+    return 'chat_' + Math.random().toString(36).substring(2, 11);
   }
 
   ngAfterViewChecked() {
@@ -72,15 +80,17 @@ export class ChatbotComponent implements AfterViewChecked, OnDestroy, OnInit {
     }
   }
 
-  sendMessage() {
-    if (!this.userInput.trim() || this.isLoading) return;
+  sendMessage(customMessage?: string) {
+    const userMsg = customMessage || this.userInput;
+    if (!userMsg.trim() || this.isLoading) return;
 
-    const userMsg = this.userInput;
-    this.messages.push({ text: userMsg, sender: 'user' });
-    this.userInput = '';
+    if (!customMessage) {
+      this.messages.push({ text: userMsg, sender: 'user' });
+      this.userInput = '';
+    }
     this.isLoading = true;
 
-    this.chatService.sendMessage(userMsg).subscribe({
+    this.chatService.sendMessage(userMsg, this.chatId).subscribe({
       next: (res) => {
         this.messages.push({ text: res.response, sender: 'ai' });
         this.isLoading = false;
@@ -98,6 +108,40 @@ export class ChatbotComponent implements AfterViewChecked, OnDestroy, OnInit {
         this.cdr.detectChanges(); // Force UI update
       }
     });
+  }
+
+  editMessage(index: number) {
+    this.editingIndex = index;
+    this.editInput = this.messages[index].text;
+  }
+
+  saveEdit(index: number) {
+    if (!this.editInput.trim()) return;
+
+    // Truncate messages from this point
+    this.messages = this.messages.slice(0, index);
+    
+    const editedMsg = this.editInput;
+    this.messages.push({ text: editedMsg, sender: 'user' });
+    this.editingIndex = null;
+    this.editInput = '';
+
+    // Clear backend history for this chat to start fresh branch
+    this.chatService.clearHistory(this.chatId).subscribe({
+      next: () => {
+        this.sendMessage(editedMsg);
+      },
+      error: (err) => {
+        console.error('Failed to clear history:', err);
+        // Still try to send, though context might be mixed
+        this.sendMessage(editedMsg);
+      }
+    });
+  }
+
+  cancelEdit() {
+    this.editingIndex = null;
+    this.editInput = '';
   }
 
   private scrollToBottom(): void {

@@ -4,10 +4,13 @@ import com.EmployeeManagement.dao.*;
 import com.EmployeeManagement.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -96,6 +99,23 @@ public class ChatTools {
     public String getApplicationStatusByEmployeeId(String employeeId) {
         Long id = parseId(employeeId);
         if (id == null) return "Invalid Employee ID format.";
+
+        // Authorization check: User can only see their own application status
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            String currentEmail = auth.getName();
+            if (currentEmail != null && !currentEmail.equals("anonymousUser")) {
+                Optional<User> currentUserOpt = userDAO.findByEmail(currentEmail);
+                if (currentUserOpt.isPresent()) {
+                    User currentUser = currentUserOpt.get();
+                    // If not admin and requested ID is not theirs, deny
+                    if (currentUser.getRole() != Role.ADMIN && !currentUser.getId().equals(id)) {
+                        return "You are not authorized to access this information.";
+                    }
+                }
+            }
+        }
+
         List<JobApplication> apps = applicationDAO.findByEmployeeId(id);
         if (apps.isEmpty()) return "No applications found for employee ID " + employeeId;
 

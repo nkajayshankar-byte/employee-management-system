@@ -18,8 +18,22 @@
     </div>
 
     <div class="chat-messages" #scrollMe>
-      <div *ngFor="let msg of messages" class="message-wrapper" [class.user]="msg.sender === 'user'">
-        <div class="message-bubble" [innerHTML]="msg.text | markdown">
+      <div *ngFor="let msg of messages; let i = index" class="message-wrapper" [class.user]="msg.sender === 'user'">
+        <div class="message-bubble" *ngIf="editingIndex !== i" [innerHTML]="msg.text | markdown">
+        </div>
+        <div class="edit-actions" *ngIf="msg.sender === 'user' && editingIndex !== i">
+          <button class="edit-btn" (click)="editMessage(i)" title="Edit message">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- Edit Mode -->
+        <div class="message-bubble editing" *ngIf="editingIndex === i">
+          <textarea [(ngModel)]="editInput" (keyup.enter)="saveEdit(i)" class="edit-textarea"></textarea>
+          <div class="edit-controls">
+            <button class="save-btn" (click)="saveEdit(i)">Save & Resend</button>
+            <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+          </div>
         </div>
       </div>
       <div *ngIf="isLoading" class="message-wrapper">
