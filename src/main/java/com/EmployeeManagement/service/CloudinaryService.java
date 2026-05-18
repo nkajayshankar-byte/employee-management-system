@@ -35,13 +35,35 @@ public class CloudinaryService {
         boolean isViewable = contentType != null && (contentType.startsWith("image/") || contentType.equals("application/pdf"));
         String resourceType = isViewable ? "image" : "raw";
 
+        String publicId;
+        if (originalFilename != null && !originalFilename.isEmpty()) {
+            int lastDot = originalFilename.lastIndexOf('.');
+            String baseName = lastDot > 0 ? originalFilename.substring(0, lastDot) : originalFilename;
+            String extension = lastDot > 0 ? originalFilename.substring(lastDot) : "";
+            
+            // Sanitize baseName: only keep alphanumeric, hyphens, and underscores
+            baseName = baseName.replaceAll("[^a-zA-Z0-9-_]", "_");
+            if (baseName.isEmpty()) {
+                baseName = "file";
+            }
+            
+            String uniqueSuffix = "_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+            
+            // For 'raw' resource type, we must include the extension in the public_id
+            if ("raw".equals(resourceType)) {
+                publicId = baseName + uniqueSuffix + extension;
+            } else {
+                publicId = baseName + uniqueSuffix;
+            }
+        } else {
+            publicId = "file_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        }
+
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader()
                 .upload(file.getBytes(), ObjectUtils.asMap(
                         "resource_type", resourceType,
-                        "use_filename", true,
-                        "unique_filename", true,
-                        "folder", "resumes"
+                        "public_id", "resumes/" + publicId
                 ));
 
         return uploadResult.get("secure_url").toString();

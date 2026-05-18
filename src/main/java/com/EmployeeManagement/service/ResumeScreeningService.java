@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,8 +136,8 @@ public class ResumeScreeningService {
         } else {
             // Remote URL (Cloudinary)
             System.out.println("Opening connection to remote URL: " + resumeUrl);
-            java.net.URL url = new java.net.URL(resumeUrl);
-            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            URL url = new URL(resumeUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             
             // Add comprehensive browser headers to avoid being blocked by CDNs (like Cloudinary/Render)
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
