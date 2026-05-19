@@ -27,6 +27,8 @@ export class LeaveManagementComponent implements OnInit {
   currentUserName: string = '';
   statistics: any = {};
   filterStatus = 'ALL';
+  currentPage = 1;
+  pageSize = 10;
 
   leaveTypes = ['Sick Leave', 'Casual Leave', 'Paid Leave', 'Unpaid Leave', 'Maternity Leave', 'Paternity Leave', 'Earned Leave'];
   statuses = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
@@ -223,6 +225,7 @@ getLeaveById(id: string): void {
 
   // ✅ Admin - Filter leaves by status
   filterByStatus(status: string): void {
+    this.currentPage = 1;
     this.filterStatus = status;
     if (status === 'ALL') {
       this.filteredLeaves = [...this.leaves];
@@ -323,5 +326,28 @@ getLeaveById(id: string): void {
       cur.setDate(cur.getDate() + 1);
     }
     return count;
+  }
+
+  get paginatedLeaves(): any[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredLeaves.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredLeaves.length / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
   }
 }

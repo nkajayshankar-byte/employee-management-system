@@ -127,6 +127,17 @@ public class AssetDAOImpl implements AssetDAO {
     }
 
     @Override
+    public void deleteByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        String sql = "DELETE FROM assets WHERE id IN (:ids)";
+        org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate namedJdbcTemplate = 
+            new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbcTemplate);
+        java.util.Map<String, Object> parameters = new java.util.HashMap<>();
+        parameters.put("ids", ids);
+        namedJdbcTemplate.update(sql, parameters);
+    }
+
+    @Override
     public void deleteByEmployeeId(Long employeeId) {
         String sql = "DELETE FROM assets WHERE employeeId = ?";
         jdbcTemplate.update(sql, employeeId);

@@ -81,7 +81,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let leave of filteredLeaves" class="leave-row">
+          <tr *ngFor="let leave of paginatedLeaves" class="leave-row">
             <td *ngIf="isAdmin" class="emp-name-cell">
               <span class="emp-name">{{ leave?.employeeName }}</span>
             </td>
@@ -114,6 +114,22 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="!loading && filteredLeaves.length > pageSize">
+        <div class="pagination-info">
+          Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < filteredLeaves.length ? (currentPage * pageSize) : filteredLeaves.length }}</strong> of <strong>{{ filteredLeaves.length }}</strong> requests
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+          <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

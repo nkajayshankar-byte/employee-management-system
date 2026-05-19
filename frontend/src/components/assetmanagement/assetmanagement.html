@@ -31,6 +31,19 @@
       </div>
     </div>
 
+    <!-- Bulk Action Bar -->
+    <div class="bulk-action-bar" *ngIf="isAdmin && selectedAssetIds.size > 0">
+      <div class="bulk-info">
+        <i class="fa-solid fa-check-double"></i>
+        <span>{{ selectedAssetIds.size }} asset{{ selectedAssetIds.size > 1 ? 's' : '' }} selected</span>
+      </div>
+      <div class="bulk-actions">
+        <button class="btn-mac-danger sm" (click)="bulkDeleteSelected()">
+          <i class="fa-solid fa-trash-can"></i> Delete Selected
+        </button>
+      </div>
+    </div>
+
     <!-- Inventory Grid/Table -->
     <div class="table-wrapper">
       <div *ngIf="loading" class="loading-state">
@@ -42,6 +55,9 @@
         <table class="mac-table">
           <thead>
             <tr>
+              <th class="th-checkbox" *ngIf="isAdmin">
+                <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll()" title="Select All">
+              </th>
               <th>Asset</th>
               <th>Serial Number</th>
               <th *ngIf="isAdmin">Assigned To</th>
@@ -52,7 +68,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let asset of filteredAssets" class="asset-row">
+            <tr *ngFor="let asset of paginatedAssets" class="asset-row" [class.selected-row]="selectedAssetIds.has(asset.id)">
+              <td class="td-checkbox" *ngIf="isAdmin">
+                <input type="checkbox" [checked]="selectedAssetIds.has(asset.id)" (change)="toggleSelection(asset.id)">
+              </td>
               <td>
                 <div class="asset-info">
                   <span class="asset-name">{{ asset.assetName }}</span>
@@ -84,6 +103,22 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container" *ngIf="!loading && filteredAssets.length > pageSize">
+          <div class="pagination-info">
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < filteredAssets.length ? (currentPage * pageSize) : filteredAssets.length }}</strong> of <strong>{{ filteredAssets.length }}</strong> assets
+          </div>
+          <div class="pagination-controls">
+            <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="!loading && filteredAssets.length === 0" class="empty-state">

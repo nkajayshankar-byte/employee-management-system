@@ -131,7 +131,7 @@
 
           <!-- Job List -->
           <div class="amazon-job-list">
-            <div class="amazon-job-card" *ngFor="let job of jobs">
+            <div class="amazon-job-card" *ngFor="let job of paginatedJobs">
               <div class="job-card-content">
                 <div class="job-main-info">
                   <div class="job-top-line">
@@ -172,6 +172,22 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-container" *ngIf="jobs.length > pageSize" style="margin-top: 20px;">
+            <div class="pagination-info">
+              Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < jobs.length ? (currentPage * pageSize) : jobs.length }}</strong> of <strong>{{ jobs.length }}</strong> jobs
+            </div>
+            <div class="pagination-controls">
+              <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+              <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
             </div>
           </div>
 

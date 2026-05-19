@@ -55,4 +55,8 @@ export class AssetService {
   deleteAsset(id: number | string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  bulkDeleteAssets(ids: (number | string)[]): Observable<any> {
+    return this.http.request('delete', `${this.apiUrl}/bulk`, { body: ids });
+  }
 }

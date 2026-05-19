@@ -48,7 +48,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let shift of shifts">
+            <tr *ngFor="let shift of paginatedShifts">
               <td><strong>{{ shift.shiftName }}</strong></td>
               <td>{{ shift.startTime }} - {{ shift.endTime }}</td>
               <td>{{ shift.description }}</td>
@@ -66,6 +66,22 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container" *ngIf="shifts.length > pageSize">
+          <div class="pagination-info">
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < shifts.length ? (currentPage * pageSize) : shifts.length }}</strong> of <strong>{{ shifts.length }}</strong> shifts
+          </div>
+          <div class="pagination-controls">
+            <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -151,7 +151,7 @@
     <div class="alert-panel job-alerts" *ngIf="!loading && pendingApplicants.length > 0">
       <div class="panel-header">
         <h3><i class="fa-solid fa-briefcase"></i> Talent Pipeline</h3>
-        <span class="badge badge-warning">{{ pendingApplicants.length }} Awaiting Review</span>
+        <span class="badge badge-warning">{{ stats.pendingApplicants }} Awaiting Review</span>
       </div>
       <div class="alert-list">
         <div class="alert-item" *ngFor="let app of pendingApplicants">
@@ -161,6 +161,22 @@
           </div>
           <span class="item-meta">{{ app.appliedDate }}</span>
           <a [routerLink]="['/careers']" [queryParams]="{ jobId: app.jobId }" class="view-link">View Talent <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="allPendingApplicants.length > pageSize">
+        <div class="pagination-info">
+          Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < allPendingApplicants.length ? (currentPage * pageSize) : allPendingApplicants.length }}</strong> of <strong>{{ allPendingApplicants.length }}</strong> candidates
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+          <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </div>

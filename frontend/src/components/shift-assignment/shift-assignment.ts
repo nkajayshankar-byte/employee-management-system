@@ -36,6 +36,8 @@ export class ShiftAssignmentComponent implements OnInit {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
   };
+  currentPage = 1;
+  pageSize = 10;
 
   constructor(
     private shiftService: ShiftService,
@@ -88,6 +90,7 @@ export class ShiftAssignmentComponent implements OnInit {
   }
 
   loadAssignments(): void {
+    this.currentPage = 1;
     const effectiveDate = this.formatDate(this.viewDate);
     const obs = this.viewMode === 'all' 
       ? this.shiftService.getAllAssignments() 
@@ -230,5 +233,28 @@ export class ShiftAssignmentComponent implements OnInit {
     // If it's yyyy-MM-dd
     const [year, month, day] = parts;
     return `${day}-${month}-${year.slice(-2)}`;
+  }
+
+  get paginatedAssignments(): any[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredAssignments.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredAssignments.length / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
   }
 }

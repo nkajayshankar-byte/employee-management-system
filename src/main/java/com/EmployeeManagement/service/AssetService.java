@@ -95,6 +95,12 @@ public class AssetService {
         assetDAO.deleteById(id);
     }
 
+    public void bulkDeleteAssets(List<Long> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            assetDAO.deleteByIds(ids);
+        }
+    }
+
     public List<AssetDTO> searchAssets(String term) {
         List<Asset> assets = assetDAO.findByAssetNameContainingIgnoreCaseOrSerialNumberContainingIgnoreCase(term, term);
         List<AssetDTO> dtoList = new ArrayList<>();

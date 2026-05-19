@@ -38,7 +38,7 @@ export class AssetDetailsComponent implements OnInit {
     this.loading = true;
     this.assetService.getAssetById(id).subscribe({
       next: (asset: any) => {
-        this.asset = asset;
+        this.asset = this.parseAssetDates(asset);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -66,5 +66,31 @@ export class AssetDetailsComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate([this.isAdmin ? '/admin/assets' : '/employee/assets']);
+  }
+
+  private parseAssetDates(asset: any): any {
+    if (!asset) return asset;
+    if (asset.assignedDate) asset.assignedDate = this.formatDateString(asset.assignedDate);
+    if (asset.returnDate) asset.returnDate = this.formatDateString(asset.returnDate);
+    return asset;
+  }
+
+  private formatDateString(dateStr: string): string {
+    if (!dateStr) return '';
+    const parts = dateStr.trim().split(' ');
+    const dateParts = parts[0].split('-');
+    
+    if (dateParts.length === 3) {
+      let yy = dateParts[2];
+      let mm = dateParts[1];
+      let dd = dateParts[0];
+      
+      if (dateParts[0].length === 4) return dateStr;
+      
+      if (yy.length === 2) yy = '20' + yy;
+      const timePart = parts[1] ? `T${parts[1]}:00` : 'T00:00:00';
+      return `${yy}-${mm}-${dd}${timePart}`;
+    }
+    return dateStr;
   }
 }

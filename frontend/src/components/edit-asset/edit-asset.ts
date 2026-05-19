@@ -56,13 +56,27 @@ export class EditAssetComponent implements OnInit {
     this.loading = true;
     this.assetService.getAllAssets().subscribe({
       next: (assets: any[]) => {
-        const asset = assets.find(a => a.id === id);
+        const asset = assets.find(a => String(a.id) === String(id));
         if (asset) {
           this.currentAsset = asset;
+          
+          const formatForInput = (dateStr: string) => {
+            if (!dateStr) return '';
+            const parts = dateStr.trim().split(' ');
+            const dateParts = parts[0].split('-');
+            if (dateParts.length === 3) {
+              if (dateParts[0].length === 4) return parts[0]; // Already YYYY-MM-DD
+              let yy = dateParts[2];
+              if (yy.length === 2) yy = '20' + yy;
+              return `${yy}-${dateParts[1]}-${dateParts[0]}`; // Convert DD-MM-YY to YYYY-MM-DD
+            }
+            return dateStr.split('T')[0];
+          };
+
           this.assetForm.patchValue({
             ...asset,
-            assignedDate: asset.assignedDate?.split('T')[0] || '',
-            returnDate: asset.returnDate?.split('T')[0] || '',
+            assignedDate: formatForInput(asset.assignedDate),
+            returnDate: formatForInput(asset.returnDate),
             description: asset.remarks || asset.description || ''
           });
         }

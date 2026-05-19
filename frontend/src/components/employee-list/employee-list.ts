@@ -24,6 +24,8 @@ export class EmployeeListComponent implements OnInit {
   selectedEmployeeIds: (string | number)[] = [];
   isAllSelected = false;
   apiUrl = environment.apiUrl;
+  currentPage = 1;
+  pageSize = 10;
 
   // Hiring Modal State
   showHireModal = false;
@@ -79,6 +81,7 @@ loadJobRoles(): void {
   }
 
   onSearch(): void {
+    this.currentPage = 1;
     if (!this.searchTerm.trim()) {
       this.filteredEmployees = this.employees;
     } else {
@@ -100,6 +103,7 @@ loadJobRoles(): void {
   }
 
   sortEmployees(): void {
+    this.currentPage = 1;
     this.filteredEmployees.sort((a, b) => {
       if (this.sortBy === 'name') {
         return (a.name || '').localeCompare(b.name || '');
@@ -233,32 +237,55 @@ loadJobRoles(): void {
     }
   }
 
-  closeHireModal(): void {
-    this.showHireModal = false;
-    this.selectedUserForHire = null;
-    this.cdr.detectChanges();
-  }
-
-  exportToExcel(): void {
-      if (this.filteredEmployees.length === 0) {
-        this.toastr.warning('No data to export');
-        return;
+    closeHireModal(): void {
+      this.showHireModal = false;
+      this.selectedUserForHire = null;
+      this.cdr.detectChanges();
+    }
+  
+    exportToExcel(): void {
+        if (this.filteredEmployees.length === 0) {
+          this.toastr.warning('No data to export');
+          return;
+        }
+  
+        // Map the data to remove internal IDs and format the excel columns
+        const dataToExport = this.filteredEmployees.map(emp => ({
+          'Name': emp.name,
+          'Email': emp.email,
+          'Mobile': emp.mobile || 'N/A',
+          'Address': emp.address || 'N/A'
+        }));
+  
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+  
+        // Generate file and trigger download
+        XLSX.writeFile(workbook, 'Employee_Directory.xlsx');
+        this.toastr.success('Exported to Excel successfully');
       }
 
-      // Map the data to remove internal IDs and format the excel columns
-      const dataToExport = this.filteredEmployees.map(emp => ({
-        'Name': emp.name,
-        'Email': emp.email,
-        'Mobile': emp.mobile || 'N/A',
-        'Address': emp.address || 'N/A'
-      }));
+    get paginatedEmployees(): Employee[] {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      return this.filteredEmployees.slice(startIndex, startIndex + this.pageSize);
+    }
 
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+    get totalPages(): number {
+      return Math.ceil(this.filteredEmployees.length / this.pageSize);
+    }
 
-      // Generate file and trigger download
-      XLSX.writeFile(workbook, 'Employee_Directory.xlsx');
-      this.toastr.success('Exported to Excel successfully');
+    prevPage(): void {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.cdr.detectChanges();
+      }
+    }
+
+    nextPage(): void {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.cdr.detectChanges();
+      }
     }
 }

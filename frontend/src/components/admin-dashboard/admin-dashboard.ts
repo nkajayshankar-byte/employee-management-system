@@ -20,7 +20,11 @@ import { environment } from '../../environments/environment';
     employees: Employee[] = [];
     recentEmployees: Employee[] = [];
     pendingLeaves: any[] = [];
+    allPendingApplicants: any[] = [];
     pendingApplicants: any[] = [];
+    currentPage: number = 1;
+    pageSize: number = 5;
+    totalPages: number = 0;
   apiUrl = environment.apiUrl;
     loading: boolean = true;
     today: Date = new Date();
@@ -77,8 +81,13 @@ import { environment } from '../../environments/environment';
         }
 
         this.ngZone.run(() => {
-          this.pendingApplicants = allApplicants.filter(app => app.status === 'PENDING').slice(0, 5);
-          this.updateStats(assets || [], this.pendingApplicants.length);
+          this.allPendingApplicants = allApplicants.filter(app => app.status === 'PENDING');
+          this.stats.pendingApplicants = this.allPendingApplicants.length;
+          this.totalPages = Math.ceil(this.allPendingApplicants.length / this.pageSize);
+          this.currentPage = 1;
+          this.updatePaginatedApplicants();
+
+          this.updateStats(assets || [], this.allPendingApplicants.length);
           this.loading = false;
           this.cdr.detectChanges();
         });
@@ -92,13 +101,34 @@ import { environment } from '../../environments/environment';
     }
 
    updateStats(assets: any[], appCount: number): void {
-    this.stats.totalUsers = this.employees?.length || 0;
-    this.stats.totalEmployees = this.employees?.filter(e =>
-  e.role?.toUpperCase() === 'EMPLOYEE').length || 0;
-    this.stats.totalAdmins = this.employees?.filter(e =>
-  e.role?.toUpperCase() === 'ADMIN').length || 0;
-    this.stats.pendingLeaves = this.pendingLeaves?.length || 0;
-    this.stats.totalAssets = assets?.length || 0;
-    this.stats.pendingApplicants = appCount;
-  }
+     this.stats.totalUsers = this.employees?.length || 0;
+     this.stats.totalEmployees = this.employees?.filter(e =>
+   e.role?.toUpperCase() === 'EMPLOYEE').length || 0;
+     this.stats.totalAdmins = this.employees?.filter(e =>
+   e.role?.toUpperCase() === 'ADMIN').length || 0;
+     this.stats.pendingLeaves = this.pendingLeaves?.length || 0;
+     this.stats.totalAssets = assets?.length || 0;
+     this.stats.pendingApplicants = appCount;
+   }
+
+    updatePaginatedApplicants(): void {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      this.pendingApplicants = this.allPendingApplicants.slice(startIndex, startIndex + this.pageSize);
+    }
+
+    prevPage(): void {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.updatePaginatedApplicants();
+        this.cdr.detectChanges();
+      }
+    }
+
+    nextPage(): void {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.updatePaginatedApplicants();
+        this.cdr.detectChanges();
+      }
+    }
   }

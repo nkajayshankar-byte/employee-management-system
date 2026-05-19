@@ -25,6 +25,8 @@ export class AttendanceDashboardComponent implements OnInit {
   
   filterDate = new Date().toISOString().split('T')[0];
   employees: any[] = [];
+  currentPage = 1;
+  pageSize = 10;
 
   constructor(
     private attendanceService: AttendanceService,
@@ -59,6 +61,7 @@ export class AttendanceDashboardComponent implements OnInit {
   }
 
   loadData(): void {
+    this.currentPage = 1;
     if (this.isAdmin) {
       this.loadAllAttendance();
     } else {
@@ -327,5 +330,28 @@ export class AttendanceDashboardComponent implements OnInit {
       if (year < 100) year += 2000;
     }
     return new Date(year, month - 1, day);
+  }
+
+  get paginatedAttendanceRecords(): any[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.attendanceRecords.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.attendanceRecords.length / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
   }
 }

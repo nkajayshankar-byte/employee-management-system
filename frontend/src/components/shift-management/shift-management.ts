@@ -21,6 +21,8 @@ export class ShiftManagementComponent implements OnInit {
   };
   isEditing = false;
   editingId: string | number = '';
+  currentPage = 1;
+  pageSize = 10;
 
   constructor(
     private shiftService: ShiftService,
@@ -33,6 +35,7 @@ export class ShiftManagementComponent implements OnInit {
   }
 
   loadShifts(): void {
+    this.currentPage = 1;
     this.shiftService.getShifts().subscribe({
       next: (data) => {
         this.shifts = data;
@@ -91,5 +94,28 @@ export class ShiftManagementComponent implements OnInit {
       endTime: '',
       description: ''
     };
+  }
+
+  get paginatedShifts(): Shift[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.shifts.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.shifts.length / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
   }
 }

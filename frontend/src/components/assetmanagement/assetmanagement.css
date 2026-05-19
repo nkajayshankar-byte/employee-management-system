@@ -364,3 +364,90 @@
   .mac-table th:nth-child(2), .mac-table td:nth-child(2),
   .mac-table th:nth-child(5), .mac-table td:nth-child(5) { display: none; }
 }
+
+/* ─── Bulk Delete Action Bar ─── */
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1d1d1f 0%, #2c2c2e 100%);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  animation: slideDown 0.25s ease-out;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bulk-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bulk-info i {
+  font-size: 16px;
+  color: #0a84ff;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-mac-danger.sm {
+  padding: 7px 16px;
+  font-size: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ff453a;
+  color: #fff;
+  border: none;
+}
+
+.btn-mac-danger.sm:hover {
+  background: #ff6961;
+  transform: scale(1.03);
+}
+
+.btn-mac-danger.sm:active {
+  transform: scale(0.97);
+}
+
+/* ─── Checkbox Columns ─── */
+.th-checkbox,
+.td-checkbox {
+  width: 44px;
+  text-align: center;
+  padding: 14px 12px !important;
+}
+
+.th-checkbox input[type="checkbox"],
+.td-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0a84ff;
+  border-radius: 4px;
+}
+
+/* ─── Selected Row Highlight ─── */
+.asset-row.selected-row {
+  background: rgba(10, 132, 255, 0.06) !important;
+}
+
+.asset-row.selected-row:hover {
+  background: rgba(10, 132, 255, 0.1) !important;
+}

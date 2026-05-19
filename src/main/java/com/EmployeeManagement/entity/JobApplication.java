@@ -17,6 +17,8 @@ public class JobApplication {
     private String employeeName;
     private String employeeEmail;
     private String employeePhone;
+    private String skills;
+    private String experience;
 
     // Virtual fields
     private String jobTitle;

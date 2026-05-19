@@ -19,7 +19,7 @@ export class CareersComponent implements OnInit {
   jobs: any[] = [];
   allJobs: any[] = [];
   applicants: any[] = [];
-  myApplications: any[] = [];   
+  myApplications: any[] = [];
   appliedJobs: Set<string> = new Set();
   isAdmin = false;
   showJobForm = false;
@@ -32,6 +32,8 @@ export class CareersComponent implements OnInit {
   showMyApplications = false;
   apiUrl = environment.apiUrl;
   expandedAppId: string | null = null;
+  currentPage = 1;
+  pageSize = 5;
 
   constructor(
     private careerService: CareerService,
@@ -67,6 +69,7 @@ export class CareersComponent implements OnInit {
   userAddress: string = '';
 
   onSearch(): void {
+    this.currentPage = 1;
     this.careerService.searchJobs(this.filters.query, this.filters.minSalary, this.filters.location).subscribe(res => {
       this.jobs = res;
       this.cdr.detectChanges();
@@ -85,7 +88,7 @@ export class CareersComponent implements OnInit {
           this.userSkills = emp.skills.split(',').map((s: string) => s.trim().toLowerCase()).filter((s: string) => !!s);
         }
         this.userAddress = (emp.address || '').trim().toLowerCase();
-        
+
         // Refresh matches after getting user data
         if (this.jobs.length > 0) {
           this.jobs.sort((a, b) => this.getMatchPercentage(b) - this.getMatchPercentage(a));
@@ -98,11 +101,11 @@ export class CareersComponent implements OnInit {
       this.allJobs = res;
       // Filter for active jobs and sort by match percentage for users
       let filteredJobs = res.filter((j: any) => j.isActive !== false);
-      
+
       if (!this.isAdmin) {
         filteredJobs.sort((a, b) => this.getMatchPercentage(b) - this.getMatchPercentage(a));
       }
-      
+
       this.jobs = filteredJobs;
       this.cdr.detectChanges();
     });
@@ -163,8 +166,8 @@ export class CareersComponent implements OnInit {
       const jobWords = jobLoc.split(/[\s,]+/).filter((w: string) => w.length > 2);
       const userWords = this.userAddress.split(/[\s,]+/).filter((w: string) => w.length > 2);
       const hasWordMatch = jobWords.some((jw: string) => userWords.some((uw: string) => jw === uw)) ||
-                           jobLoc.includes(this.userAddress) ||
-                           this.userAddress.includes(jobLoc);
+        jobLoc.includes(this.userAddress) ||
+        this.userAddress.includes(jobLoc);
       if (hasWordMatch) locationMatchScore = 100;
     }
 
@@ -218,7 +221,7 @@ export class CareersComponent implements OnInit {
   }
 
   openAddForm(): void {
-    this.selectedJobForEdit = null; 
+    this.selectedJobForEdit = null;
     this.showJobForm = true;
     this.jobForm.reset({
       title: '',
@@ -259,9 +262,9 @@ export class CareersComponent implements OnInit {
       return;
     }
 
-    const jobData = { 
+    const jobData = {
       ...this.jobForm.value,
-      isActive: true 
+      isActive: true
     };
     if (jobData.requiredSkills && typeof jobData.requiredSkills === 'string') {
       jobData.requiredSkills = jobData.requiredSkills.split(',').map((s: string) => s.trim()).filter((s: string) => !!s);
@@ -286,7 +289,7 @@ export class CareersComponent implements OnInit {
 
     const updatedJobData = {
       ...this.jobForm.value,
-      id: this.selectedJobForEdit.id 
+      id: this.selectedJobForEdit.id
     };
 
     if (updatedJobData.requiredSkills && typeof updatedJobData.requiredSkills === 'string') {
@@ -306,7 +309,7 @@ export class CareersComponent implements OnInit {
   }
 
   deleteJob(id: string): void {
-    if(confirm('Delete this job post?')) {
+    if (confirm('Delete this job post?')) {
       this.careerService.deleteJob(id).subscribe(() => {
         this.toastr.success('Job deleted');
         this.loadJobs();
@@ -328,7 +331,7 @@ export class CareersComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { mode: 'signup', returnUrl: '/careers' } });
       return;
     }
-    
+
     if (this.appliedJobs.has(job.id)) {
       this.toastr.warning('You have already applied for this position');
       return;
@@ -341,7 +344,7 @@ export class CareersComponent implements OnInit {
     const jobId = this.selectedJobForApplication.id;
     this.appliedJobs.add(jobId);
     this.selectedJobForApplication = null;
-    
+
     // Defer the refresh to next tick to avoid NG0100
     setTimeout(() => {
       this.loadMyApplications();
@@ -362,8 +365,8 @@ export class CareersComponent implements OnInit {
   get filteredApplicants(): any[] {
     if (!this.applicantSearchQuery.trim()) return this.applicants;
     const query = this.applicantSearchQuery.toLowerCase();
-    return this.applicants.filter(app => 
-      app.employeeName?.toLowerCase().includes(query) || 
+    return this.applicants.filter(app =>
+      app.employeeName?.toLowerCase().includes(query) ||
       app.employeeEmail?.toLowerCase().includes(query) ||
       app.status?.toLowerCase().includes(query)
     );
@@ -389,18 +392,42 @@ export class CareersComponent implements OnInit {
 
   viewResume(resumeUrl: string): void {
     if (!resumeUrl) return;
-    const fullUrl = resumeUrl.startsWith('http') ? resumeUrl : this.apiUrl + resumeUrl;
-    const isLocal = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1');
+    let fullUrl = resumeUrl.startsWith('http') ? resumeUrl : this.apiUrl + resumeUrl;
     
-    // Online viewers (Google/Office) ONLY work for public URLs. 
-    // They cannot see your 'localhost'.
+    // Sanitize special characters in URL (brackets from duplicate filenames like [1])
+    fullUrl = fullUrl.replace(/\[/g, '%5B').replace(/\]/g, '%5D');
+    
+    const isLocal = fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1');
+
     if (!isLocal && (fullUrl.toLowerCase().includes('.doc') || fullUrl.toLowerCase().includes('.docx'))) {
-      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+      // Use Microsoft Office Online viewer - more reliable with Cloudinary raw URLs
+      const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
       window.open(viewerUrl, '_blank');
     } else {
-      // For PDFs, images, or local Word docs, open directly 
-      // (Local Word docs will download, which is better than a broken Google error)
       window.open(fullUrl, '_blank');
+    }
+  }
+
+  get paginatedJobs(): any[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.jobs.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.jobs.length / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.detectChanges();
     }
   }
 }

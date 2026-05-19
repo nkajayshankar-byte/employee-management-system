@@ -64,15 +64,26 @@ public class ResumeScreeningService {
             "Job Position: %s\n\n" +
             "Job Requirements:\n%s\n\n" +
             "Resume Content:\n%s\n\n" +
-            "Analyze the candidate strictly and provide a structured response in the required format. Ensure the Match Percentage is calculated based on objective skill alignment, experience relevance, and education matches.\n\n" +
-            "Please provide:\n" +
-            "1. Match percentage (0-100)\n" +
-            "2. Missing skills (as a list of strings)\n" +
+            "CRITICAL MATCHING RULES - You MUST follow these strictly:\n" +
+            "- Treat related and superset technologies as MATCHING the required skill. For example:\n" +
+            "  * MySQL, PostgreSQL, MariaDB, Oracle DB all satisfy a 'SQL' requirement\n" +
+            "  * React, Angular, Vue.js all satisfy a 'JavaScript' or 'Frontend' requirement\n" +
+            "  * Spring Boot satisfies 'Java' and 'Spring' requirements\n" +
+            "  * Node.js satisfies 'JavaScript' requirement\n" +
+            "  * TypeScript satisfies 'JavaScript' requirement\n" +
+            "  * AWS/Azure/GCP satisfy a general 'Cloud' requirement\n" +
+            "  * MongoDB satisfies 'NoSQL' requirement\n" +
+            "- Do NOT list a skill as 'missing' if the candidate has a superset, variant, or closely related technology.\n" +
+            "- Only list a skill as missing if the candidate has NO related expertise at all.\n" +
+            "- When calculating Match Percentage, give full credit for superset/related skill matches.\n\n" +
+            "Analyze the candidate and provide a structured response:\n" +
+            "1. Match percentage (0-100) - based on objective skill alignment using the rules above\n" +
+            "2. Missing skills (as a list of strings) - ONLY skills with NO related match in resume\n" +
             "3. Key strengths (as a list of strings)\n" +
             "4. A short summary\n" +
-            "5. Extracted skills\n" +
-            "6. Extracted experience\n" +
-            "7. Extracted education details",
+            "5. Extracted skills from resume\n" +
+            "6. Extracted experience from resume\n" +
+            "7. Extracted education details from resume",
             job.getTitle(),
             job.getRequiredSkills() + "\n" + job.getDescription(),
             resumeText
@@ -136,7 +147,9 @@ public class ResumeScreeningService {
         } else {
             // Remote URL (Cloudinary)
             System.out.println("Opening connection to remote URL: " + resumeUrl);
-            URL url = new URL(resumeUrl);
+            // Encode special chars in URL (e.g. brackets from duplicate filenames like [1])
+            String encodedUrl = resumeUrl.replace("[", "%5B").replace("]", "%5D").replace(" ", "%20");
+            URL url = new URL(encodedUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             
             // Add comprehensive browser headers to avoid being blocked by CDNs (like Cloudinary/Render)

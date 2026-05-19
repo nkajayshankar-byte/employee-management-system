@@ -77,4 +77,15 @@ public class AssetController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Map<String, Object>> bulkDelete(@RequestBody List<Long> ids) {
+        service.bulkDeleteAssets(ids);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Assets Deleted Successfully");
+        response.put("status", true);
+
+        return ResponseEntity.ok(response);
+    }
 }

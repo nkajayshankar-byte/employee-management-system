@@ -25,7 +25,7 @@
         </div>
         <div class="sidebar-info">
           <span class="status-pill" [ngClass]="asset.status?.toLowerCase()">{{ asset.status }}</span>
-          <span class="id-badge">ID: {{ asset.id | slice:0:8 }}</span>
+          <span class="id-badge">ID: {{ asset.id }}</span>
         </div>
         
         <div class="sidebar-actions" *ngIf="isAdmin">

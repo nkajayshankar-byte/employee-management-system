@@ -54,7 +54,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let emp of filteredEmployees" class="employee-row" [class.selected]="selectedEmployeeIds.includes(emp.id!)">
+        <tr *ngFor="let emp of paginatedEmployees" class="employee-row" [class.selected]="selectedEmployeeIds.includes(emp.id!)">
           <td>
             <input type="checkbox" [checked]="selectedEmployeeIds.includes(emp.id!)" (change)="toggleEmployeeSelection(emp.id)">
           </td>
@@ -103,6 +103,22 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" *ngIf="!loading && filteredEmployees.length > pageSize">
+      <div class="pagination-info">
+        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}-{{ (currentPage * pageSize) < filteredEmployees.length ? (currentPage * pageSize) : filteredEmployees.length }}</strong> of <strong>{{ filteredEmployees.length }}</strong> employees
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="pagination-page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
 
     <div *ngIf="!loading && filteredEmployees.length === 0" class="empty-state">
       <i class="fa-solid fa-magnifying-glass"></i>

@@ -62,11 +62,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         app.setStatus(rs.getString("status"));
         app.setAppliedDate(rs.getTimestamp("appliedDate") != null ? rs.getTimestamp("appliedDate").toLocalDateTime() : null);
         
-        // Stored fields
-        app.setEmployeeName(rs.getString("employeeName"));
-        app.setEmployeeEmail(rs.getString("employeeEmail"));
-        app.setEmployeePhone(rs.getString("employeePhone"));
-        
+        // Stored fields using the COALESCE fallback columns
+        app.setEmployeeName(rs.getString("fallbackEmployeeName"));
+        app.setEmployeeEmail(rs.getString("fallbackEmployeeEmail"));
+        app.setEmployeePhone(rs.getString("fallbackEmployeePhone"));
+        app.setSkills(rs.getString("skills"));
+        app.setExperience(rs.getString("experience"));
+
         // Joined fields
         app.setJobTitle(rs.getString("jobTitle"));
         app.setJobActive(rs.getBoolean("jobActive"));
@@ -83,8 +85,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         return app;
     };
 
-    private final String BASE_SELECT = "SELECT ja.*, j.title AS jobTitle, j.isActive AS jobActive " +
+    private final String BASE_SELECT = "SELECT ja.*, " +
+                                       "COALESCE(ja.employeeName, u.name) AS fallbackEmployeeName, " +
+                                       "COALESCE(ja.employeeEmail, u.email) AS fallbackEmployeeEmail, " +
+                                       "COALESCE(ja.employeePhone, u.mobile) AS fallbackEmployeePhone, " +
+                                       "j.title AS jobTitle, j.isActive AS jobActive " +
                                        "FROM job_applications ja " +
+                                       "JOIN users u ON ja.employeeId = u.id " +
                                        "JOIN jobs j ON ja.jobId = j.id ";
 
     @Override
@@ -112,6 +119,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 ps.setString(15, application.getEmployeePhone());
                 ps.setString(16, application.getSkills());
                 ps.setString(17, application.getExperience());
+                
                 return ps;
             }, keyHolder);
 
@@ -136,6 +144,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 application.getEmployeePhone(),
                 application.getSkills(),
                 application.getExperience(),
+            
                 application.getId()
             );
         }

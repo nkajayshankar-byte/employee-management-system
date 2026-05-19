@@ -17,6 +17,8 @@ public class ApplicationMapper {
         dto.setEmployeeName(app.getEmployeeName());
         dto.setEmployeeEmail(app.getEmployeeEmail());
         dto.setEmployeePhone(app.getEmployeePhone());
+        dto.setSkills(app.getSkills());
+        dto.setExperience(app.getExperience());
         dto.setResumeUrl(app.getResumeUrl());
         dto.setStatus(app.getStatus());
         dto.setAppliedDate(app.getAppliedDate());
