@@ -9,6 +9,7 @@ public class JobApplicationDTO {
     private Long employeeId;
     private String employeeName;
     private String employeeEmail;
+    private String employeePhone;
     private String resumeUrl;
     private String status;
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
@@ -27,6 +28,8 @@ public class JobApplicationDTO {
     private String extractedEducation;
 
     // Getters and Setters
+    public String getEmployeePhone() { return employeePhone; }
+    public void setEmployeePhone(String employeePhone) { this.employeePhone = employeePhone; }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getJobId() { return jobId; }

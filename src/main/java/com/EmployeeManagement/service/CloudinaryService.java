@@ -35,6 +35,10 @@ public class CloudinaryService {
         boolean isViewable = contentType != null && (contentType.startsWith("image/") || contentType.equals("application/pdf"));
         String resourceType = isViewable ? "image" : "raw";
 
+        byte[] fileBytes = file.getBytes();
+        String fullHash = calculateHash(fileBytes);
+        String shortHash = fullHash.substring(0, 12);
+
         String publicId;
         if (originalFilename != null && !originalFilename.isEmpty()) {
             int lastDot = originalFilename.lastIndexOf('.');
@@ -47,25 +51,68 @@ public class CloudinaryService {
                 baseName = "file";
             }
             
-            String uniqueSuffix = "_" + java.util.UUID.randomUUID().toString().substring(0, 8);
-            
             // For 'raw' resource type, we must include the extension in the public_id
             if ("raw".equals(resourceType)) {
-                publicId = baseName + uniqueSuffix + extension;
+                publicId = baseName + "_" + shortHash + extension;
             } else {
-                publicId = baseName + uniqueSuffix;
+                publicId = baseName + "_" + shortHash;
             }
         } else {
-            publicId = "file_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+            publicId = "file_" + shortHash;
+        }
+
+        // Construct expected delivery URL
+        com.cloudinary.Url urlBuilder = cloudinary.url().resourceType(resourceType).secure(true);
+        if ("image".equals(resourceType) && originalFilename != null && originalFilename.lastIndexOf('.') > 0) {
+            String ext = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
+            urlBuilder = urlBuilder.format(ext);
+        }
+        String urlString = urlBuilder.generate("resumes/" + publicId);
+
+        // Check if the file already exists on Cloudinary
+        if (checkIfFileExists(urlString)) {
+            return urlString;
         }
 
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader()
-                .upload(file.getBytes(), ObjectUtils.asMap(
+                .upload(fileBytes, ObjectUtils.asMap(
                         "resource_type", resourceType,
                         "public_id", "resumes/" + publicId
                 ));
 
         return uploadResult.get("secure_url").toString();
+    }
+
+    private String calculateHash(byte[] content) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            byte[] hash = digest.digest(content);
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not found", e);
+        }
+    }
+
+    private boolean checkIfFileExists(String urlString) {
+        try {
+            java.net.URL url = new java.net.URL(urlString);
+            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            int responseCode = connection.getResponseCode();
+            return responseCode == java.net.HttpURLConnection.HTTP_OK;
+        } catch (Exception e) {
+            // Fallback to upload if check fails
+            return false;
+        }
     }
 }

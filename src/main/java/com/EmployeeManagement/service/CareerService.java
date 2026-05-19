@@ -89,6 +89,10 @@ public class CareerService {
             throw new RuntimeException("Employee ID is missing in the application.");
         }
 
+        if (dto.getEmployeePhone() == null || !dto.getEmployeePhone().matches("^[+0-9]{10,15}$")) {
+            throw new RuntimeException("Invalid mobile number. Please provide a valid 10-15 digit phone number.");
+        }
+
         boolean alreadyApplied = appDAO.existsByJobIdAndEmployeeId(dto.getJobId(), dto.getEmployeeId());
         if (alreadyApplied) {
             throw new RuntimeException("You have already applied for this position.");

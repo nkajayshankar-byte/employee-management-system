@@ -20,6 +20,39 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @jakarta.annotation.PostConstruct
+    public void initializeSchema() {
+        try {
+            addColumnIfNotExists("employeeName", "VARCHAR(255)");
+            addColumnIfNotExists("employeeEmail", "VARCHAR(255)");
+            addColumnIfNotExists("employeePhone", "VARCHAR(50)");
+            addColumnIfNotExists("skills", "TEXT");
+            addColumnIfNotExists("experience", "TEXT");
+        } catch (Exception e) {
+            System.err.println("Failed to initialize job_applications additional columns: " + e.getMessage());
+        }
+    }
+
+    private void addColumnIfNotExists(String columnName, String columnType) {
+        try {
+            String checkSql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " +
+                              "WHERE TABLE_SCHEMA = DATABASE() " +
+                              "AND TABLE_NAME = 'job_applications' " +
+                              "AND COLUMN_NAME = ?";
+            Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, columnName);
+            if (count == null || count == 0) {
+                String alterSql = "ALTER TABLE job_applications ADD COLUMN " + columnName + " " + columnType;
+                jdbcTemplate.execute(alterSql);
+            }
+        } catch (Exception e) {
+            try {
+                jdbcTemplate.execute("ALTER TABLE job_applications ADD COLUMN " + columnName + " " + columnType);
+            } catch (Exception ex) {
+                // Ignore if already exists
+            }
+        }
+    }
+
     private final RowMapper<JobApplication> rowMapper = (rs, rowNum) -> {
         JobApplication app = new JobApplication();
         app.setId(rs.getLong("id"));
@@ -29,9 +62,12 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         app.setStatus(rs.getString("status"));
         app.setAppliedDate(rs.getTimestamp("appliedDate") != null ? rs.getTimestamp("appliedDate").toLocalDateTime() : null);
         
-        // Joined fields
+        // Stored fields
         app.setEmployeeName(rs.getString("employeeName"));
         app.setEmployeeEmail(rs.getString("employeeEmail"));
+        app.setEmployeePhone(rs.getString("employeePhone"));
+        
+        // Joined fields
         app.setJobTitle(rs.getString("jobTitle"));
         app.setJobActive(rs.getBoolean("jobActive"));
         
@@ -47,15 +83,14 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         return app;
     };
 
-    private final String BASE_SELECT = "SELECT ja.*, u.name AS employeeName, u.email AS employeeEmail, j.title AS jobTitle, j.isActive AS jobActive " +
+    private final String BASE_SELECT = "SELECT ja.*, j.title AS jobTitle, j.isActive AS jobActive " +
                                        "FROM job_applications ja " +
-                                       "JOIN users u ON ja.employeeId = u.id " +
                                        "JOIN jobs j ON ja.jobId = j.id ";
 
     @Override
     public JobApplication save(JobApplication application) {
         if (application.getId() == null) {
-            String sql = "INSERT INTO job_applications (jobId, employeeId, resumeUrl, status, appliedDate, matchPercentage, missingSkills, strengths, summary, extractedSkills, extractedExperience, extractedEducation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO job_applications (jobId, employeeId, resumeUrl, status, appliedDate, matchPercentage, missingSkills, strengths, summary, extractedSkills, extractedExperience, extractedEducation, employeeName, employeeEmail, employeePhone, skills, experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(connection -> {
@@ -72,12 +107,17 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 ps.setString(10, application.getExtractedSkills());
                 ps.setString(11, application.getExtractedExperience());
                 ps.setString(12, application.getExtractedEducation());
+                ps.setString(13, application.getEmployeeName());
+                ps.setString(14, application.getEmployeeEmail());
+                ps.setString(15, application.getEmployeePhone());
+                ps.setString(16, application.getSkills());
+                ps.setString(17, application.getExperience());
                 return ps;
             }, keyHolder);
 
             application.setId(keyHolder.getKey().longValue());
         } else {
-            String sql = "UPDATE job_applications SET jobId = ?, employeeId = ?, resumeUrl = ?, status = ?, appliedDate = ?, matchPercentage = ?, missingSkills = ?, strengths = ?, summary = ?, extractedSkills = ?, extractedExperience = ?, extractedEducation = ? WHERE id = ?";
+            String sql = "UPDATE job_applications SET jobId = ?, employeeId = ?, resumeUrl = ?, status = ?, appliedDate = ?, matchPercentage = ?, missingSkills = ?, strengths = ?, summary = ?, extractedSkills = ?, extractedExperience = ?, extractedEducation = ?, employeeName = ?, employeeEmail = ?, employeePhone = ?, skills = ?, experience = ? WHERE id = ?";
             jdbcTemplate.update(sql,
                 application.getJobId(),
                 application.getEmployeeId(),
@@ -91,6 +131,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 application.getExtractedSkills(),
                 application.getExtractedExperience(),
                 application.getExtractedEducation(),
+                application.getEmployeeName(),
+                application.getEmployeeEmail(),
+                application.getEmployeePhone(),
+                application.getSkills(),
+                application.getExperience(),
                 application.getId()
             );
         }

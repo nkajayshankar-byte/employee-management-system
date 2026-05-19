@@ -21,6 +21,7 @@ export class JobApplicationFormComponent implements OnInit {
   totalSteps = 3;
   applicationForm!: FormGroup;
   uploading = false;
+  submitting = false;
   resumeUrl: string = '';
 
   constructor(
@@ -31,7 +32,7 @@ export class JobApplicationFormComponent implements OnInit {
     this.applicationForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern('^[+0-9]{10,15}$')]],
       skills: ['', Validators.required],
       experience: ['', Validators.required],
       resume: [null, Validators.required]
@@ -162,19 +163,25 @@ export class JobApplicationFormComponent implements OnInit {
       employeeId: empId,
       employeeName: this.applicationForm.value.name,
       employeeEmail: this.applicationForm.value.email,
+      employeePhone: this.applicationForm.value.phone,
+      skills: this.applicationForm.value.skills,
+      experience: this.applicationForm.value.experience,
       resumeUrl: this.resumeUrl,
       status: 'PENDING'
     };
 
 
 
+    this.submitting = true;
+
     this.careerService.apply(applicationData).subscribe({
       next: (res) => {
-
+        this.submitting = false;
         this.toastr.success('Application submitted successfully!');
         this.success.emit();
       },
       error: (err) => {
+        this.submitting = false;
         const errorMsg = err.error?.message || 'Failed to submit application. Please try again.';
         this.toastr.error(errorMsg);
       }

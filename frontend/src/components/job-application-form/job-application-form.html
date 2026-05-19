@@ -29,7 +29,9 @@
         <div class="form-group">
           <label>Phone Number <span class="required">*</span></label>
           <input type="tel" formControlName="phone" class="mac-input" [class.error]="applicationForm.get('phone')?.invalid && applicationForm.get('phone')?.touched" placeholder="10-digit mobile number">
-          <span class="error-text" *ngIf="applicationForm.get('phone')?.invalid && applicationForm.get('phone')?.touched">Phone number is required</span>
+          <span class="error-text" *ngIf="applicationForm.get('phone')?.invalid && applicationForm.get('phone')?.touched">
+            {{ applicationForm.get('phone')?.errors?.['pattern'] ? 'Please enter a valid 10-15 digit mobile number' : 'Phone number is required' }}
+          </span>
         </div>
       </div>
 
@@ -84,5 +86,14 @@
     <button class="btn-mac" *ngIf="currentStep === totalSteps" (click)="submitApplication()" [disabled]="uploading">
       {{ uploading ? 'Please wait...' : 'Submit Application' }}
     </button>
+  </div>
+
+  <!-- Premium Glassmorphic Loading Overlay -->
+  <div class="loading-overlay" *ngIf="uploading || submitting">
+    <div class="spinner-container">
+      <div class="premium-spinner"></div>
+      <div class="loading-text">{{ uploading ? 'Uploading your resume to secure cloud...' : 'Analyzing resume and submitting application...' }}</div>
+      <div class="loading-subtext">This will only take a moment. Please do not close this window.</div>
+    </div>
   </div>
 </div>

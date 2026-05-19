@@ -13,9 +13,12 @@ public class JobApplication {
     private Long id;
     private Long jobId;
     private Long employeeId;
-    // Virtual fields – NOT stored in DB, populated via JOIN with users in DAO
+    // Fields stored in DB
     private String employeeName;
     private String employeeEmail;
+    private String employeePhone;
+
+    // Virtual fields
     private String jobTitle;
     private Boolean jobActive;
     private String resumeUrl;
