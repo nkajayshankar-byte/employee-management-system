@@ -11,7 +11,7 @@
 
   <!-- Stats Grid -->
   <div class="stats-grid">
-    <div class="stat-card tooltip-container">
+    <div class="stat-card tooltip-container" (click)="scrollTo('recent-onboardings')" style="cursor: pointer;">
       <div class="stat-icon-wrapper users">
         <i class="fa-solid fa-users"></i>
       </div>
@@ -20,15 +20,17 @@
         <p>Total Users</p>
       </div>
       <div class="custom-tooltip">
+        <div class="tooltip-item"><i class="fa-solid fa-shield-halved"></i> Admins: {{ stats.totalAdmins }}</div>
+        <div class="tooltip-divider"></div>
         <div class="tooltip-item"><i class="fa-solid fa-user-tie"></i> Employees: {{ stats.totalEmployees }}</div>
         <div class="tooltip-divider"></div>
-        <div class="tooltip-item"><i class="fa-solid fa-shield-halved"></i> Admins: {{ stats.totalAdmins }}</div>
+        <div class="tooltip-item"><i class="fa-solid fa-user"></i> Users: {{ stats.totalStandardUsers || 0 }}</div>
       </div>
     </div>
 
 
 
-    <div class="stat-card highlight" [class.leaves-alert]="stats.pendingLeaves > 0" *ngIf="stats.pendingLeaves > 0">
+    <div class="stat-card highlight" [class.leaves-alert]="stats.pendingLeaves > 0" *ngIf="stats.pendingLeaves > 0" (click)="scrollTo('time-off-alerts')" style="cursor: pointer;">
       <div class="stat-icon-wrapper leaves">
         <i class="fa-solid fa-calendar-day"></i>
       </div>
@@ -38,7 +40,7 @@
       </div>
     </div>
 
-    <div class="stat-card highlight" [class.applicants-alert]="stats.pendingApplicants > 0" *ngIf="stats.pendingApplicants > 0">
+    <div class="stat-card highlight" [class.applicants-alert]="stats.pendingApplicants > 0" *ngIf="stats.pendingApplicants > 0" (click)="scrollTo('talent-pipeline')" style="cursor: pointer;">
       <div class="stat-icon-wrapper assets">
         <i class="fa-solid fa-user-plus"></i>
       </div>
@@ -132,7 +134,7 @@
     <!-- Pending Leaves Alert -->
     <div class="alert-panel" *ngIf="!loading && pendingLeaves.length > 0">
       <div class="panel-header">
-        <h3><i class="fa-solid fa-bell"></i> Time-Off Alerts</h3>
+        <h3 id="time-off-alerts"><i class="fa-solid fa-bell"></i> Time-Off Alerts</h3>
         <span class="badge badge-danger">{{ pendingLeaves.length }} Pending</span>
       </div>
       <div class="alert-list">
@@ -150,7 +152,7 @@
     <!-- Pending Jobs Alert -->
     <div class="alert-panel job-alerts" *ngIf="!loading && pendingApplicants.length > 0">
       <div class="panel-header">
-        <h3><i class="fa-solid fa-briefcase"></i> Talent Pipeline</h3>
+        <h3 id="talent-pipeline"><i class="fa-solid fa-briefcase"></i> Talent Pipeline</h3>
         <span class="badge badge-warning">{{ stats.pendingApplicants }} Awaiting Review</span>
       </div>
       <div class="alert-list">
@@ -184,7 +186,7 @@
     <!-- Recent Employees -->
     <div class="recent-employees">
       <div class="section-header">
-        <h3>Recent Onboardings</h3>
+        <h3 id="recent-onboardings">Recent Onboardings</h3>
         <a routerLink="/admin/employees" class="view-all">See All Directory</a>
       </div>
 

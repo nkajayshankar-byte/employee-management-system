@@ -31,6 +31,7 @@ import { environment } from '../../environments/environment';
 
     stats = {
       totalUsers: 0,
+      totalStandardUsers: 0,
       totalEmployees: 0,
       totalAdmins: 0,
       pendingLeaves: 0,
@@ -106,9 +107,18 @@ import { environment } from '../../environments/environment';
    e.role?.toUpperCase() === 'EMPLOYEE').length || 0;
      this.stats.totalAdmins = this.employees?.filter(e =>
    e.role?.toUpperCase() === 'ADMIN').length || 0;
+     this.stats.totalStandardUsers = this.employees?.filter(e =>
+   e.role?.toUpperCase() === 'USER').length || 0;
      this.stats.pendingLeaves = this.pendingLeaves?.length || 0;
      this.stats.totalAssets = assets?.length || 0;
      this.stats.pendingApplicants = appCount;
+   }
+
+   scrollTo(elementId: string): void {
+     const element = document.getElementById(elementId);
+     if (element) {
+       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+     }
    }
 
     updatePaginatedApplicants(): void {

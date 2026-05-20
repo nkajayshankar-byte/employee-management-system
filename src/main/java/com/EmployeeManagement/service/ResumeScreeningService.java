@@ -60,34 +60,41 @@ public class ResumeScreeningService {
         }
 
         String prompt = String.format(
-            "You are a highly objective and systematic HR AI analysis system. Your task is to analyze the following resume against the job requirements with absolute consistency.\n\n" +
-            "Job Position: %s\n\n" +
-            "Job Requirements:\n%s\n\n" +
-            "Resume Content:\n%s\n\n" +
-            "CRITICAL MATCHING RULES - You MUST follow these strictly:\n" +
-            "- Treat related and superset technologies as MATCHING the required skill. For example:\n" +
-            "  * MySQL, PostgreSQL, MariaDB, Oracle DB all satisfy a 'SQL' requirement\n" +
-            "  * React, Angular, Vue.js all satisfy a 'JavaScript' or 'Frontend' requirement\n" +
-            "  * Spring Boot satisfies 'Java' and 'Spring' requirements\n" +
-            "  * Node.js satisfies 'JavaScript' requirement\n" +
-            "  * TypeScript satisfies 'JavaScript' requirement\n" +
-            "  * AWS/Azure/GCP satisfy a general 'Cloud' requirement\n" +
-            "  * MongoDB satisfies 'NoSQL' requirement\n" +
-            "- Do NOT list a skill as 'missing' if the candidate has a superset, variant, or closely related technology.\n" +
-            "- Only list a skill as missing if the candidate has NO related expertise at all.\n" +
-            "- When calculating Match Percentage, give full credit for superset/related skill matches.\n\n" +
-            "Analyze the candidate and provide a structured response:\n" +
-            "1. Match percentage (0-100) - based on objective skill alignment using the rules above\n" +
-            "2. Missing skills (as a list of strings) - ONLY skills with NO related match in resume\n" +
-            "3. Key strengths (as a list of strings)\n" +
-            "4. A short summary\n" +
-            "5. Extracted skills from resume\n" +
-            "6. Extracted experience from resume\n" +
-            "7. Extracted education details from resume",
-            job.getTitle(),
-            job.getRequiredSkills() + "\n" + job.getDescription(),
-            resumeText
-        );
+        	    "You are a highly objective HR AI analysis system. Analyze the following resume against the job requirements.\n\n" +
+        	    "Job Position: %s\n\n" +
+        	    "Job Requirements:\n%s\n\n" +
+        	    "Resume Content:\n%s\n\n" +
+        	    "CRITICAL SKILL MATCHING RULES - Follow these STRICTLY:\n" +
+        	    "Skill matching is BIDIRECTIONAL. A general skill satisfies a specific requirement AND vice versa:\n" +
+        	    "- SQL, MySQL, PostgreSQL, MariaDB, Oracle DB, SQL Server are ALL equivalent. If the resume has ANY of these, it satisfies a requirement for ANY of the others.\n" +
+        	    "- MongoDB, NoSQL, DynamoDB, Cassandra are ALL equivalent for NoSQL requirements.\n" +
+        	    "- Java, Spring, Spring Boot are ALL equivalent. Having ANY one satisfies a requirement for ANY of the others.\n" +
+        	    "- JavaScript, TypeScript, React, Angular, Vue.js, Node.js are ALL in the same family. Having ANY one satisfies a JavaScript/Frontend requirement.\n" +
+        	    "- Python, Django, Flask, FastAPI are ALL in the same family.\n" +
+        	    "- AWS, Azure, GCP, Cloud are ALL equivalent for cloud requirements.\n" +
+        	    "- REST APIs, REST, RESTful, HTTP APIs, Microservices are ALL equivalent.\n" +
+        	    "- Docker, Kubernetes, Containerization are ALL equivalent.\n" +
+        	    "- Git, GitHub, GitLab, Bitbucket are ALL equivalent for version control.\n" +
+        	    "- Do NOT list a skill as 'missing' if the candidate has ANY related, equivalent, superset, or subset technology from the same family.\n" +
+        	    "- Only list a skill as truly missing if the candidate has ZERO related expertise.\n\n" +
+        	    "CRITICAL SCORING RULES:\n" +
+        	    "Calculate the final Match Percentage (0-100) using the following weighted formula:\n" +
+        	    "1. Technical Skills (50%% weight): Apply the bidirectional matching rules above. Give full credit for related/equivalent tech.\n" +
+        	    "2. Experience Level (30%% weight): Compare the candidate's calculated years of experience against the job requirements. Deduct points proportionally if they fall short.\n" +
+        	    "3. Education (10%% weight): Full points if the degree matches or is closely related to the requirement.\n" +
+        	    "4. Role & Domain Alignment (10%% weight): Does their past job titles and industry experience align with this role?\n\n" +
+        	    "Analyze the candidate and provide a structured response:\n" +
+        	    "1. Match percentage (0-100) - based strictly on the weighted formula above.\n" +
+        	    "2. Missing skills (as a list of strings) - ONLY skills with ZERO related match after applying bidirectional rules.\n" +
+        	    "3. Key strengths (as a list of strings).\n" +
+        	    "4. A short summary explaining the score breakdown (Skills, Experience, Education, Domain).\n" +
+        	    "5. Extracted skills from resume\n" +
+        	    "6. Extracted experience (in years)\n" +
+        	    "7. Extracted education details",
+        	    job.getTitle(),
+        	    job.getRequiredSkills() + "\n" + job.getDescription(),
+        	    resumeText
+        	);
 
         try {
             System.out.println("Calling Groq (Llama 70B) for resume screening analysis...");

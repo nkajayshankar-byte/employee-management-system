@@ -96,22 +96,19 @@ export class JobApplicationFormComponent implements OnInit {
         return;
       }
 
-      // Fix: Wrap in setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
-        this.uploading = true;
-        this.careerService.uploadResume(file).subscribe({
-          next: (res: any) => {
-            this.resumeUrl = res.url;
-            this.applicationForm.patchValue({ resume: res.url });
-            this.applicationForm.get('resume')?.setErrors(null);
-            this.uploading = false;
-            this.toastr.success('Resume uploaded successfully');
-          },
-          error: (err) => {
-            this.toastr.error('Failed to upload resume');
-            this.uploading = false;
-          }
-        });
+      this.uploading = true;
+      this.careerService.uploadResume(file).subscribe({
+        next: (res: any) => {
+          this.resumeUrl = res.url;
+          this.applicationForm.patchValue({ resume: res.url });
+          this.applicationForm.get('resume')?.setErrors(null);
+          this.uploading = false;
+          this.toastr.success('Resume uploaded successfully');
+        },
+        error: (err) => {
+          this.toastr.error('Failed to upload resume');
+          this.uploading = false;
+        }
       });
     }
   }
