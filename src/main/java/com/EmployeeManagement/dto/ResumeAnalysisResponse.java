@@ -14,4 +14,11 @@ public class ResumeAnalysisResponse {
     private String extractedSkills;
     private String extractedExperience;
     private String extractedEducation;
+    
+    // Auto-populated fields for form
+    private String extractedName;
+    private String extractedEmail;
+    private String extractedPhone;
+    private String extractedLinkedIn;
+    private String extractedGitHub;
 }

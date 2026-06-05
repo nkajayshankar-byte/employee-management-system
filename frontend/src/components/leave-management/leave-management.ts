@@ -86,6 +86,12 @@ export class LeaveManagementComponent implements OnInit {
     return this.calculateWorkingDays(start, end);
   }
 
+  get totalUsedLeaves(): number {
+    return this.leaves
+      .filter(l => l.status === 'APPROVED' || l.status === 'PENDING')
+      .reduce((sum, l) => sum + (l.numberOfDays || 0), 0);
+  }
+
   // ✅ Employee - Apply for leave
   loadMyLeaves(): void {
   this.loading = true;
@@ -157,6 +163,13 @@ export class LeaveManagementComponent implements OnInit {
     applyLeave(): void {
       if (this.leaveForm.invalid) {
         this.toastr.error('Please fill all required fields');
+        return;
+      }
+
+      const workingDays = this.totalWorkingDays;
+      const totalUsed = this.totalUsedLeaves;
+      if (totalUsed + workingDays > 20) {
+        this.toastr.error(`Cannot apply. Maximum leave quota is 20 days. You have already used/requested ${totalUsed} days, and this request is for ${workingDays} days.`);
         return;
       }
 

@@ -21,6 +21,12 @@ import { environment } from '../environments/environment';
     employeeId: number | string;
     employeeName: string;
     employeeEmail: string;
+    employeePhone?: string;
+    skills?: string;
+    experience?: string;
+    education?: string;
+    linkedInUrl?: string;
+    githubUrl?: string;
     status?: string;
     appliedDate?: Date;
     resumeUrl?: string;
@@ -91,5 +97,11 @@ import { environment } from '../environments/environment';
       const formData = new FormData();
       formData.append('file', file);
       return this.http.post(`${this.apiUrl}/upload-resume`, formData);
+    }
+
+    parseResume(file: File, jobId: number | string): Observable<any> {
+      const formData = new FormData();
+      formData.append('file', file);
+      return this.http.post(`${this.apiUrl}/parse-resume?jobId=${jobId}`, formData);
     }
   }

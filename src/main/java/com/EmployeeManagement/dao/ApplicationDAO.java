@@ -12,6 +12,4 @@ public interface ApplicationDAO {
     List<JobApplication> findByEmployeeId(Long employeeId);
     boolean existsByJobIdAndEmployeeId(Long jobId, Long employeeId);
     void deleteById(Long id);
-    void deleteByJobId(Long jobId);
-    void deleteByEmployeeId(Long employeeId);
 }

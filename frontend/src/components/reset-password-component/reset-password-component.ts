@@ -98,7 +98,7 @@ export class ResetPasswordComponent {
         this.step = 3;
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Invalid OTP');
+        this.toastr.error(err.error?.message || 'Invalid OTP/Expired. Please try again.');
       }
     });
   }

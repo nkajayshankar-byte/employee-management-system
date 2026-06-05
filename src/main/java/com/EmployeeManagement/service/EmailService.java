@@ -85,7 +85,7 @@ public class EmailService {
                 + "<span style='font-size:36px;font-weight:bold;letter-spacing:10px;"
                 + "color:#667eea;background:#f0f4ff;padding:14px 28px;border-radius:8px;'>"
                 + otp + "</span></div>"
-                + "<p style='font-size:13px;color:#888;'>This OTP is valid for <strong>10 minutes</strong>."
+                + "<p style='font-size:13px;color:#888;'>This OTP is valid for <strong>5 minutes</strong>."
                 + " Do not share it with anyone.</p>"
                 + "<p style='font-size:13px;color:#888;'>If you did not request this, you can safely ignore this email.</p>"
                 + "</div>"

@@ -110,9 +110,4 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
         jdbcTemplate.update(sql, id);
     }
 
-    @Override
-    public void deleteByEmployeeId(Long employeeId) {
-        String sql = "DELETE FROM employee_shifts WHERE employeeId = ?";
-        jdbcTemplate.update(sql, employeeId);
-    }
 }

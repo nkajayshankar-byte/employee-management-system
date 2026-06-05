@@ -41,7 +41,7 @@ public class LeaveController {
     @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<ApiResponse> applyLeave(@RequestBody LeaveDTO leaveDto) {
         String result = leaveService.applyLeave(leaveDto, getEmployeeIdFromToken());
-        if (result.contains("Start date")) {
+        if (!"Leave applied successfully".equals(result)) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, result));
         }

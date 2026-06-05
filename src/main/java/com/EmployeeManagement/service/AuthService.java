@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthService {
@@ -26,7 +27,17 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
 
-    private final Map<String, String> otpStorage = new HashMap<>();
+    private static class OtpDetails {
+        String otp;
+        long expiryTime;
+
+        OtpDetails(String otp, long expiryTime) {
+            this.otp = otp;
+            this.expiryTime = expiryTime;
+        }
+    }
+
+    private final Map<String, OtpDetails> otpStorage = new ConcurrentHashMap<>();
 
     public AuthResponse signup(AuthRequest signupRequest) {
         String email = signupRequest.getEmail() != null ? signupRequest.getEmail().toLowerCase().trim() : null;
@@ -154,7 +165,8 @@ public class AuthService {
         }
 
         String otp = String.format("%06d", new Random().nextInt(1000000));
-        otpStorage.put(email, otp);
+        long expiryTime = System.currentTimeMillis() + 5 * 60 * 1000; // 5 minutes
+        otpStorage.put(email, new OtpDetails(otp, expiryTime));
 
         try {
             emailService.sendOtpEmail(email, otp);
@@ -166,10 +178,16 @@ public class AuthService {
     }
 
     public boolean verifyOtp(String email, String otp) {
-        String storedOtp = otpStorage.get(email);
-        if (storedOtp != null && storedOtp.equals(otp)) {
-            otpStorage.remove(email);
-            return true;
+        OtpDetails details = otpStorage.get(email);
+        if (details != null) {
+            if (System.currentTimeMillis() > details.expiryTime) {
+                otpStorage.remove(email); // Expired
+                return false;
+            }
+            if (details.otp.equals(otp)) {
+                otpStorage.remove(email); // Valid and verified
+                return true;
+            }
         }
         return false;
     }

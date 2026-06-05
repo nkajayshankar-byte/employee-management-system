@@ -15,5 +15,4 @@ public interface EmployeeShiftDAO {
     Optional<EmployeeShift> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
     Optional<Shift> findShiftByEmployeeIdAndDate(Long employeeId, LocalDate date);
     void deleteById(Long id);
-    void deleteByEmployeeId(Long employeeId);
 }

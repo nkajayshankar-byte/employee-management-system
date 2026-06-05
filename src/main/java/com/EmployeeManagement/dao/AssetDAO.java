@@ -12,5 +12,4 @@ public interface AssetDAO {
     List<Asset> findByAssetNameContainingIgnoreCaseOrSerialNumberContainingIgnoreCase(String name, String serial);
     void deleteById(Long id);
     void deleteByIds(List<Long> ids);
-    void deleteByEmployeeId(Long employeeId);
 }

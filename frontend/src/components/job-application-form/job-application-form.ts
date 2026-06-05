@@ -23,6 +23,10 @@ export class JobApplicationFormComponent implements OnInit {
   uploading = false;
   submitting = false;
   resumeUrl: string = '';
+  fileName: string = '';
+  
+  // Store AI screening data to send during submit
+  aiScreeningData: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -33,8 +37,11 @@ export class JobApplicationFormComponent implements OnInit {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern('^[+0-9]{10,15}$')]],
+      linkedInUrl: [''],
+      githubUrl: [''],
       skills: ['', Validators.required],
       experience: ['', Validators.required],
+      education: [''],
       resume: [null, Validators.required]
     });
   }
@@ -50,14 +57,19 @@ export class JobApplicationFormComponent implements OnInit {
 
   nextStep(): void {
     if (this.currentStep === 1) {
+      if (!this.resumeUrl) {
+        this.toastr.warning('Please upload your resume to proceed.');
+        return;
+      }
+    } else if (this.currentStep === 2) {
       const controls = ['name', 'email', 'phone'];
       const invalid = controls.some(c => this.applicationForm.get(c)?.invalid);
       if (invalid) {
         controls.forEach(c => this.applicationForm.get(c)?.markAsTouched());
-        this.toastr.error('Please fill in your contact details correctly.');
+        this.toastr.error('Please fill in your personal details correctly.');
         return;
       }
-    } else if (this.currentStep === 2) {
+    } else if (this.currentStep === 3) {
       const controls = ['skills', 'experience'];
       const invalid = controls.some(c => this.applicationForm.get(c)?.invalid);
       if (invalid) {
@@ -65,10 +77,6 @@ export class JobApplicationFormComponent implements OnInit {
         this.toastr.error('Please provide your skills and experience.');
         return;
       }
-    } else if (this.currentStep === 3 && !this.resumeUrl) {
-      this.applicationForm.get('resume')?.markAsTouched();
-      this.toastr.warning('Please upload your resume to complete the application');
-      return;
     }
 
     if (this.currentStep < this.totalSteps) {
@@ -96,78 +104,90 @@ export class JobApplicationFormComponent implements OnInit {
         return;
       }
 
+      this.fileName = file.name;
       this.uploading = true;
-      this.careerService.uploadResume(file).subscribe({
+      const actualJobId = this.jobId || (this as any)._jobId;
+      
+      this.careerService.parseResume(file, actualJobId).subscribe({
         next: (res: any) => {
           this.resumeUrl = res.url;
           this.applicationForm.patchValue({ resume: res.url });
           this.applicationForm.get('resume')?.setErrors(null);
+          
+          if (res.analysis) {
+            this.aiScreeningData = res.analysis;
+            
+            // Auto-fill form fields
+            this.applicationForm.patchValue({
+              name: res.analysis.extractedName || this.applicationForm.value.name,
+              email: res.analysis.extractedEmail || this.applicationForm.value.email,
+              phone: res.analysis.extractedPhone || this.applicationForm.value.phone,
+              linkedInUrl: res.analysis.extractedLinkedIn || '',
+              githubUrl: res.analysis.extractedGitHub || '',
+              skills: res.analysis.extractedSkills || '',
+              experience: res.analysis.extractedExperience || '',
+              education: res.analysis.extractedEducation || ''
+            });
+            this.toastr.success('Resume parsed successfully! Details auto-filled.');
+          } else {
+             this.toastr.success('Resume uploaded successfully.');
+          }
+          
           this.uploading = false;
-          this.toastr.success('Resume uploaded successfully');
+          // Automatically go to next step
+          setTimeout(() => this.nextStep(), 1500);
         },
         error: (err) => {
-          this.toastr.error('Failed to upload resume');
+          this.toastr.error('Failed to upload/parse resume. You can still enter details manually.');
           this.uploading = false;
+          // In case of error, we could still let them upload without parsing, but parseResume endpoint handles upload too.
         }
       });
     }
   }
 
   submitApplication(): void {
-    // Explicit Resume Check
-    if (!this.resumeUrl) {
-      this.applicationForm.get('resume')?.setErrors({ required: true });
-      this.applicationForm.get('resume')?.markAsTouched();
-      this.toastr.error('Resume is required. Please upload your CV before submitting.');
-      return;
-    }
-
-    // General Form Validity Check
-    if (this.applicationForm.invalid) {
+    if (this.applicationForm.invalid || !this.resumeUrl) {
       this.applicationForm.markAllAsTouched();
-      this.toastr.error('Please complete all required fields across all steps.');
-      
-      // If there are errors in previous steps, take them back to step 1 or 2
-      const step1Fields = ['name', 'email', 'phone'];
-      const step2Fields = ['skills', 'experience'];
-      
-      if (step1Fields.some(f => this.applicationForm.get(f)?.invalid)) {
-        this.currentStep = 1;
-      } else if (step2Fields.some(f => this.applicationForm.get(f)?.invalid)) {
-        this.currentStep = 2;
-      }
-      
+      this.toastr.error('Please complete all required fields.');
       return;
     }
 
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const empId = user.userId || user.id || user._id; // Be flexible with user ID
+    const empId = user.userId || user.id || user._id;
 
     if (!empId) {
       this.toastr.error('User session not found. Please log in again.');
       return;
     }
 
-    const actualJobId = this.jobId || (this as any)._jobId; // Fallback check
+    const actualJobId = this.jobId || (this as any)._jobId;
 
-    if (!actualJobId) {
-      this.toastr.error('Job reference missing. Please close and reopen the application.');
-      return;
-    }
-
-    const applicationData = {
+    const applicationData: any = {
       jobId: actualJobId,
       employeeId: empId,
       employeeName: this.applicationForm.value.name,
       employeeEmail: this.applicationForm.value.email,
       employeePhone: this.applicationForm.value.phone,
+      linkedInUrl: this.applicationForm.value.linkedInUrl,
+      githubUrl: this.applicationForm.value.githubUrl,
       skills: this.applicationForm.value.skills,
       experience: this.applicationForm.value.experience,
+      education: this.applicationForm.value.education,
       resumeUrl: this.resumeUrl,
       status: 'PENDING'
     };
 
-
+    // Attach AI screening data if available
+    if (this.aiScreeningData) {
+      applicationData.matchPercentage = this.aiScreeningData.matchPercentage;
+      applicationData.missingSkills = this.aiScreeningData.missingSkills?.join(', ') || '';
+      applicationData.strengths = this.aiScreeningData.strengths?.join(', ') || '';
+      applicationData.summary = this.aiScreeningData.summary;
+      applicationData.extractedSkills = this.aiScreeningData.extractedSkills;
+      applicationData.extractedExperience = this.aiScreeningData.extractedExperience;
+      applicationData.extractedEducation = this.aiScreeningData.extractedEducation;
+    }
 
     this.submitting = true;
 
@@ -184,16 +204,5 @@ export class JobApplicationFormComponent implements OnInit {
       }
     });
   }
-
-  // Helper to debug validation
-  private getFormValidationErrors() {
-    const errors: any[] = [];
-    Object.keys(this.applicationForm.controls).forEach(key => {
-      const controlErrors: any = this.applicationForm.get(key)?.errors;
-      if (controlErrors != null) {
-        errors.push({ key, errors: controlErrors });
-      }
-    });
-    return errors;
-  }
 }
+

@@ -128,11 +128,6 @@ public class LeaveDAOImpl implements LeaveDAO {
         return jdbcTemplate.query(sql, rowMapper, employeeId, status);
     }
 
-    @Override
-    public List<Leave> findLeavesByDateRange(Long employeeId, LocalDate startDate, LocalDate endDate) {
-        String sql = BASE_SELECT + "WHERE l.employeeId = ? AND ((l.startDate BETWEEN ? AND ?) OR (l.endDate BETWEEN ? AND ?))";
-        return jdbcTemplate.query(sql, rowMapper, employeeId, startDate, endDate, startDate, endDate);
-    }
 
     @Override
     public List<Leave> findPendingLeaves() {
@@ -141,20 +136,8 @@ public class LeaveDAOImpl implements LeaveDAO {
     }
 
     @Override
-    public List<Leave> findApprovedLeavesByTypeAndDate(String leaveType, Long employeeId, LocalDate date) {
-        String sql = BASE_SELECT + "WHERE l.leaveType = ? AND l.employeeId = ? AND l.status = 'APPROVED' AND ? BETWEEN l.startDate AND l.endDate";
-        return jdbcTemplate.query(sql, rowMapper, leaveType, employeeId, date);
-    }
-
-    @Override
     public void deleteById(Long id) {
         String sql = "DELETE FROM leaves WHERE id = ?";
         jdbcTemplate.update(sql, id);
-    }
-
-    @Override
-    public void deleteByEmployeeId(Long employeeId) {
-        String sql = "DELETE FROM leaves WHERE employeeId = ?";
-        jdbcTemplate.update(sql, employeeId);
     }
 }

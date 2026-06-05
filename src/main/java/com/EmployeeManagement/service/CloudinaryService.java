@@ -1,12 +1,17 @@
 package com.EmployeeManagement.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Url;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 @Service
@@ -62,7 +67,7 @@ public class CloudinaryService {
         }
 
         // Construct expected delivery URL
-        com.cloudinary.Url urlBuilder = cloudinary.url().resourceType(resourceType).secure(true);
+        Url urlBuilder = cloudinary.url().resourceType(resourceType).secure(true);
         if ("image".equals(resourceType) && originalFilename != null && originalFilename.lastIndexOf('.') > 0) {
             String ext = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
             urlBuilder = urlBuilder.format(ext);
@@ -87,7 +92,7 @@ public class CloudinaryService {
 
     private String calculateHash(byte[] content) {
         try {
-            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] hash = digest.digest(content);
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
@@ -96,21 +101,21 @@ public class CloudinaryService {
                 hexString.append(hex);
             }
             return hexString.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("MD5 algorithm not found", e);
         }
     }
 
     private boolean checkIfFileExists(String urlString) {
         try {
-            java.net.URL url = new java.net.URL(urlString);
-            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("HEAD");
             connection.setRequestProperty("User-Agent", "Mozilla/5.0");
             connection.setConnectTimeout(2000);
             connection.setReadTimeout(2000);
             int responseCode = connection.getResponseCode();
-            return responseCode == java.net.HttpURLConnection.HTTP_OK;
+            return responseCode == HttpURLConnection.HTTP_OK;
         } catch (Exception e) {
             // Fallback to upload if check fails
             return false;

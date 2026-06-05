@@ -12,6 +12,9 @@ public class JobApplicationDTO {
     private String employeePhone;
     private String skills;
     private String experience;
+    private String education;
+    private String linkedInUrl;
+    private String githubUrl;
     private String resumeUrl;
     private String status;
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
@@ -36,6 +39,12 @@ public class JobApplicationDTO {
     public void setSkills(String skills) { this.skills = skills; }
     public String getExperience() { return experience; }
     public void setExperience(String experience) { this.experience = experience; }
+    public String getEducation() { return education; }
+    public void setEducation(String education) { this.education = education; }
+    public String getLinkedInUrl() { return linkedInUrl; }
+    public void setLinkedInUrl(String linkedInUrl) { this.linkedInUrl = linkedInUrl; }
+    public String getGithubUrl() { return githubUrl; }
+    public void setGithubUrl(String githubUrl) { this.githubUrl = githubUrl; }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getJobId() { return jobId; }

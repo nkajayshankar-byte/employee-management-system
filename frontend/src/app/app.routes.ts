@@ -162,5 +162,6 @@ export const routes: Routes = [
     component: AttendanceDashboardComponent, 
     canActivate: [AuthGuard],
     data: { roles: ['EMPLOYEE', 'ADMIN'] }
-  }
-];
+  },
+  { path: '**', redirectTo: 'login' }
+];

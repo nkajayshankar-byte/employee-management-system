@@ -14,12 +14,14 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
+import java.io.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -77,20 +79,27 @@ public class ResumeScreeningService {
         	    "- Git, GitHub, GitLab, Bitbucket are ALL equivalent for version control.\n" +
         	    "- Do NOT list a skill as 'missing' if the candidate has ANY related, equivalent, superset, or subset technology from the same family.\n" +
         	    "- Only list a skill as truly missing if the candidate has ZERO related expertise.\n\n" +
-        	    "CRITICAL SCORING RULES:\n" +
-        	    "Calculate the final Match Percentage (0-100) using the following weighted formula:\n" +
-        	    "1. Technical Skills (50%% weight): Apply the bidirectional matching rules above. Give full credit for related/equivalent tech.\n" +
-        	    "2. Experience Level (30%% weight): Compare the candidate's calculated years of experience against the job requirements. Deduct points proportionally if they fall short.\n" +
-        	    "3. Education (10%% weight): Full points if the degree matches or is closely related to the requirement.\n" +
-        	    "4. Role & Domain Alignment (10%% weight): Does their past job titles and industry experience align with this role?\n\n" +
+        	    "CRITICAL SCORING RULES (MUST BE STRICTLY DETERMINISTIC):\n" +
+        	    "To prevent score fluctuations, calculate the Match Percentage (0-100) exactly as follows:\n" +
+        	    "1. Count the exact number of Technical Skills required by the job (Let this be T).\n" +
+        	    "2. Count how many of those skills (or their bidirectional equivalents) are present in the resume (Let this be M).\n" +
+        	    "3. The final Match Percentage MUST BE exactly (M / T) * 100, rounded to the nearest integer.\n" +
+        	    "4. Do NOT adjust the score subjectively based on experience, education, or formatting. The score MUST be a pure mathematical calculation of skill overlap so it is identical every time.\n\n" +
         	    "Analyze the candidate and provide a structured response:\n" +
-        	    "1. Match percentage (0-100) - based strictly on the weighted formula above.\n" +
-        	    "2. Missing skills (as a list of strings) - ONLY skills with ZERO related match after applying bidirectional rules.\n" +
-        	    "3. Key strengths (as a list of strings).\n" +
-        	    "4. A short summary explaining the score breakdown (Skills, Experience, Education, Domain).\n" +
-        	    "5. Extracted skills from resume\n" +
-        	    "6. Extracted experience (in years)\n" +
-        	    "7. Extracted education details",
+        	    "1. matchPercentage (int) - The strictly calculated (M / T) * 100 score.\n" +
+        	    "2. missingSkills (array of strings) - ONLY required skills with ZERO related match.\n" +
+        	    "3. strengths (array of strings) - The candidate's best matching skills and experience.\n" +
+        	    "4. summary (string) - A short summary explaining the skills found vs missing.\n" +
+        	    "5. extractedSkills: Extracted technical skills from resume\n" +
+        	    "6. extractedExperience: Total experience in years\n" +
+        	    "7. extractedEducation: Highest education details\n" +
+        	    "8. extractedName: The candidate's full name\n" +
+        	    "9. extractedEmail: The candidate's email address\n" +
+        	    "10. extractedPhone: The candidate's phone number\n" +
+        	    "11. extractedLinkedIn: The candidate's LinkedIn URL (if any)\n" +
+        	    "12. extractedGitHub: The candidate's GitHub URL (if any)\n\n" +
+        	    "CRITICAL: Respond ONLY with a valid JSON object. No markdown, no code fences, no explanation.\n" +
+        	    "The JSON must have these exact keys: matchPercentage (int), missingSkills (array of strings), strengths (array of strings), summary (string), extractedSkills (string), extractedExperience (string), extractedEducation (string), extractedName (string), extractedEmail (string), extractedPhone (string), extractedLinkedIn (string), extractedGitHub (string).",
         	    job.getTitle(),
         	    job.getRequiredSkills() + "\n" + job.getDescription(),
         	    resumeText
@@ -98,15 +107,24 @@ public class ResumeScreeningService {
 
         try {
             System.out.println("Calling Groq (Llama 70B) for resume screening analysis...");
-            ResumeAnalysisResponse response = aiChatClient.prompt()
+            String rawJson = aiChatClient.prompt()
                     .options(OpenAiChatOptions.builder().temperature(0.0).build())
                     .user(prompt)
                     .call()
-                    .entity(ResumeAnalysisResponse.class);
+                    .content();
             
-            if (response == null) {
-                throw new RuntimeException("Gemini returned a null response");
+            if (rawJson == null || rawJson.isBlank()) {
+                throw new RuntimeException("AI returned a null/empty response");
             }
+            
+            // Strip markdown code fences if the LLM wraps it
+            rawJson = rawJson.trim();
+            if (rawJson.startsWith("```")) {
+                rawJson = rawJson.replaceAll("^```(?:json)?\\s*", "").replaceAll("\\s*```$", "");
+            }
+            
+            ObjectMapper mapper = new ObjectMapper();
+            ResumeAnalysisResponse response = mapper.readValue(rawJson, ResumeAnalysisResponse.class);
             
             System.out.println("AI analysis successful. Match Score: " + response.getMatchPercentage() + "%");
             return response;
@@ -126,11 +144,20 @@ public class ResumeScreeningService {
             }
             
             // Return a fallback response so the application remains stable
-            return new ResumeAnalysisResponse(0, 
-                List.of("AI analysis unavailable: " + errorDetail), 
-                List.of("Manual review required"), 
-                "AI screening failed. Summary: " + errorDetail,
-                "Failed to extract", "Failed to extract", "Failed to extract");
+            ResumeAnalysisResponse fallback = new ResumeAnalysisResponse();
+            fallback.setMatchPercentage(0);
+            fallback.setMissingSkills(List.of("AI analysis unavailable: " + errorDetail));
+            fallback.setStrengths(List.of("Manual review required"));
+            fallback.setSummary("AI screening failed. Summary: " + errorDetail);
+            fallback.setExtractedSkills("Failed to extract");
+            fallback.setExtractedExperience("Failed to extract");
+            fallback.setExtractedEducation("Failed to extract");
+            fallback.setExtractedName("");
+            fallback.setExtractedEmail("");
+            fallback.setExtractedPhone("");
+            fallback.setExtractedLinkedIn("");
+            fallback.setExtractedGitHub("");
+            return fallback;
         }
     }
 
@@ -142,8 +169,8 @@ public class ResumeScreeningService {
             
             if (filePath.toLowerCase().endsWith(".doc") || filePath.toLowerCase().endsWith(".docx")) {
                 try (FileInputStream fis = new FileInputStream(file);
-                     XWPFDocument doc = new XWPFDocument(fis)) {
-                    XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+                     XWPFDocument doc = new XWPFDocument(fis);
+						XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
                     return extractor.getText();
                 }
             } else {
@@ -156,7 +183,7 @@ public class ResumeScreeningService {
             System.out.println("Opening connection to remote URL: " + resumeUrl);
             // Encode special chars in URL (e.g. brackets from duplicate filenames like [1])
             String encodedUrl = resumeUrl.replace("[", "%5B").replace("]", "%5D").replace(" ", "%20");
-            URL url = new URL(encodedUrl);
+            URL url = URI.create(encodedUrl).toURL(); // URL url = new URL(encodedUrl);-- Deprecated
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             
             // Add comprehensive browser headers to avoid being blocked by CDNs (like Cloudinary/Render)
@@ -178,8 +205,8 @@ public class ResumeScreeningService {
                 System.out.println("Read " + bytes.length + " bytes from remote URL.");
                 
                 if (resumeUrl.toLowerCase().contains(".doc") || resumeUrl.toLowerCase().contains(".docx")) {
-                    try (XWPFDocument doc = new XWPFDocument(new java.io.ByteArrayInputStream(bytes))) {
-                        XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+                    try (XWPFDocument doc = new XWPFDocument(new ByteArrayInputStream(bytes));
+							XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
                         return extractor.getText();
                     }
                 } else {

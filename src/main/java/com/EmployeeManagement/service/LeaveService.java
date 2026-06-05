@@ -41,6 +41,20 @@ public class LeaveService {
         leave.setEmployeeId(employeeId);
 
         int workingDays = calculateWorkingDays(leave.getStartDate(), leave.getEndDate());
+        
+        // Calculate already taken or pending leave days
+        List<Leave> existingLeaves = leaveDAO.findByEmployeeId(employeeId);
+        int totalTaken = 0;
+        for (Leave existing : existingLeaves) {
+            if ("APPROVED".equals(existing.getStatus()) || "PENDING".equals(existing.getStatus())) {
+                totalTaken += existing.getNumberOfDays();
+            }
+        }
+        
+        if (totalTaken + workingDays > 20) {
+            return "Cannot apply. Maximum leave quota is 20 days. You have used/requested " + totalTaken + " days.";
+        }
+
         leave.setNumberOfDays(workingDays);
         leave.setStatus("PENDING");
         leave.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));

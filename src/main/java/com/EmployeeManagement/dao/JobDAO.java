@@ -9,5 +9,4 @@ public interface JobDAO {
     Optional<Job> findById(Long id);
     List<Job> findAll();
     void deleteById(Long id);
-    String findHiredJobTitleByEmployeeId(Long employeeId);
 }

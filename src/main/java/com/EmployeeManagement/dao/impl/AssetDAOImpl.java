@@ -137,9 +137,4 @@ public class AssetDAOImpl implements AssetDAO {
         namedJdbcTemplate.update(sql, parameters);
     }
 
-    @Override
-    public void deleteByEmployeeId(Long employeeId) {
-        String sql = "DELETE FROM assets WHERE employeeId = ?";
-        jdbcTemplate.update(sql, employeeId);
-    }
 }

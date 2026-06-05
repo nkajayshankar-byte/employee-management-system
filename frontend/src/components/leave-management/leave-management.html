@@ -5,7 +5,7 @@
       <div class="header-left">
         <h1 class="page-title">Leave Management</h1>
         <p class="page-subtitle" *ngIf="isAdmin">Organization attendance & time-off</p>
-        <p class="page-subtitle" *ngIf="isEmployee">Personal time-off dashboard</p>
+        <p class="page-subtitle" *ngIf="isEmployee">Personal time-off dashboard • <strong>{{ totalUsedLeaves }} / 20</strong> days used/requested</p>
       </div>
       <div class="header-right">
         <button class="btn-mac" (click)="openApplyForm()" *ngIf="isEmployee">
@@ -235,6 +235,9 @@
             <p class="days-preview-text">
               <i class="fa-solid fa-calendar-day"></i> Total Working Days: <strong>{{ totalWorkingDays }}</strong>
               <span class="weekend-note">(Excluding Weekends)</span>
+            </p>
+            <p class="days-preview-text warning" *ngIf="totalUsedLeaves + totalWorkingDays > 20" style="color: #ff3b30; margin-top: 5px;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Warning: This request exceeds your remaining leave quota (Only {{ 20 - totalUsedLeaves }} days available).
             </p>
           </div>
         </div>

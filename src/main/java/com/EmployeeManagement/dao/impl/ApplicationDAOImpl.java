@@ -2,6 +2,9 @@ package com.EmployeeManagement.dao.impl;
 
 import com.EmployeeManagement.dao.ApplicationDAO;
 import com.EmployeeManagement.entity.JobApplication;
+
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,7 +23,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @jakarta.annotation.PostConstruct
+    @PostConstruct
     public void initializeSchema() {
         try {
             addColumnIfNotExists("employeeName", "VARCHAR(255)");
@@ -193,15 +196,4 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         jdbcTemplate.update(sql, id);
     }
 
-    @Override
-    public void deleteByJobId(Long jobId) {
-        String sql = "DELETE FROM job_applications WHERE jobId = ?";
-        jdbcTemplate.update(sql, jobId);
-    }
-
-    @Override
-    public void deleteByEmployeeId(Long employeeId) {
-        String sql = "DELETE FROM job_applications WHERE employeeId = ?";
-        jdbcTemplate.update(sql, employeeId);
-    }
 }

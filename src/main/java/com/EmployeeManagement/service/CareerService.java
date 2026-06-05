@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.EmployeeManagement.dto.JobApplicationDTO;
 import com.EmployeeManagement.dto.JobDTO;
+import com.EmployeeManagement.dto.ResumeAnalysisResponse;
 import com.EmployeeManagement.entity.Job;
 import com.EmployeeManagement.entity.JobApplication;
 import com.EmployeeManagement.entity.Role;
@@ -116,29 +117,17 @@ public class CareerService {
             System.err.println("Failed to send application confirmation email: " + e.getMessage());
         }
         
-        // Trigger AI Screening
-        try {
-            if (savedApp.getResumeUrl() != null && !savedApp.getResumeUrl().isEmpty()) {
-                var aiAnalysis = screeningService.screenResume(savedApp.getResumeUrl(), savedApp.getJobId());
-                savedApp.setMatchPercentage(aiAnalysis.getMatchPercentage());
-                savedApp.setMissingSkills(String.join(", ", aiAnalysis.getMissingSkills()));
-                savedApp.setStrengths(String.join(", ", aiAnalysis.getStrengths()));
-                savedApp.setSummary(aiAnalysis.getSummary());
-                savedApp.setExtractedSkills(aiAnalysis.getExtractedSkills());
-                savedApp.setExtractedExperience(aiAnalysis.getExtractedExperience());
-                savedApp.setExtractedEducation(aiAnalysis.getExtractedEducation());
-                
-                // Save AI insights
-                appDAO.save(savedApp);
-            }
-        } catch (Exception e) {
-            System.err.println("AI Screening failed: " + e.getMessage());
-        }
+        // Note: AI Screening is now done upfront during resume upload.
+        // The DTO already contains matchPercentage, missingSkills, etc. if applicable.
 
-        // Fetch again to get joined fields (name, email, title) and AI insights
+        // Fetch again to get joined fields (name, email, title)
         JobApplication fullApp = appDAO.findById(savedApp.getId()).orElse(savedApp);
         
         return applicationMapper.toDTO(fullApp);
+    }
+
+    public ResumeAnalysisResponse screenResume(String resumeUrl, Long jobId) {
+        return screeningService.screenResume(resumeUrl, jobId);
     }
 
     public boolean hasApplied(Long jobId, Long employeeId) {

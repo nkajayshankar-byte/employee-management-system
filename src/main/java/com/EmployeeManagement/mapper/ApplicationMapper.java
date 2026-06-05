@@ -19,6 +19,9 @@ public class ApplicationMapper {
         dto.setEmployeePhone(app.getEmployeePhone());
         dto.setSkills(app.getSkills());
         dto.setExperience(app.getExperience());
+        dto.setEducation(app.getEducation());
+        dto.setLinkedInUrl(app.getLinkedInUrl());
+        dto.setGithubUrl(app.getGithubUrl());
         dto.setResumeUrl(app.getResumeUrl());
         dto.setStatus(app.getStatus());
         dto.setAppliedDate(app.getAppliedDate());
@@ -49,6 +52,9 @@ public class ApplicationMapper {
         app.setEmployeePhone(dto.getEmployeePhone());
         app.setSkills(dto.getSkills());
         app.setExperience(dto.getExperience());
+        app.setEducation(dto.getEducation());
+        app.setLinkedInUrl(dto.getLinkedInUrl());
+        app.setGithubUrl(dto.getGithubUrl());
         app.setResumeUrl(dto.getResumeUrl());
         app.setStatus(dto.getStatus());
         app.setAppliedDate(dto.getAppliedDate());

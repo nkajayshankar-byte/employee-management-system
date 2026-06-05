@@ -19,6 +19,9 @@ public class JobApplication {
     private String employeePhone;
     private String skills;
     private String experience;
+    private String education;
+    private String linkedInUrl;
+    private String githubUrl;
 
     // Virtual fields
     private String jobTitle;

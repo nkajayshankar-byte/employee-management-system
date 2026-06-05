@@ -31,6 +31,21 @@ public class CareerController {
         return res;
     }
 
+    @PostMapping(value = "/parse-resume", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, Object> parseResume(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam("jobId") Long jobId) {
+        String url = fileStorageService.save(file);
+        
+        // This makes a SINGLE AI call to get pre-fill data AND screening score
+        com.EmployeeManagement.dto.ResumeAnalysisResponse analysis = careerService.screenResume(url, jobId);
+        
+        Map<String, Object> res = new HashMap<>();
+        res.put("url", url);
+        res.put("analysis", analysis);
+        return res;
+    }
+
     @GetMapping("/jobs")
     public List<JobDTO> getAllJobs() {
         return careerService.getAllJobs();

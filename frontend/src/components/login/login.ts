@@ -121,33 +121,38 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.cdr.detectChanges();
 
     const { email, password } = this.loginForm.value;
     const role = undefined; // Role is not selected during login
 
     this.authService.login(email, password, role).subscribe({
       next: (response: any) => {
-        this.loading = false;
-        this.toastr.success('Login successful!');
-        this.navigateDashboard(response.role);
+        setTimeout(() => {
+          this.loading = false;
+          this.toastr.success('Login successful!');
+          this.navigateDashboard(response.role);
+          this.cdr.detectChanges();
+        }, 0);
       },
       error: (error: any) => {
-        this.loading = false;
-        let msg = "Login failed";
-        
-        // Use backend-provided message if available
-        if (error.error && error.error.message) {
-          msg = error.error.message;
-        } else if (error.status === 401) {
-          msg = "Invalid email or password";
-        } else if (error.status === 403) {
-          msg = "Wrong role selected";
-        } else if (typeof error.error === 'string') {
-          msg = error.error;
-        }
-        
-        this.toastr.error(msg);
+        setTimeout(() => {
+          this.loading = false;
+          let msg = "Login failed";
+          
+          // Use backend-provided message if available
+          if (error.error && error.error.message) {
+            msg = error.error.message;
+          } else if (error.status === 401) {
+            msg = "Invalid email or password";
+          } else if (error.status === 403) {
+            msg = "Wrong role selected";
+          } else if (typeof error.error === 'string') {
+            msg = error.error;
+          }
+          
+          this.toastr.error(msg);
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
   }
