@@ -64,7 +64,11 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (token === 'null' || token === 'undefined') {
+      return null;
+    }
+    return token;
   }
 
   getCurrentUser(): AuthResponse | null {

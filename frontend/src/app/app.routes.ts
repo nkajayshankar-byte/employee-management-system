@@ -83,7 +83,8 @@ export const routes: Routes = [
   path: 'admin/company',
   component: AdminCompanyComponent,
   canActivate: [AuthGuard],
-  canDeactivate: [UnsavedChangesGuard]
+  canDeactivate: [UnsavedChangesGuard],
+  data: { role: 'ADMIN' }
 },
   { 
     path: 'admin/assets',
