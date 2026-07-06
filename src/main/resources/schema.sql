@@ -170,4 +170,44 @@ CREATE TABLE IF NOT EXISTS company (
     contactInfo       LONGTEXT
 );
 
+-- ============================================================
+-- SALARY_STRUCTURES (FK → users.id)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS salary_structures (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    employeeId      BIGINT NOT NULL UNIQUE,
+    baseSalary      DOUBLE DEFAULT 0.0,
+    hra             DOUBLE DEFAULT 0.0,
+    otherAllowances DOUBLE DEFAULT 0.0,
+    taxDeductions   DOUBLE DEFAULT 0.0,
+    providentFund   DOUBLE DEFAULT 0.0,
+    netSalary       DOUBLE DEFAULT 0.0,
+    accountNumber   VARCHAR(255),
+    createdAt       DATETIME,
+    updatedAt       DATETIME,
+    CONSTRAINT fk_salary_user
+        FOREIGN KEY (employeeId) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================================
+-- PAYSLIPS (FK → users.id)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS payslips (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    employeeId      BIGINT NOT NULL,
+    month           INT NOT NULL,
+    year            INT NOT NULL,
+    totalDays       INT,
+    paidDays        INT,
+    grossPay        DOUBLE,
+    totalDeductions DOUBLE,
+    lopAmount       DOUBLE DEFAULT 0.0,
+    netPay          DOUBLE,
+    status          VARCHAR(50) DEFAULT 'PENDING',
+    pdfUrl          VARCHAR(512),
+    createdAt       DATETIME,
+    CONSTRAINT fk_payslip_user
+        FOREIGN KEY (employeeId) REFERENCES users(id) ON DELETE CASCADE
+);
+
 SET FOREIGN_KEY_CHECKS = 1;

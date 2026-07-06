@@ -23,6 +23,8 @@ public class CloudinaryService {
             @Value("${cloudinary.cloud_name}") String cloudName,
             @Value("${cloudinary.api_key}") String apiKey,
             @Value("${cloudinary.api_secret}") String apiSecret) {
+            
+        
         this.cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
@@ -87,6 +89,17 @@ public class CloudinaryService {
                         "access_mode", "public"
                 ));
 
+        return uploadResult.get("secure_url").toString();
+    }
+
+    public String uploadLocalFile(java.io.File file, String resourceType, String publicId) throws IOException {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader()
+                .upload(file, ObjectUtils.asMap(
+                        "resource_type", resourceType,
+                        "public_id", publicId,
+                        "access_mode", "public"
+                ));
         return uploadResult.get("secure_url").toString();
     }
 

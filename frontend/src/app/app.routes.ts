@@ -21,6 +21,8 @@ import { LandingPageComponent } from "../components/landing-page/landing-page";
 import { ShiftManagementComponent } from "../components/shift-management/shift-management";
 import { ShiftAssignmentComponent } from "../components/shift-assignment/shift-assignment";
 import { AttendanceDashboardComponent } from "../components/attendance-dashboard/attendance-dashboard";
+import { AdminPayrollComponent } from "../components/admin-payroll/admin-payroll";
+import { EmployeePayslipsComponent } from "../components/employee-payslips/employee-payslips";
 
 
 
@@ -163,6 +165,18 @@ export const routes: Routes = [
     component: AttendanceDashboardComponent, 
     canActivate: [AuthGuard],
     data: { roles: ['EMPLOYEE', 'ADMIN'] }
+  },
+  { 
+    path: 'admin/payroll', 
+    component: AdminPayrollComponent, 
+    canActivate: [AuthGuard],
+    data: { role: 'ADMIN' }
+  },
+  { 
+    path: 'employee/payslips', 
+    component: EmployeePayslipsComponent, 
+    canActivate: [AuthGuard],
+    data: { role: 'EMPLOYEE' }
   },
   { path: '**', redirectTo: 'login' }
 ];

@@ -1,0 +1,179 @@
+.payslips-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.header-section h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.header-section p {
+  color: #64748b;
+}
+
+/* Loading */
+.loading-spinner {
+  text-align: center;
+  padding: 4rem;
+  color: #94a3b8;
+}
+
+.loading-spinner i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Payslip Grid */
+.payslips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.payslip-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payslip-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.payslip-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.period {
+  display: flex;
+  flex-direction: column;
+}
+
+.month-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.year {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.status-badge.generated {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.payslip-card-body {
+  padding: 1.5rem;
+}
+
+.pay-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.pay-row .label {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.pay-row .value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pay-row .deduction {
+  color: #ef4444;
+}
+
+.divider {
+  border: none;
+  border-top: 1px dashed #e2e8f0;
+  margin: 0.75rem 0;
+}
+
+.net-row .label {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.net-value {
+  font-size: 1.2rem;
+  color: #10b981 !important;
+}
+
+.payslip-card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-download {
+  padding: 0.6rem 1.5rem;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-download:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.no-pdf {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+}
+
+.empty-state h3 {
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
