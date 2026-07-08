@@ -43,8 +43,18 @@
     </div>
   </div>
 
-  <!-- Attendance List -->
-  <div class="card table-card">
+  <!-- View Toggle (Admin only) -->
+  <div class="view-toggle" *ngIf="isAdmin">
+    <button class="toggle-btn" [class.active]="viewMode === 'daily'" (click)="switchView('daily')">
+      <i class="fas fa-calendar-day"></i> Daily View
+    </button>
+    <button class="toggle-btn" [class.active]="viewMode === 'monthly'" (click)="switchView('monthly')">
+      <i class="fas fa-calendar-alt"></i> Monthly Overview
+    </button>
+  </div>
+
+  <!-- Daily Attendance List -->
+  <div class="card table-card" *ngIf="viewMode === 'daily' || !isAdmin">
     <div class="table-header">
       <h2>{{ isAdmin ? 'Attendance Records' : 'My Attendance History' }}</h2>
       <div class="filter-group" *ngIf="isAdmin">
@@ -99,4 +109,60 @@
       </div>
     </div>
   </div>
+
+  <!-- Monthly Summary View (Admin only) -->
+  <div class="card table-card monthly-card" *ngIf="viewMode === 'monthly' && isAdmin">
+    <div class="table-header">
+      <h2>Monthly Attendance Summary</h2>
+      <div class="monthly-filters">
+        <select [(ngModel)]="selectedMonth" (change)="onMonthYearChange()" class="mac-input mac-select">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
+        </select>
+        <input type="number" [(ngModel)]="selectedYear" (change)="onMonthYearChange()" class="mac-input year-input" min="2020" max="2099" placeholder="Year">
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="loadingMonthly">
+      <i class="fas fa-spinner fa-spin"></i> Loading monthly data...
+    </div>
+
+    <div class="table-container" *ngIf="!loadingMonthly">
+      <table class="mac-table monthly-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Present</th>
+            <th>Late</th>
+            <th>Absent</th>
+            <th>Total Hours</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of monthlySummary">
+            <td>
+              <div class="emp-name">{{ s.employeeName }}</div>
+              <div class="emp-id">ID: {{ s.employeeId }}</div>
+            </td>
+            <td><span class="day-count present-count">{{ s.presentDays }}</span></td>
+            <td><span class="day-count late-count">{{ s.lateDays }}</span></td>
+            <td><span class="day-count absent-count">{{ s.absentDays }}</span></td>
+            <td>{{ s.totalHours | number:'1.1-1' }}h</td>
+            <td>
+              <div class="attendance-bar-wrapper">
+                <div class="attendance-bar">
+                  <div class="attendance-fill" [ngClass]="getAttendanceClass(s.attendancePercent)" [style.width.%]="s.attendancePercent"></div>
+                </div>
+                <span class="attendance-label" [ngClass]="getAttendanceClass(s.attendancePercent)">{{ s.attendancePercent }}%</span>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="monthlySummary.length === 0">
+            <td colspan="6" class="empty-state">No attendance data for this month.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>

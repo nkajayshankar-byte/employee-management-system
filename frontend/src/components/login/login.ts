@@ -18,6 +18,10 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isSignup = false;
   loading = false;
+  is2faPending = false;
+  target2faNumber = '';
+  pendingEmail = '';
+  private pollingInterval: any;
 
   constructor(
     private fb: FormBuilder,
@@ -54,6 +58,17 @@ export class LoginComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.clearPolling();
+  }
+
+  clearPolling(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
   }
 
   // Custom validator to check if passwords match
@@ -129,9 +144,19 @@ export class LoginComponent implements OnInit {
       next: (response: any) => {
         setTimeout(() => {
           this.loading = false;
-          this.toastr.success('Login successful!');
-          this.navigateDashboard(response.role);
-          this.cdr.detectChanges();
+          
+          if (response.requires2fa) {
+             this.is2faPending = true;
+             this.target2faNumber = ('0' + response.targetNumber).slice(-2);
+             this.pendingEmail = response.email;
+             this.toastr.info('Please check your email for the 2FA code.');
+             this.startPolling2fa();
+             this.cdr.detectChanges();
+          } else {
+             this.toastr.success('Login successful!');
+             this.navigateDashboard(response.role);
+             this.cdr.detectChanges();
+          }
         }, 0);
       },
       error: (error: any) => {
@@ -155,6 +180,40 @@ export class LoginComponent implements OnInit {
         }, 0);
       }
     });
+  }
+
+  startPolling2fa(): void {
+    this.pollingInterval = setInterval(() => {
+      this.authService.check2faStatus(this.pendingEmail).subscribe({
+        next: (res: any) => {
+          if (res.token) {
+            this.clearPolling();
+            
+            // Set session properly
+            if (typeof this.authService.setLoggedIn === 'function') {
+               this.authService.setLoggedIn(res);
+            } else {
+               localStorage.setItem('token', res.token);
+               localStorage.setItem('currentUser', JSON.stringify(res));
+            }
+
+            this.toastr.success('2FA Verified! Login successful!');
+            this.navigateDashboard(res.role);
+          } else if (res.status === 'FAILED') {
+            this.clearPolling();
+            this.is2faPending = false;
+            this.toastr.error('2FA request was rejected or expired.');
+            this.cdr.detectChanges();
+          }
+        },
+        error: () => {
+          this.clearPolling();
+          this.is2faPending = false;
+          this.toastr.error('Network error during 2FA.');
+          this.cdr.detectChanges();
+        }
+      });
+    }, 2000);
   }
 
   private navigateDashboard(role: string): void {

@@ -95,6 +95,12 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+    public List<Attendance> findByDateRange(LocalDate startDate, LocalDate endDate) {
+        String sql = "SELECT * FROM attendance WHERE date BETWEEN ? AND ?";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Attendance.class), startDate, endDate);
+    }
+
+    @Override
     public void deleteById(Long id) {
         String sql = "DELETE FROM attendance WHERE id = ?";
         jdbcTemplate.update(sql, id);

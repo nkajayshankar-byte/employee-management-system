@@ -21,6 +21,7 @@ public class EmployeeMapper {
         dto.setJobRole(user.getJobRole());
         dto.setCompanyInfo(user.getCompanyInfo());
         dto.setImageUrl(user.getImageUrl());
+        dto.setTwoFactorEnabled(user.isTwoFactorEnabled());
 
         if (user.getRole() != null) {
             dto.setRole(user.getRole().name());
@@ -42,6 +43,7 @@ public class EmployeeMapper {
         user.setJobRole(dto.getJobRole());
         user.setCompanyInfo(dto.getCompanyInfo());
         user.setImageUrl(dto.getImageUrl());
+        user.setTwoFactorEnabled(dto.isTwoFactorEnabled());
 
         if (dto.getRole() != null) {
             try {

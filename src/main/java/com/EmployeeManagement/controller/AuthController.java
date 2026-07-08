@@ -111,4 +111,53 @@ public class AuthController {
         
         return ResponseEntity.ok(Map.of("message", "OTP verified successfully"));
     }
+
+    @org.springframework.web.bind.annotation.GetMapping("/2fa-status")
+    public ResponseEntity<?> check2faStatus(@org.springframework.web.bind.annotation.RequestParam String email) {
+        String status = authService.check2faStatus(email);
+        if ("APPROVED".equals(status)) {
+            return ResponseEntity.ok(authService.complete2faLogin(email));
+        }
+        return ResponseEntity.ok(Map.of("status", status));
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/verify-2fa-email")
+    public ResponseEntity<String> verify2faEmail(@org.springframework.web.bind.annotation.RequestParam String email, @org.springframework.web.bind.annotation.RequestParam int code) {
+        boolean isValid = authService.verify2faFromEmail(email, code);
+        
+        String htmlResponse;
+        if (isValid) {
+            htmlResponse = "<html><body style='font-family:Arial;text-align:center;margin-top:50px;color:#4caf50;'>"
+                         + "<h2>✅ Login Approved!</h2>"
+                         + "<p>You can now return to your original tab to use the app.</p>"
+                         + "<script>setTimeout(()=>window.close(), 3000);</script>"
+                         + "</body></html>";
+        } else {
+            htmlResponse = "<html><body style='font-family:Arial;text-align:center;margin-top:50px;color:#f44336;'>"
+                         + "<h2>❌ Invalid or Expired Request</h2>"
+                         + "<p>The number you tapped was incorrect or the request expired.</p>"
+                         + "</body></html>";
+        }
+        
+        return ResponseEntity.status(isValid ? HttpStatus.OK : HttpStatus.UNAUTHORIZED)
+                .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                .body(htmlResponse);
+    }
+
+    @PostMapping("/toggle-2fa")
+    public ResponseEntity<?> toggle2fa(@RequestBody Map<String, Object> req) {
+        String email = (String) req.get("email");
+        Boolean enable = (Boolean) req.get("enable");
+        
+        if (email == null || enable == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email and enable status are required"));
+        }
+
+        try {
+            Map<String, Object> response = authService.toggle2fa(email, enable);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
+    }
 }

@@ -8,9 +8,19 @@
     <!-- Left Column: Employee List -->
     <div class="employee-list-section card">
       <h3>Select Employee</h3>
+      <div class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search by name or role..." 
+          [(ngModel)]="searchTerm"
+        />
+        <i class="fas fa-times search-clear" *ngIf="searchTerm" (click)="searchTerm = ''"></i>
+      </div>
       <div class="employee-list">
         <div 
-          *ngFor="let emp of employees" 
+          *ngFor="let emp of filteredEmployees" 
           class="employee-item"
           [class.active]="selectedEmployee?.id === emp.id"
           (click)="selectEmployee(emp)">

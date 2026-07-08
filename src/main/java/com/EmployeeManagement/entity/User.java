@@ -21,6 +21,8 @@ public class User {
     @JsonFormat(pattern = "dd-MM-yy HH:mm", timezone = "Asia/Kolkata")
     private LocalDateTime updatedAt;
 
+    private boolean twoFactorEnabled = false;
+
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -132,5 +134,13 @@ public class User {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public boolean isTwoFactorEnabled() {
+		return twoFactorEnabled;
+	}
+
+	public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+		this.twoFactorEnabled = twoFactorEnabled;
 	}
 }

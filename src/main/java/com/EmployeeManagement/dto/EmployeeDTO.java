@@ -18,4 +18,5 @@ public class EmployeeDTO {
     private String skills;
     private String jobRole;
     private String companyInfo;
+    private boolean twoFactorEnabled;
 }

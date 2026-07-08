@@ -1,78 +1,95 @@
 package com.EmployeeManagement.service;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Value("${sendgrid.api.key}")
-    private String sendGridApiKey;
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
-    @Value("${sendgrid.from.email}")
+    @Value("${brevo.from.email}")
     private String fromEmail;
+    
+    @Value("${brevo.from.name:Phoenix}")
+    private String fromName;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
-        String subject = "Welcome to Employee Management Portal!";
+        String subject = "Welcome to Phoenix!";
         String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
                 + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
                 + "<div style='background:#667eea;padding:24px;text-align:center;'>"
                 + "<h2 style='color:#fff;margin:0;'>Welcome Aboard! 🚀</h2></div>"
                 + "<div style='padding:32px;'>"
                 + "<p style='font-size:15px;color:#333;'>Hello <strong>" + name + "</strong>,</p>"
-                + "<p style='font-size:15px;color:#333;'>We are thrilled to have you join the Employee Management Portal.</p>"
+                + "<p style='font-size:15px;color:#333;'>We are thrilled to have you join the Phoenix.</p>"
                 + "<p style='font-size:14px;color:#555;'>Our platform helps you manage your attendance, leave applications, assets, and career opportunities all in one place.</p>"
                 + "<p style='font-size:14px;color:#555;'>Log in now to explore your dashboard and get started.</p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix</div></div>";
 
         sendEmail(toEmail, subject, html);
     }
 
     /**
-     * Helper method to send email via SendGrid API
+     * Helper method to send email via Brevo API
      */
     private void sendEmail(String toEmail, String subject, String htmlContent) {
-        Email from = new Email(fromEmail);
-        Email to = new Email(toEmail);
-        Content content = new Content("text/html", htmlContent);
-        Mail mail = new Mail(from, subject, to, content);
-
-        SendGrid sg = new SendGrid(sendGridApiKey);
-        Request request = new Request();
         try {
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            Response response = sg.api(request);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            Map<String, Object> body = new HashMap<>();
             
-            if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                System.out.println("[EmailService] Email sent successfully to " + toEmail);
+            Map<String, String> sender = new HashMap<>();
+            sender.put("email", fromEmail);
+            sender.put("name", fromName);
+            body.put("sender", sender);
+
+            Map<String, String> to = new HashMap<>();
+            to.put("email", toEmail);
+            body.put("to", List.of(to));
+
+            body.put("subject", subject);
+            body.put("htmlContent", htmlContent);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(BREVO_API_URL, HttpMethod.POST, request, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("[EmailService] Email sent successfully via Brevo to " + toEmail);
             } else {
-                System.err.println("[EmailService] Failed to send email. Status Code: " + response.getStatusCode());
+                System.err.println("[EmailService] Failed to send email via Brevo. Status Code: " + response.getStatusCode());
                 System.err.println("[EmailService] Response Body: " + response.getBody());
             }
-        } catch (IOException ex) {
-            System.err.println("[EmailService] Exception while sending email to " + toEmail + ": " + ex.getMessage());
+        } catch (Exception ex) {
+            System.err.println("[EmailService] Exception while sending email via Brevo to " + toEmail + ": " + ex.getMessage());
             ex.printStackTrace();
         }
     }
 
     @Async
     public void sendOtpEmail(String toEmail, String otp) {
-        String subject = "Password Reset OTP – Employee Management Portal";
+        String subject = "Password Reset OTP – Phoenix";
         String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
                 + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
                 + "<div style='background:#667eea;padding:24px;text-align:center;'>"
@@ -90,14 +107,14 @@ public class EmailService {
                 + "<p style='font-size:13px;color:#888;'>If you did not request this, you can safely ignore this email.</p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix</div></div>";
 
         sendEmail(toEmail, subject, html);
     }
 
     @Async
     public void sendPasswordResetSuccessEmail(String toEmail) {
-        String subject = "Password Changed Successfully – Employee Management Portal";
+        String subject = "Password Changed Successfully – Phoenix";
         String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
                 + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
                 + "<div style='background:#4caf50;padding:24px;text-align:center;'>"
@@ -105,13 +122,13 @@ public class EmailService {
                 + "<div style='padding:32px;'>"
                 + "<p style='font-size:15px;color:#333;'>Hello,</p>"
                 + "<p style='font-size:15px;color:#333;'>Your password has been changed successfully.</p>"
-                + "<p style='font-size:14px;color:#555;'>You can now log in to the Employee Management Portal"
+                + "<p style='font-size:14px;color:#555;'>You can now log in to the Phoenix"
                 + " using your new password.</p>"
                 + "<p style='font-size:13px;color:#e53935;'><strong>If you did not make this change,"
                 + " please contact your administrator immediately.</strong></p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix</div></div>";
 
         sendEmail(toEmail, subject, html);
     }
@@ -133,7 +150,7 @@ public class EmailService {
                 + " regarding your application status. We appreciate your interest!</p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal – Careers</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix – Careers</div></div>";
 
         sendEmail(toEmail, subject, html);
     }
@@ -196,7 +213,7 @@ public class EmailService {
                 + " in our organization.</p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal – Careers</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix – Careers</div></div>";
 
         sendEmail(toEmail, subject, html);
     }
@@ -216,7 +233,31 @@ public class EmailService {
                 + "<p style='font-size:15px;color:#333;'>Your leave application has been <strong>" + status + "</strong> by " + adminName + ".</p>"
                 + "</div>"
                 + "<div style='background:#f5f5f5;padding:14px;text-align:center;"
-                + "font-size:12px;color:#aaa;'>Employee Management Portal</div></div>";
+                + "font-size:12px;color:#aaa;'>Phoenix</div></div>";
+
+        sendEmail(toEmail, subject, html);
+    }
+    @Async
+    public void send2faEmail(String toEmail, int targetNumber, java.util.List<Integer> allNumbers) {
+        String subject = "Your 2FA Login Code – Phoenix";
+        
+        StringBuilder buttonsHtml = new StringBuilder();
+        for (Integer num : allNumbers) {
+            String url = "http://localhost:8080/api/auth/verify-2fa-email?email=" + toEmail + "&code=" + num;
+            buttonsHtml.append("<a href='").append(url).append("' style='display:inline-block; padding:15px 30px; margin:10px; font-size:24px; font-weight:bold; color:#ffffff; background-color:#667eea; text-decoration:none; border-radius:8px;'>")
+                       .append(String.format("%02d", num)).append("</a>");
+        }
+
+        String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
+                + "<div style='background:#667eea;padding:24px;text-align:center;'>"
+                + "<h2 style='color:#fff;margin:0;'>Sign-in Request</h2></div>"
+                + "<div style='padding:32px; text-align:center;'>"
+                + "<p style='font-size:16px;color:#333;'>We received a request to log in to your account.</p>"
+                + "<p style='font-size:16px;color:#333;margin-bottom:24px;'><strong>Tap the number below that matches what is shown on your screen:</strong></p>"
+                + "<div>" + buttonsHtml.toString() + "</div>"
+                + "<p style='font-size:13px;color:#888;margin-top:32px;'>This request expires in 2 minutes.</p>"
+                + "</div>"
+                + "<div style='background:#f5f5f5;padding:14px;text-align:center;font-size:12px;color:#aaa;'>Phoenix</div></div>";
 
         sendEmail(toEmail, subject, html);
     }

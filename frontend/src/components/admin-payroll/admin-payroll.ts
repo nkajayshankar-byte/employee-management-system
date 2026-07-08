@@ -16,7 +16,17 @@ import { environment } from '../../environments/environment';
 export class AdminPayrollComponent implements OnInit {
   apiUrl = environment.apiUrl;
   employees: Employee[] = [];
+  searchTerm: string = '';
   selectedEmployee: Employee | null = null;
+
+  get filteredEmployees(): Employee[] {
+    if (!this.searchTerm.trim()) return this.employees;
+    const term = this.searchTerm.toLowerCase().trim();
+    return this.employees.filter(emp =>
+      (emp.name?.toLowerCase().includes(term)) ||
+      (emp.jobRole?.toLowerCase().includes(term))
+    );
+  }
   salaryStructure: SalaryStructure = {
     employeeId: 0,
     baseSalary: 0,

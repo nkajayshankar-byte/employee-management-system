@@ -28,6 +28,21 @@ export class AttendanceDashboardComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
+  // Monthly view
+  viewMode: 'daily' | 'monthly' = 'daily';
+  selectedMonth: number = new Date().getMonth() + 1;
+  selectedYear: number = new Date().getFullYear();
+  monthlySummary: any[] = [];
+  loadingMonthly = false;
+  months = [
+    { value: 1, name: 'January' }, { value: 2, name: 'February' },
+    { value: 3, name: 'March' }, { value: 4, name: 'April' },
+    { value: 5, name: 'May' }, { value: 6, name: 'June' },
+    { value: 7, name: 'July' }, { value: 8, name: 'August' },
+    { value: 9, name: 'September' }, { value: 10, name: 'October' },
+    { value: 11, name: 'November' }, { value: 12, name: 'December' }
+  ];
+
   constructor(
     private attendanceService: AttendanceService,
     private shiftService: ShiftService,
@@ -271,31 +286,154 @@ export class AttendanceDashboardComponent implements OnInit {
     });
   }
 
-  exportToExcel(): void {
-    if (!this.attendanceRecords || this.attendanceRecords.length === 0) {
-      this.toastr.warning('No records to export');
-      return;
+  switchView(mode: 'daily' | 'monthly'): void {
+    this.viewMode = mode;
+    if (mode === 'monthly' && this.monthlySummary.length === 0) {
+      this.loadMonthlySummary();
     }
+  }
 
-    // Format data for export — backend already sends dd-MM-yy dates and HH:mm times
-    const exportData = this.attendanceRecords.map(record => ({
-      'Employee Name': record.employeeName,
-      'Employee ID': record.employeeId,
-      'Date': record.date || '--',
-      'Check In': record.checkInTime ? record.checkInTime.split(' ')[1] || record.checkInTime : '--',
-      'Check Out': record.checkOutTime ? record.checkOutTime.split(' ')[1] || record.checkOutTime : '--',
-      'Status': record.status,
-      'Working Hours': record.workingHours ? record.workingHours.toFixed(2) + 'h' : '--'
-    }));
+  loadMonthlySummary(): void {
+    this.loadingMonthly = true;
+    // Build start and end dates for the selected month in dd-MM-yy format
+    const year = this.selectedYear;
+    const month = this.selectedMonth;
+    const startDate = `01-${String(month).padStart(2, '0')}-${String(year).slice(-2)}`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${String(lastDay).padStart(2, '0')}-${String(month).padStart(2, '0')}-${String(year).slice(-2)}`;
 
-    // Create workbook and worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance');
+    this.attendanceService.getAttendanceByDateRange(startDate, endDate).subscribe({
+      next: (records) => {
+        // Aggregate per employee
+        const empMap = new Map<any, any>();
 
-    // Generate file and download
-    XLSX.writeFile(workbook, `Attendance_Report_${this.filterDate}.xlsx`);
-    this.toastr.success('Exported to Excel successfully');
+        // Total days in the month
+        const workingDays = lastDay;
+
+        records.forEach(record => {
+          const empId = record.employeeId;
+          if (!empMap.has(empId)) {
+            empMap.set(empId, {
+              employeeId: empId,
+              employeeName: this.employees.find(e => e.id === empId)?.name || 'Unknown',
+              presentDays: 0,
+              lateDays: 0,
+              totalHours: 0,
+              workingDays: workingDays
+            });
+          }
+          const summary = empMap.get(empId);
+          const status = (record.status || '').toLowerCase();
+          if (status === 'present') summary.presentDays++;
+          else if (status === 'late') { summary.lateDays++; summary.presentDays++; }
+          summary.totalHours += record.workingHours || 0;
+        });
+
+        // Also add employees with 0 attendance (all absent)
+        const roleEmployees = this.employees.filter(e => e.role === 'EMPLOYEE');
+        roleEmployees.forEach(emp => {
+          if (!empMap.has(emp.id)) {
+            empMap.set(emp.id, {
+              employeeId: emp.id,
+              employeeName: emp.name,
+              presentDays: 0,
+              lateDays: 0,
+              totalHours: 0,
+              workingDays: workingDays
+            });
+          }
+        });
+
+        // Calculate absent days and attendance percentage
+        this.monthlySummary = Array.from(empMap.values()).map(s => {
+          const rawAbsent = s.workingDays - s.presentDays;
+          const absentDays = rawAbsent < 0 ? 0 : rawAbsent;
+          let attendancePercent = s.workingDays > 0 ? Math.round((s.presentDays / s.workingDays) * 100) : 0;
+          if (attendancePercent > 100) attendancePercent = 100;
+          
+          return {
+            ...s,
+            absentDays,
+            attendancePercent
+          };
+        });
+
+        // Sort by name
+        this.monthlySummary.sort((a: any, b: any) => a.employeeName.localeCompare(b.employeeName));
+
+        this.loadingMonthly = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastr.error('Failed to load monthly attendance');
+        this.loadingMonthly = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onMonthYearChange(): void {
+    this.loadMonthlySummary();
+  }
+
+  getAttendanceClass(percent: number): string {
+    if (percent >= 90) return 'attendance-excellent';
+    if (percent >= 75) return 'attendance-good';
+    if (percent >= 50) return 'attendance-average';
+    return 'attendance-poor';
+  }
+
+  exportToExcel(): void {
+    if (this.viewMode === 'monthly') {
+      if (!this.monthlySummary || this.monthlySummary.length === 0) {
+        this.toastr.warning('No records to export');
+        return;
+      }
+
+      const exportData = this.monthlySummary.map(s => ({
+        'Employee ID': s.employeeId,
+        'Employee Name': s.employeeName,
+        'Present Days': s.presentDays,
+        'Late Days': s.lateDays,
+        'Absent Days': s.absentDays,
+        'Total Hours': s.totalHours ? s.totalHours.toFixed(2) + 'h' : '0.00h',
+        'Attendance %': s.attendancePercent + '%'
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Monthly Summary');
+
+      const monthName = this.months.find(m => m.value === this.selectedMonth)?.name || this.selectedMonth;
+      XLSX.writeFile(workbook, `Monthly_Attendance_${monthName}_${this.selectedYear}.xlsx`);
+      this.toastr.success('Exported Monthly Summary to Excel');
+
+    } else {
+      if (!this.attendanceRecords || this.attendanceRecords.length === 0) {
+        this.toastr.warning('No records to export');
+        return;
+      }
+
+      // Format data for export — backend already sends dd-MM-yy dates and HH:mm times
+      const exportData = this.attendanceRecords.map(record => ({
+        'Employee Name': record.employeeName,
+        'Employee ID': record.employeeId,
+        'Date': record.date || '--',
+        'Check In': record.checkInTime ? record.checkInTime.split(' ')[1] || record.checkInTime : '--',
+        'Check Out': record.checkOutTime ? record.checkOutTime.split(' ')[1] || record.checkOutTime : '--',
+        'Status': record.status,
+        'Working Hours': record.workingHours ? record.workingHours.toFixed(2) + 'h' : '--'
+      }));
+
+      // Create workbook and worksheet
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Daily Attendance');
+
+      // Generate file and download
+      XLSX.writeFile(workbook, `Attendance_Report_${this.filterDate}.xlsx`);
+      this.toastr.success('Exported Daily Attendance to Excel');
+    }
   }
 
   getStatusClass(status: string): string {

@@ -103,4 +103,20 @@ export class AuthService {
   resetPassword(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/reset-password`, data, { responseType: 'text' as 'json' });
   }
+
+  check2faStatus(email: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/2fa-status?email=${encodeURIComponent(email)}`);
+  }
+
+  toggle2faStatus(email: string, enable: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/toggle-2fa`, { email, enable });
+  }
+
+  setLoggedIn(response: AuthResponse) {
+    if (response && response.token) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('currentUser', JSON.stringify(response));
+      this.currentUserSubject.next(response);
+    }
+  }
 }

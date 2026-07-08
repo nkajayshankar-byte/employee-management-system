@@ -22,8 +22,9 @@ CREATE TABLE IF NOT EXISTS users (
     skills      TEXT,
     jobRole     VARCHAR(255),
     companyInfo TEXT,
-    createdAt   DATETIME,
-    updatedAt   DATETIME
+    createdAt        DATETIME,
+    updatedAt        DATETIME,
+    twoFactorEnabled BOOLEAN DEFAULT FALSE
 );
 
 -- ============================================================

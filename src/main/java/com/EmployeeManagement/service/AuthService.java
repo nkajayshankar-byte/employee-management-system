@@ -37,7 +37,22 @@ public class AuthService {
         }
     }
 
+    public static class TwoFactorSession {
+        public int targetNumber;
+        public String status;
+        public long expiryTime;
+        public int attemptsLeft;
+
+        public TwoFactorSession(int targetNumber, long expiryTime) {
+            this.targetNumber = targetNumber;
+            this.expiryTime = expiryTime;
+            this.status = "PENDING";
+            this.attemptsLeft = 3;
+        }
+    }
+
     private final Map<String, OtpDetails> otpStorage = new ConcurrentHashMap<>();
+    private final Map<String, TwoFactorSession> twoFactorStorage = new ConcurrentHashMap<>();
 
     public AuthResponse signup(AuthRequest signupRequest) {
         String email = signupRequest.getEmail() != null ? signupRequest.getEmail().toLowerCase().trim() : null;
@@ -110,39 +125,110 @@ public class AuthService {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                String token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getId());
                 
-                AuthResponse authResponse = new AuthResponse(
-                    token, 
-                    user.getId().toString(), 
-                    user.getEmail(), 
-                    user.getName(), 
-                    user.getRole().name(), 
-                    "Login successful"
-                );
-                authResponse.setImageUrl(user.getImageUrl());
-                authResponse.setSkills(user.getSkills());
-                authResponse.setAddress(user.getAddress());
-                authResponse.setJobTitle(user.getJobRole());
-                authResponse.setCompanyInfo(user.getCompanyInfo());
+                if (user.isTwoFactorEnabled()) {
+                    Random random = new Random();
+                    int targetNumber = 10 + random.nextInt(90);
+                    
+                    List<Integer> allNumbers = new ArrayList<>();
+                    allNumbers.add(targetNumber);
+                    while(allNumbers.size() < 4) {
+                        int randNum = 10 + random.nextInt(90);
+                        if(!allNumbers.contains(randNum)) {
+                            allNumbers.add(randNum);
+                        }
+                    }
+                    Collections.shuffle(allNumbers);
+                    
+                    long expiryTime = System.currentTimeMillis() + 2 * 60 * 1000;
+                    twoFactorStorage.put(user.getEmail(), new TwoFactorSession(targetNumber, expiryTime));
+                    
+                    try {
+                        emailService.send2faEmail(user.getEmail(), targetNumber, allNumbers);
+                    } catch (Exception e) {
+                        System.err.println("Failed to send 2FA email: " + e.getMessage());
+                    }
 
-                Map<String, Object> result = new HashMap<>();
-                result.put("token", token);
-                result.put("userId", user.getId().toString());
-                result.put("email", user.getEmail());
-                result.put("name", user.getName());
-                result.put("role", user.getRole().name());
-                result.put("message", "Login successful");
-                result.put("imageUrl", user.getImageUrl());
-                result.put("jobTitle", user.getJobRole());
-                result.put("skills", user.getSkills());
-                result.put("address", user.getAddress());
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("requires2fa", true);
+                    result.put("targetNumber", targetNumber);
+                    result.put("email", user.getEmail());
+                    return result;
+                }
 
-                return result;
+                return complete2faLogin(user.getEmail());
             }
         }
 
         throw new RuntimeException("Invalid email or password");
+    }
+
+    public Map<String, Object> complete2faLogin(String email) {
+        User user = userDAO.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getId());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        result.put("userId", user.getId().toString());
+        result.put("email", user.getEmail());
+        result.put("name", user.getName());
+        result.put("role", user.getRole().name());
+        result.put("message", "Login successful");
+        result.put("imageUrl", user.getImageUrl());
+        result.put("jobTitle", user.getJobRole());
+        result.put("skills", user.getSkills());
+        result.put("address", user.getAddress());
+
+        return result;
+    }
+
+    public String check2faStatus(String email) {
+        TwoFactorSession session = twoFactorStorage.get(email);
+        if (session == null) return "FAILED";
+        if (System.currentTimeMillis() > session.expiryTime) {
+            twoFactorStorage.remove(email);
+            return "FAILED";
+        }
+        if ("APPROVED".equals(session.status)) {
+            twoFactorStorage.remove(email);
+            return "APPROVED";
+        }
+        if ("REJECTED".equals(session.status)) {
+            twoFactorStorage.remove(email);
+            return "FAILED";
+        }
+        return "PENDING";
+    }
+
+    public boolean verify2faFromEmail(String email, int code) {
+        TwoFactorSession session = twoFactorStorage.get(email);
+        if (session == null || System.currentTimeMillis() > session.expiryTime || !"PENDING".equals(session.status)) {
+            return false;
+        }
+        
+        if (session.targetNumber == code) {
+            session.status = "APPROVED";
+            return true;
+        } else {
+            session.attemptsLeft--;
+            if (session.attemptsLeft <= 0) {
+                session.status = "REJECTED";
+            }
+            return false;
+        }
+    }
+
+    public Map<String, Object> toggle2fa(String email, boolean enable) {
+        User user = userDAO.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setTwoFactorEnabled(enable);
+        userDAO.save(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "2FA has been " + (enable ? "enabled" : "disabled"));
+        response.put("twoFactorEnabled", enable);
+        return response;
     }
 
     public AuthResponse resetPassword(String email, String newPassword) {

@@ -12,5 +12,6 @@ public interface AttendanceDAO {
     List<Attendance> findByEmployeeId(Long employeeId);
     Optional<Attendance> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
     List<Attendance> findByDate(LocalDate date);
+    List<Attendance> findByDateRange(LocalDate startDate, LocalDate endDate);
     void deleteById(Long id);
 }

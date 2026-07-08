@@ -7,7 +7,7 @@ import { Employee, EmployeeService } from '../../services/employee';
 import { CareerService, Job } from '../../services/carrerservice';
 import { environment } from '../../environments/environment';
 import { ChangeDetectorRef } from '@angular/core';
- import * as XLSX from 'xlsx'; // Import xlsx
+import * as XLSX from 'xlsx'; // Import xlsx
 @Component({
   selector: 'app-employee-list',
   standalone: true,

@@ -14,6 +14,7 @@ export interface Employee {
   skills?: string;
   jobRole?: string;
   companyInfo?: string;
+  twoFactorEnabled?: boolean;
 }
 
 @Injectable({

@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public class AttendanceController {
 
     @Autowired
     private AttendanceService attendanceService;
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd-MM-yy");
 
     @PostMapping("/check-in")
     public ResponseEntity<?> checkIn(@RequestParam Long employeeId) {
@@ -52,5 +55,14 @@ public class AttendanceController {
     public ResponseEntity<List<Attendance>> getAttendanceByDate(
             @PathVariable @DateTimeFormat(pattern = "dd-MM-yy") LocalDate date) {
         return ResponseEntity.ok(attendanceService.getAttendanceByDate(date));
+    }
+
+    @GetMapping("/range")
+    public ResponseEntity<List<Attendance>> getAttendanceByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        LocalDate start = LocalDate.parse(startDate, DATE_FMT);
+        LocalDate end = LocalDate.parse(endDate, DATE_FMT);
+        return ResponseEntity.ok(attendanceService.getAttendanceByDateRange(start, end));
     }
 }

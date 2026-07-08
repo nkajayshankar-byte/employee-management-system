@@ -93,6 +93,24 @@
               <p>{{ employee.companyInfo || 'Add your professional summary in edit mode.' }}</p>
             </div>
           </div>
+
+          <div class="security-settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Two-Factor Authentication (2FA)</h4>
+                <p>Enhance account security with Number Matching 2FA via Email.</p>
+              </div>
+              <div class="toggle-switch">
+                <input 
+                    type="checkbox" 
+                    id="2fa-toggle" 
+                    [(ngModel)]="is2faEnabled" 
+                    (ngModelChange)="onToggle2fa($event)"
+                >
+                <label for="2fa-toggle" class="slider round"></label>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Edit Mode -->

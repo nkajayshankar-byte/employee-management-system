@@ -215,3 +215,164 @@
   color: var(--text-tertiary);
   margin-top: 2px;
 }
+
+/* View Toggle Tabs */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.08));
+  border: 1px solid var(--border-color);
+  width: fit-content;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(0, 122, 255, 0.05);
+}
+
+.toggle-btn.active {
+  background: var(--primary, #007aff);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+}
+
+/* Monthly Filters */
+.monthly-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mac-select {
+  width: 150px;
+  padding: 8px 12px;
+  appearance: auto;
+}
+
+.year-input {
+  width: 90px;
+  padding: 8px 12px;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.loading-state i {
+  margin-right: 8px;
+  color: var(--primary, #007aff);
+}
+
+/* Day Count Badges */
+.day-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.present-count {
+  background: rgba(52, 199, 89, 0.12);
+  color: #248a3d;
+}
+
+.late-count {
+  background: rgba(255, 149, 0, 0.12);
+  color: #b26a00;
+}
+
+.absent-count {
+  background: rgba(255, 59, 48, 0.12);
+  color: #d32f2f;
+}
+
+/* Attendance Progress Bar */
+.attendance-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.attendance-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.attendance-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+.attendance-label {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Attendance color classes */
+.attendance-excellent {
+  background-color: #34c759;
+  color: #248a3d;
+}
+
+.attendance-good {
+  background-color: #007aff;
+  color: #0055cc;
+}
+
+.attendance-average {
+  background-color: #ff9500;
+  color: #b26a00;
+}
+
+.attendance-poor {
+  background-color: #ff3b30;
+  color: #d32f2f;
+}
+
+/* Monthly Table tweaks */
+.monthly-table td {
+  vertical-align: middle;
+}
+
+.monthly-card {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

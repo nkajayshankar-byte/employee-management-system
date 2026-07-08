@@ -87,4 +87,8 @@ public class AttendanceService {
     public List<Attendance> getAllAttendance() {
         return attendanceDAO.findAll();
     }
+
+    public List<Attendance> getAttendanceByDateRange(LocalDate startDate, LocalDate endDate) {
+        return attendanceDAO.findByDateRange(startDate, endDate);
+    }
 }

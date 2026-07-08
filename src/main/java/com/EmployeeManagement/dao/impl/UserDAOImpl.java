@@ -24,7 +24,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public User save(User user) {
         if (user.getId() == null) {
-            String sql = "INSERT INTO users (email, password, name, mobile, address, role, imageUrl, skills, jobRole, companyInfo, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (email, password, name, mobile, address, role, imageUrl, skills, jobRole, companyInfo, createdAt, updatedAt, twoFactorEnabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(connection -> {
@@ -41,12 +41,13 @@ public class UserDAOImpl implements UserDAO {
                 ps.setString(10, user.getCompanyInfo());
                 ps.setObject(11, user.getCreatedAt());
                 ps.setObject(12, user.getUpdatedAt());
+                ps.setBoolean(13, user.isTwoFactorEnabled());
                 return ps;
             }, keyHolder);
 
             user.setId(keyHolder.getKey().longValue());
         } else {
-            String sql = "UPDATE users SET email = ?, password = ?, name = ?, mobile = ?, address = ?, role = ?, imageUrl = ?, skills = ?, jobRole = ?, companyInfo = ?, updatedAt = ? WHERE id = ?";
+            String sql = "UPDATE users SET email = ?, password = ?, name = ?, mobile = ?, address = ?, role = ?, imageUrl = ?, skills = ?, jobRole = ?, companyInfo = ?, updatedAt = ?, twoFactorEnabled = ? WHERE id = ?";
             jdbcTemplate.update(sql, 
                 user.getEmail(), 
                 user.getPassword(), 
@@ -59,6 +60,7 @@ public class UserDAOImpl implements UserDAO {
                 user.getJobRole(), 
                 user.getCompanyInfo(), 
                 user.getUpdatedAt(), 
+                user.isTwoFactorEnabled(),
                 user.getId()
             );
         }

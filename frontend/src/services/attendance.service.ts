@@ -38,4 +38,10 @@ export class AttendanceService {
   getAttendanceByDate(date: string): Observable<Attendance[]> {
     return this.http.get<Attendance[]>(`${this.apiUrl}/date/${date}`);
   }
+
+  getAttendanceByDateRange(startDate: string, endDate: string): Observable<Attendance[]> {
+    return this.http.get<Attendance[]>(`${this.apiUrl}/range`, {
+      params: { startDate, endDate }
+    });
+  }
 }

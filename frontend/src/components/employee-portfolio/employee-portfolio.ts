@@ -21,6 +21,7 @@ export class EmployeePortfolioComponent implements OnInit, HasUnsavedChanges {
   editMode = false;
   apiUrl = environment.apiUrl;
   selectedFile: File | null = null;
+  is2faEnabled = false;
 
   constructor(
     private employeeService: EmployeeService,
@@ -55,6 +56,7 @@ export class EmployeePortfolioComponent implements OnInit, HasUnsavedChanges {
         this.ngZone.run(() => {
           this.employee = data;
           this.pristineEmployee = JSON.stringify(data);
+          this.is2faEnabled = data.twoFactorEnabled || false;
           this.loading = false;
           this.cdr.detectChanges();
         });
@@ -133,6 +135,23 @@ export class EmployeePortfolioComponent implements OnInit, HasUnsavedChanges {
             this.loading = false;
             this.cdr.detectChanges();
           });
+        }
+      });
+    }
+  }
+
+  onToggle2fa(enable: boolean): void {
+    const currentUser = this.authService.getCurrentUser();
+
+    if (currentUser && currentUser.email) {
+      this.authService.toggle2faStatus(currentUser.email, enable).subscribe({
+        next: (res) => {
+          this.is2faEnabled = res.twoFactorEnabled;
+          this.toastr.success(res.message);
+        },
+        error: (err) => {
+          this.is2faEnabled = !enable; // Revert
+          this.toastr.error('Failed to update 2FA status.');
         }
       });
     }

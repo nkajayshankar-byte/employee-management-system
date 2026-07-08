@@ -23,7 +23,7 @@
     </div>
 
     <!-- Login Form -->
-    <form *ngIf="!isSignup" [formGroup]="loginForm" autocomplete="off">
+    <form *ngIf="!isSignup && !is2faPending" [formGroup]="loginForm" autocomplete="off">
       <div class="form-group">
         <div class="input-wrapper">
           <i class="fa-solid fa-envelope input-icon"></i>
@@ -140,5 +140,25 @@
         {{ loading ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>
+
+    <!-- 2FA NUMBER MATCHING SCREEN -->
+    <div class="two-fa-screen" *ngIf="is2faPending">
+      <h2>Check your email</h2>
+      <p>We've sent a login request to your email address.</p>
+      <p>To sign in, open the email and tap the matching number below:</p>
+      
+      <div class="target-number-circle">
+        {{ target2faNumber }}
+      </div>
+      
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Waiting for approval...</p>
+      </div>
+      
+      <button type="button" class="btn-cancel" (click)="is2faPending = false; clearPolling()">
+        Cancel
+      </button>
+    </div>
   </div>
 </div>

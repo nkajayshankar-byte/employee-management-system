@@ -84,6 +84,7 @@ public class PayrollService {
         long presentDays = attendances.stream()
                 .filter(a -> a.getDate().getMonthValue() == month && 
                              a.getDate().getYear() == year)
+                .filter(a -> "Present".equalsIgnoreCase(a.getStatus()) || "Late".equalsIgnoreCase(a.getStatus()))
                 .count();
 
         if (presentDays > totalDays) {
