@@ -13,6 +13,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 @Service
 public class EmailService {
@@ -26,8 +29,19 @@ public class EmailService {
     @Value("${brevo.from.name:Phoenix}")
     private String fromName;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+    private final RestTemplate restTemplate;
     private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
+    public EmailService() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds
+        factory.setReadTimeout(10000); // 10 seconds
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
@@ -76,14 +90,13 @@ public class EmailService {
             ResponseEntity<String> response = restTemplate.exchange(BREVO_API_URL, HttpMethod.POST, request, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("[EmailService] Email sent successfully via Brevo to " + toEmail);
+                logger.info("[EmailService] Email sent successfully via Brevo to {}", toEmail);
             } else {
-                System.err.println("[EmailService] Failed to send email via Brevo. Status Code: " + response.getStatusCode());
-                System.err.println("[EmailService] Response Body: " + response.getBody());
+                logger.error("[EmailService] Failed to send email via Brevo. Status Code: {}", response.getStatusCode());
+                logger.error("[EmailService] Response Body: {}", response.getBody());
             }
         } catch (Exception ex) {
-            System.err.println("[EmailService] Exception while sending email via Brevo to " + toEmail + ": " + ex.getMessage());
-            ex.printStackTrace();
+            logger.error("[EmailService] Exception while sending email via Brevo to {}: {}", toEmail, ex.getMessage(), ex);
         }
     }
 
@@ -239,11 +252,12 @@ public class EmailService {
     }
     @Async
     public void send2faEmail(String toEmail, int targetNumber, java.util.List<Integer> allNumbers) {
+        logger.info("[EmailService] Starting to send 2FA email to {}", toEmail);
         String subject = "Your 2FA Login Code – Phoenix";
         
         StringBuilder buttonsHtml = new StringBuilder();
         for (Integer num : allNumbers) {
-            String url = "http://localhost:8080/api/auth/verify-2fa-email?email=" + toEmail + "&code=" + num;
+            String url = baseUrl + "/api/auth/verify-2fa-email?email=" + toEmail + "&code=" + num;
             buttonsHtml.append("<a href='").append(url).append("' style='display:inline-block; padding:15px 30px; margin:10px; font-size:24px; font-weight:bold; color:#ffffff; background-color:#667eea; text-decoration:none; border-radius:8px;'>")
                        .append(String.format("%02d", num)).append("</a>");
         }
