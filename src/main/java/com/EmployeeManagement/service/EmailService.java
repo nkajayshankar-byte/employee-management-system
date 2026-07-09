@@ -45,6 +45,7 @@ public class EmailService {
 
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
+        System.out.println("====== [EmailService] sendWelcomeEmail called for " + toEmail + " ======");
         String subject = "Welcome to Phoenix!";
         String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
                 + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
@@ -66,6 +67,8 @@ public class EmailService {
      * Helper method to send email via Brevo API
      */
     private void sendEmail(String toEmail, String subject, String htmlContent) {
+        System.out.println("====== [EmailService] sendEmail helper executing for " + toEmail + " ======");
+        System.out.println("====== [EmailService] API Key provided? " + (brevoApiKey != null && !brevoApiKey.isEmpty()) + " ======");
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -89,6 +92,7 @@ public class EmailService {
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
             ResponseEntity<String> response = restTemplate.exchange(BREVO_API_URL, HttpMethod.POST, request, String.class);
 
+            System.out.println("====== [EmailService] Brevo API Response Status: " + response.getStatusCode() + " ======");
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("[EmailService] Email sent successfully via Brevo to {}", toEmail);
             } else {
@@ -96,6 +100,8 @@ public class EmailService {
                 logger.error("[EmailService] Response Body: {}", response.getBody());
             }
         } catch (Exception ex) {
+            System.err.println("====== [EmailService] EXCEPTION: " + ex.getMessage() + " ======");
+            ex.printStackTrace();
             logger.error("[EmailService] Exception while sending email via Brevo to {}: {}", toEmail, ex.getMessage(), ex);
         }
     }
