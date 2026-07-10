@@ -99,10 +99,7 @@ export class LoginComponent implements OnInit {
   onSignup(): void {
     if (this.signupForm.invalid) {
       this.signupForm.markAllAsTouched();
-      this.toastr.error('Please fix the errors in the form');
-      return;
     }
-
     const { email, password, role, adminKey, address } = this.signupForm.value;
     const user = { email, password, role, adminKey, address };
 
@@ -121,7 +118,15 @@ export class LoginComponent implements OnInit {
         setTimeout(() => {
           this.loading = false;
           let msg = 'Signup failed';
-          if (err.status === 409 || err.error === 'Email already exists') msg = 'Email already exists';
+          if (err.status === 409 || err.error === 'Email already exists') msg = 'Email already exists Please login.';
+          else if (
+            err.status === 401 ||
+            err.status === 403 ||
+            err.error?.message === 'Invalid admin key' ||
+            err.error === 'Invalid admin key'
+          ) {
+            msg = 'Invalid Admin Key.';
+          }
           this.toastr.error(msg);
           this.cdr.detectChanges();
         }, 0);

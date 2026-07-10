@@ -22,38 +22,18 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody AuthRequest request) {
-
-        System.out.println("===== SIGNUP CONTROLLER HIT =====");
-
-        try {
-
-            AuthResponse response = authService.signup(request);
-
-            System.out.println("===== SIGNUP COMPLETED =====");
-
-            if (response.getToken() == null) {
-                if ("INVALID_ADMIN_KEY".equals(response.getMessage())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body(Map.of("message", "Invalid Admin Secret Key"));
-                }
-
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(Map.of("message", response.getMessage()));
+    	
+        AuthResponse response = authService.signup(request);
+        
+        if (response.getToken() == null) {
+            if ("INVALID_ADMIN_KEY".equals(response.getMessage())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid Admin Secret Key"));
             }
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-
-            System.out.println("===== SIGNUP EXCEPTION =====");
-            e.printStackTrace();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "error", e.getClass().getSimpleName(),
-                            "message", e.getMessage()
-                    ));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", response.getMessage()));
         }
+        return ResponseEntity.ok(response);
     }
     
     @PostMapping("/login")

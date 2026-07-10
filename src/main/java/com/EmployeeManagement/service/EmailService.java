@@ -29,7 +29,7 @@ public class EmailService {
     @Value("${brevo.from.name:Phoenix}")
     private String fromName;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
@@ -45,7 +45,6 @@ public class EmailService {
 
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
-        System.out.println("====== [EmailService] sendWelcomeEmail called for " + toEmail + " ======");
         String subject = "Welcome to Phoenix!";
         String html = "<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;"
                 + "border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;'>"
@@ -67,8 +66,6 @@ public class EmailService {
      * Helper method to send email via Brevo API
      */
     private void sendEmail(String toEmail, String subject, String htmlContent) {
-        System.out.println("====== [EmailService] sendEmail helper executing for " + toEmail + " ======");
-        System.out.println("====== [EmailService] API Key provided? " + (brevoApiKey != null && !brevoApiKey.isEmpty()) + " ======");
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -257,7 +254,7 @@ public class EmailService {
         sendEmail(toEmail, subject, html);
     }
     @Async
-    public void send2faEmail(String toEmail, int targetNumber, java.util.List<Integer> allNumbers) {
+    public void send2faEmail(String toEmail, int targetNumber, List<Integer> allNumbers) {
         logger.info("[EmailService] Starting to send 2FA email to {}", toEmail);
         String subject = "Your 2FA Login Code – Phoenix";
         
