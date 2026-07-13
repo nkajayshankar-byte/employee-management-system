@@ -1,0 +1,14 @@
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.git/
+.gitignore
+.settings/
+.classpath
+.project
+uploads/
+Dockerfile
+.dockerignore
+node_modules/
+dist/

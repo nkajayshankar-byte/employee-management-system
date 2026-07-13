@@ -1,0 +1,745 @@
+:host {
+  --apple-black: #1d1d1f;
+  --apple-grey: #86868b;
+  --apple-light: #f5f5f7;
+  --apple-blue: #0071e3;
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Myriad Set Pro", "SF Pro Icons", "Apple Legacy Chevron", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+.landing-container {
+  font-family: var(--font-family);
+  color: var(--apple-black);
+  background: white;
+  overflow-x: hidden;
+}
+
+/* Apple Navbar */
+.apple-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  z-index: 1000;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.nav-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 22px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 17px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.nav-logo:hover { opacity: 1; }
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--apple-black);
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.nav-links a:hover { opacity: 1; }
+
+.nav-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-menu-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--apple-black);
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 4px 8px;
+  transition: opacity 0.3s;
+}
+
+.nav-menu-btn:hover { opacity: 1; }
+
+.nav-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 8px 0;
+  min-width: 160px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-dropdown a {
+  display: block;
+  padding: 10px 20px;
+  font-size: 13px !important;
+  color: var(--apple-black) !important;
+  text-decoration: none;
+  transition: background 0.2s;
+  opacity: 0.9 !important;
+}
+
+.nav-dropdown a:hover {
+  background: var(--apple-light);
+  opacity: 1 !important;
+}
+
+/* Hero Section */
+.hero-section {
+  padding-top: 120px;
+  padding-bottom: 80px;
+  text-align: center;
+  background: white;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 80px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  margin-bottom: 20px;
+  line-height: 1.05;
+}
+
+.hero-content p {
+  font-size: 24px;
+  color: var(--apple-grey);
+  font-weight: 500;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.4;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Company Section */
+.company-section {
+  padding: 100px 0;
+  background: var(--apple-light);
+}
+
+.section-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.mission-text {
+  font-size: 21px;
+  color: var(--apple-grey);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.stat-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.stat-value {
+  display: block;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--apple-black);
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--apple-grey);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.values-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.value-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--apple-black);
+}
+
+.value-item i {
+  color: var(--apple-blue);
+  font-size: 20px;
+}
+
+/* Careers Section */
+.careers-section {
+  padding: 100px 0;
+  background: white;
+}
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.apple-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 30px;
+  border-radius: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.apple-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.job-dept {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--apple-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.job-title {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 8px 0 16px;
+}
+
+.job-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--apple-grey);
+  margin-bottom: 20px;
+}
+
+.job-desc {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--apple-black);
+  margin-bottom: 24px;
+}
+
+/* Buttons */
+.apple-btn-primary {
+  background: var(--apple-blue);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 28px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.apple-btn-primary:hover {
+  background: #0077ed;
+}
+
+.apple-btn-small {
+  background: var(--apple-blue);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.apple-btn-link {
+  color: var(--apple-blue);
+  background: none;
+  border: none;
+  font-size: 19px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.apple-btn-link:hover { text-decoration: underline; }
+
+.view-all-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.fade-in-delayed {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.3s forwards;
+}
+
+.fade-in-more {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Footer */
+.apple-footer {
+  background: var(--apple-light);
+  padding: 60px 0;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--apple-grey);
+}
+
+.footer-contact {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-contact span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-contact i {
+  color: var(--apple-blue);
+}
+
+.footer-social {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.social-link {
+  color: var(--apple-grey);
+  font-size: 18px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-link:hover {
+  color: var(--apple-blue);
+  transform: translateY(-2px);
+}
+
+/* Benefits & Perks */
+.perks-section {
+  padding: 100px 0;
+  background: var(--apple-light);
+}
+
+.perks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.perk-card {
+  background: white;
+  border-radius: 20px;
+  padding: 36px 28px;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.perk-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+}
+
+.perk-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0071e3, #40a9ff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 20px;
+}
+
+.perk-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--apple-black);
+}
+
+.perk-card p {
+  font-size: 14px;
+  color: var(--apple-grey);
+  line-height: 1.6;
+}
+
+/* Carousel */
+.carousel-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.carousel-card {
+  flex: 1;
+  min-width: 0;
+  animation: carouselFade 0.4s ease-out;
+}
+
+@keyframes carouselFade {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.carousel-arrow {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: white;
+  color: var(--apple-grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.carousel-arrow:hover {
+  background: var(--apple-blue);
+  color: white;
+  border-color: var(--apple-blue);
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0, 113, 227, 0.25);
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d2d2d7;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dot.active {
+  background: var(--apple-blue);
+  transform: scale(1.2);
+}
+
+.dot:hover {
+  background: #a0a0a5;
+}
+
+/* Voices from the Team */
+.testimonials-section {
+  padding: 100px 0;
+  background: white;
+}
+
+.testimonial-card {
+  background: var(--apple-light);
+  border-radius: 20px;
+  padding: 40px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.quote-icon {
+  color: var(--apple-blue);
+  font-size: 24px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.testimonial-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--apple-black);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--apple-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.author-avatar i {
+  font-size: 48px;
+  color: #c7c7cc;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.author-info strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--apple-black);
+}
+
+.author-info span {
+  font-size: 13px;
+  color: var(--apple-grey);
+}
+
+/* Life at Phoenix */
+.culture-section {
+  padding: 100px 0;
+  background: var(--apple-light);
+}
+
+.culture-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.culture-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.culture-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.culture-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--apple-black);
+  padding: 28px 28px 0;
+}
+
+.culture-card p {
+  font-size: 15px;
+  color: var(--apple-grey);
+  line-height: 1.6;
+  padding: 0 28px 28px;
+}
+
+.culture-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin: 28px 0 0 28px;
+}
+
+/* Candidate FAQ */
+.faq-section {
+  padding: 100px 0;
+  background: white;
+}
+
+.faq-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+.faq-item.open {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.faq-question {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--apple-black);
+  background: var(--apple-light);
+  transition: background 0.2s;
+}
+
+.faq-question:hover {
+  background: #ededf0;
+}
+
+.faq-question i {
+  color: var(--apple-blue);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-answer {
+  padding: 20px 24px;
+  background: white;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  animation: faqFade 0.3s ease-out;
+}
+
+.faq-answer p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--apple-grey);
+  margin: 0;
+}
+
+@keyframes faqFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-content h1 { font-size: 48px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .nav-links a:not(.nav-btn) { display: none; }
+}

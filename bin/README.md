@@ -1,18 +1,18 @@
 # Employee Management System
 
-A full-stack **Employee Management System** built using **Spring Boot** (Backend) and **Angular** (Frontend). The application provides secure employee management with role-based authentication, asset management, leave management, AI-powered resume screening and chat bot, file uploads, email notifications, and more.
+A full-stack **Employee Management System** built using **Spring Boot** (Backend) and **Angular** (Frontend). The application provides secure employee management with role-based authentication, asset management, leave management, AI-powered resume screening, file uploads, email notifications, and more.
 
 ---
 
 ## 🚀 Features
 
-- 🔐 JWT-based Authentication & Authorization with 2FA
+- 🔐 JWT-based Authentication & Authorization
 - 👥 Role-Based Access Control (Admin & Employee)
 - 👨‍💼 Employee Management (CRUD Operations)
 - 📅 Leave Management
 - 💻 Asset Management
 - 🏢 Company Information Management
-- 📄 AI-Powered Resume Screening and Chat Bot(Spring AI + Groq/OpenAI)
+- 📄 AI-Powered Resume Screening (Spring AI + Groq/OpenAI)
 - ☁️ Cloudinary Image Upload
 - 📧 Email Notifications (Brevo)
 - 📊 Excel & PDF Export
@@ -56,23 +56,22 @@ A full-stack **Employee Management System** built using **Spring Boot** (Backend
 
 ## 📂 Project Structure
 
-```text
+```
 EmployeeManagement/
 │
+├── Dockerfile
 ├── docker-compose.yml
-├── README.md
+├── pom.xml
 │
-├── backend/
-│   ├── src/                 # Spring Boot Backend
-│   ├── pom.xml
-│   └── Dockerfile
+├── src/
+│   └── Spring Boot Backend
 │
 ├── frontend/
-│   ├── src/                 # Angular Application
+│   ├── Dockerfile
 │   ├── nginx.conf
-│   └── Dockerfile
+│   └── Angular Application
 │
-└── screenshots/             # Demo screenshots
+└── README.md
 ```
 
 ---
@@ -151,11 +150,7 @@ docker compose down -v
 
 ## Backend Setup
 
-Navigate to the backend directory:
-
-```bash
-cd backend
-```
+Navigate to the project root.
 
 Configure the following in `src/main/resources/application.properties`:
 
@@ -221,36 +216,29 @@ The following environment variables can be configured:
 
 ## 📸 Screenshots
 
-### Login Page
-![Login Page](screenshots/login.png)
+Add screenshots here.
 
-### Admin Dashboard
-![Admin Dashboard](screenshots/admin-dashboard.png)
+Example:
 
-### Employee Dashboard
-![Employee Dashboard](screenshots/employee-dashboard.png)
-
-### Employee Management
-![Employee Management](screenshots/employee-management.png)
-
-### Leave Management
-![Leave Management](screenshots/leave-management.png)
-
-### Payroll Management
-![Payroll Management](screenshots/payroll-management.png)
-
-### AI Resume Screening
-![AI Resume Screening](screenshots/ai-resume-screening.png)
+- Login Page
+- Admin Dashboard
+- Employee Dashboard
+- Employee Management
+- Asset Management
+- Leave Management
+- Resume Screening
 
 ---
 
 
 ## 👨‍💻 Author
 
-**Ajay Shankar N K**
+**Ajay Shankar**
 
 GitHub: https://github.com/nkajayshankar-byte
 
 ---
 
+## 📄 License
 
+This project is licensed under the MIT License.

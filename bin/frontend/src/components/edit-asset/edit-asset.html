@@ -1,0 +1,121 @@
+<div class="details-container">
+  <div class="details-header">
+    <button class="btn-mac-secondary sm" (click)="onCancel()">
+      <i class="fa-solid fa-arrow-left"></i> Back to Asset
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <p>Loading asset documentation...</p>
+  </div>
+
+  <div *ngIf="!loading && currentAsset" class="details-content">
+    <div class="profile-card">
+      <div class="profile-sidebar">
+        <div class="profile-image-container">
+          <div class="asset-visual">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </div>
+        
+        <div class="sidebar-info">
+          <h3>Edit Asset</h3>
+          <p class="upload-hint">Update inventory records</p>
+          <span class="role-pill">{{ currentAsset.status }}</span>
+        </div>
+      </div>
+
+      <div class="profile-main">
+        <div class="main-header">
+          <h1>Update Asset Info</h1>
+          <p class="subtitle">Modify hardware specifications and assignment details</p>
+        </div>
+
+        <form [formGroup]="assetForm" (ngSubmit)="onSubmit()" class="mac-form">
+          <div class="details-section">
+            <h3 class="section-title">Assignment & Identity</h3>
+            <div class="form-group">
+              <label>Current Holder</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <input type="text" class="mac-input disabled" formControlName="employeeName" readonly>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Asset Name</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-laptop input-icon"></i>
+                  <input type="text" class="mac-input" formControlName="assetName">
+                </div>
+              </div>
+              <div class="form-group required">
+                <label>Serial Number</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-barcode input-icon"></i>
+                  <input type="text" class="mac-input highlighted" formControlName="serialNumber">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <h3 class="section-title">Lifecycle & Condition</h3>
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Category</label>
+                <select class="mac-input" formControlName="assetType">
+                  <option *ngFor="let type of assetTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+              <div class="form-group required">
+                <label>Status</label>
+                <select class="mac-input" formControlName="status">
+                  <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group required">
+                <label>Condition</label>
+                <select class="mac-input" formControlName="conditions">
+                  <option *ngFor="let cond of conditions" [value]="cond">{{ cond }}</option>
+                </select>
+              </div>
+              <div class="form-group required">
+                <label>Allocation Date</label>
+                <input type="date" class="mac-input" formControlName="assignedDate">
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="assetForm.get('status')?.value !== 'ALLOCATED'">
+              <div class="form-group">
+                <label>Returned Date</label>
+                <input type="date" class="mac-input" formControlName="returnDate">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Remarks / Notes</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-building textarea-icon"></i>
+              <textarea class="mac-input" formControlName="description" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-mac-secondary" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn-mac" [disabled]="submitting">
+              <i class="fa-solid fa-check" *ngIf="!submitting"></i>
+              {{ submitting ? 'Saving...' : 'Update Records' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

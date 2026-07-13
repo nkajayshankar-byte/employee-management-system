@@ -1,0 +1,61 @@
+<div class="chatbot-container" [class.open]="isOpen" #chatbotContainer>
+  <!-- Chat Button -->
+  <button class="chat-toggle" (click)="toggleChat($event)">
+    <i class="fas" [class.fa-comments]="!isOpen" [class.fa-times]="isOpen"></i>
+    <span *ngIf="!isOpen" class="badge">AI</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="chat-window" *ngIf="isOpen">
+    <div class="chat-header">
+      <div class="avatar">
+        <img src="assets/ai-avatar.png" alt="AI" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712035.png'">
+      </div>
+      <div class="header-info">
+        <h3>HR Assistant</h3>
+        <p><span class="online-dot"></span> Online</p>
+      </div>
+    </div>
+
+    <div class="chat-messages" #scrollMe>
+      <div *ngFor="let msg of messages; let i = index" class="message-wrapper" [class.user]="msg.sender === 'user'">
+        <div class="message-bubble" *ngIf="editingIndex !== i" [innerHTML]="msg.text | markdown">
+        </div>
+        <div class="edit-actions" *ngIf="msg.sender === 'user' && editingIndex !== i">
+          <button class="edit-btn" (click)="editMessage(i)" title="Edit message">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- Edit Mode -->
+        <div class="message-bubble editing" *ngIf="editingIndex === i">
+          <textarea [(ngModel)]="editInput" (keyup.enter)="saveEdit(i)" class="edit-textarea"></textarea>
+          <div class="edit-controls">
+            <button class="save-btn" (click)="saveEdit(i)">Save & Resend</button>
+            <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="isLoading" class="message-wrapper">
+        <div class="message-bubble loading">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input 
+        type="text" 
+        [(ngModel)]="userInput" 
+        (keyup.enter)="sendMessage()" 
+        placeholder="Type a message..."
+        [disabled]="isLoading"
+      >
+      <button (click)="sendMessage()" [disabled]="isLoading || !userInput.trim()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
