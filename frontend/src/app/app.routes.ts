@@ -23,6 +23,7 @@ import { ShiftAssignmentComponent } from "../components/shift-assignment/shift-a
 import { AttendanceDashboardComponent } from "../components/attendance-dashboard/attendance-dashboard";
 import { AdminPayrollComponent } from "../components/admin-payroll/admin-payroll";
 import { EmployeePayslipsComponent } from "../components/employee-payslips/employee-payslips";
+import { AdminAnnouncementComponent } from "../components/admin-announcement/admin-announcement";
 
 
 
@@ -177,6 +178,12 @@ export const routes: Routes = [
     component: EmployeePayslipsComponent, 
     canActivate: [AuthGuard],
     data: { role: 'EMPLOYEE' }
+  },
+  { 
+    path: 'admin/announcements', 
+    component: AdminAnnouncementComponent, 
+    canActivate: [AuthGuard],
+    data: { role: 'ADMIN' }
   },
   { path: '**', redirectTo: 'login' }
 ];

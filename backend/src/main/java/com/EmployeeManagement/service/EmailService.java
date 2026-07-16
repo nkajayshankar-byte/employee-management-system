@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,50 @@ public class EmailService {
             System.err.println("====== [EmailService] EXCEPTION: " + ex.getMessage() + " ======");
             ex.printStackTrace();
             logger.error("[EmailService] Exception while sending email via Brevo to {}: {}", toEmail, ex.getMessage(), ex);
+        }
+    }
+
+    @Async
+    public void sendAnnouncementEmails(List<String> bccEmails, String subject, String htmlContent) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            Map<String, Object> body = new HashMap<>();
+            
+            Map<String, String> sender = new HashMap<>();
+            sender.put("email", fromEmail);
+            sender.put("name", fromName);
+            body.put("sender", sender);
+
+            // Brevo requires at least one 'to' recipient. We can use the sender as 'to', and put everyone else in 'bcc'.
+            Map<String, String> to = new HashMap<>();
+            to.put("email", fromEmail);
+            body.put("to", List.of(to));
+
+            List<Map<String, String>> bccList = new ArrayList<>();
+            for (String email : bccEmails) {
+                Map<String, String> bccMap = new HashMap<>();
+                bccMap.put("email", email);
+                bccList.add(bccMap);
+            }
+            body.put("bcc", bccList);
+
+            body.put("subject", subject);
+            body.put("htmlContent", htmlContent);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(BREVO_API_URL, HttpMethod.POST, request, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("[EmailService] Bulk announcement sent successfully to {} recipients", bccEmails.size());
+            } else {
+                logger.error("[EmailService] Failed to send bulk email. Status: {}", response.getStatusCode());
+            }
+        } catch (Exception ex) {
+            logger.error("[EmailService] Exception while sending bulk email: {}", ex.getMessage(), ex);
         }
     }
 

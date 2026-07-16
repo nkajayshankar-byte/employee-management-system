@@ -211,4 +211,16 @@ CREATE TABLE IF NOT EXISTS payslips (
         FOREIGN KEY (employeeId) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- ============================================================
+-- ANNOUNCEMENTS (scheduled company announcements — no FKs)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS announcement (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    subject         VARCHAR(255) NOT NULL,
+    content         TEXT NOT NULL,
+    scheduled_time  DATETIME NOT NULL,
+    status          VARCHAR(50) DEFAULT 'PENDING',
+    target_audience VARCHAR(100) DEFAULT 'Organization'
+);
+
 SET FOREIGN_KEY_CHECKS = 1;

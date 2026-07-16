@@ -12,9 +12,9 @@ A full-stack **Employee Management System** built using **Spring Boot** (Backend
 - 📅 Leave Management
 - 💻 Asset Management
 - 🏢 Company Information Management
-- 📄 AI-Powered Resume Screening and Chat Bot(Spring AI + Groq/OpenAI)
+- 📄 AI-Powered Resume Screening and Chat Bot (Spring AI + Groq)
+- 📧 AI-Powered Scheduled Email Announcements (Spring AI + Brevo)
 - ☁️ Cloudinary Image Upload
-- 📧 Email Notifications (Brevo)
 - 📊 Excel & PDF Export
 - 🐳 Docker & Docker Compose Support
 - 📱 Responsive Angular UI
@@ -241,6 +241,9 @@ The following environment variables can be configured:
 
 ### AI Resume Screening
 ![AI Resume Screening](screenshots/ai-resume-screening.png)
+
+### Email Scheduling
+![Email Scheduling](screenshots/email-scheduling.png)
 
 ---
 
