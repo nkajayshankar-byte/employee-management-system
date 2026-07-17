@@ -99,6 +99,8 @@ The easiest way to run the complete application is with Docker.
 - Cloudinary
 - Groq/OpenAI API
 
+Create free accounts on each platform and generate the required API keys from their dashboards.
+
 These can be configured in:
 
 - `application.properties`
